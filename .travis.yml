@@ -2,5 +2,5 @@ language: node_js
 node_js:
   - "0.10"
 before_install:
-  - sudo apt-get install libtorrent-rasterbar-dev libtorrent-rasterbar
+  - sudo apt-get install  libtorrent-rasterbar
 script: npm test
