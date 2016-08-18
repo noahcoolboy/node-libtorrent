@@ -69,7 +69,7 @@ namespace nodelt {
     obj->Set(String::NewSymbol("inet_as_name"), String::New(pi.inet_as_name.c_str()));
     obj->Set(String::NewSymbol("inet_as"), Integer::New(pi.inet_as));
 #endif
-    obj->Set(String::NewSymbol("load_balancing"), Integer::New(pi.load_balancing));
+    // obj->Set(String::NewSymbol("load_balancing"), Integer::New(pi.load_balancing));
     obj->Set(String::NewSymbol("download_queue_length"), Integer::New(pi.download_queue_length));
     obj->Set(String::NewSymbol("timed_out_requests"), Integer::New(pi.timed_out_requests));
     obj->Set(String::NewSymbol("busy_requests"), Integer::New(pi.busy_requests));

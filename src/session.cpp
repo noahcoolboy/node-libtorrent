@@ -412,7 +412,7 @@ namespace nodelt {
 
   Handle<Value> SessionWrap::get_feeds(const Arguments& args) {
     HandleScope scope;
-    
+
     std::vector<libtorrent::feed_handle> feeds;
     SessionWrap::Unwrap(args.This())->get_feeds(feeds);
     Local<Array> ret = Array::New();
@@ -648,7 +648,7 @@ namespace nodelt {
 
   Handle<Value> SessionWrap::wait_for_alert(const Arguments& args) {
     HandleScope scope;
-    
+
     const libtorrent::alert* alert;
     alert = SessionWrap::Unwrap(args.This())->wait_for_alert(
       libtorrent::milliseconds(args[0]->IntegerValue()));
@@ -727,8 +727,8 @@ namespace nodelt {
 
     // set libtorrent::session::options_t
     Local<Object> options_t = Object::New();
-    options_t->Set(String::NewSymbol("none"),
-      Integer::New(libtorrent::session::none));
+    //    options_t->Set(String::NewSymbol("none"),
+    //      Integer::New(libtorrent::session::none));
     options_t->Set(String::NewSymbol("delete_files"),
       Integer::New(libtorrent::session::delete_files));
     target->Set(String::NewSymbol("options_t"), options_t);

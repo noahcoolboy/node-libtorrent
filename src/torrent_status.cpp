@@ -144,7 +144,7 @@ namespace nodelt {
     std::string info_hash = libtorrent::to_hex(st.info_hash.to_string());
     obj->Set(String::NewSymbol("info_hash"), String::New(info_hash.c_str()));
 
-    obj->Set(String::NewSymbol("listen_port"), Integer::New(st.listen_port));
+    //obj->Set(String::NewSymbol("listen_port"), Integer::New(st.listen_port));
 
     return scope.Close(obj);
   };

@@ -45,7 +45,7 @@ namespace nodelt {
       String::AsciiValue data(obj->Get(String::NewSymbol("resume_data"))->ToString());
       std::vector<char> rd(data.length());
       std::memcpy(&rd[0], *data, rd.size());
-      p.resume_data =& rd;
+      p.resume_data = rd;
     }
     if (obj->Has(String::NewSymbol("storage_mode")))
       p.storage_mode = (libtorrent::storage_mode_t) obj->Get(String::NewSymbol("storage_mode"))->Int32Value();
@@ -54,7 +54,7 @@ namespace nodelt {
       std::vector<boost::uint8_t> fp;
       for (uint32_t i = 0, e = data->Length(); i < e; ++i)
         fp.push_back(data->Get(i)->Int32Value());
-      p.file_priorities =& fp;
+      p.file_priorities = fp;
     }
     if (obj->Has(String::NewSymbol("trackerid")))
       p.trackerid = std::string(*String::Utf8Value(obj->Get(String::NewSymbol("trackerid"))));
