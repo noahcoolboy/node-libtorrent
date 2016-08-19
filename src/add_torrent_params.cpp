@@ -13,28 +13,30 @@ using namespace node;
 
 
 namespace nodelt {
-  libtorrent::add_torrent_params add_torrent_params_from_object(Local<Object> obj) {
-    Nan::HandleScope scope;
-    libtorrent::add_torrent_params p;
+    libtorrent::add_torrent_params add_torrent_params_from_object(Local<Object> obj) {
+        Nan::HandleScope scope;
+        libtorrent::add_torrent_params p;
 
-    if (Nan::Has(obj, Nan::New("ti").ToLocalChecked()) == Nan::Just(true)) {
-      Nan::MaybeLocal<Object> ti = Nan::Get(obj, Nan::New("ti").ToLocalChecked()); // to object
-      p.ti = new libtorrent::torrent_info(*TorrentInfoWrap::Unwrap(ti));
-    }
-    if (Nan::Has(obj, Nan::New("trackers").ToLocalChecked()) == Nan::Just(true)) {
-      Local<Array> trackers = Array::Cast(*obj->Get(Nan::New("trackers")));
-      for (uint32_t i = 0, e = trackers->Length(); i < e; ++i)
-        p.trackers.push_back(*String::Utf8Value(trackers->Get(i)));
-    }
-    if (Nan::Has(obj, Nan::New("dht_nodes").ToLocalChecked()) == Nan::Just(true)) {
-      Local<Array> dht_nodes = Array::Cast(*obj->Get(Nan::New("dht_nodes")));
-      for (uint32_t i = 0, e = dht_nodes->Length(); i < e; ++i) {
-        Local<Array> node = Array::Cast(*dht_nodes->Get(i));
-        p.dht_nodes.push_back(std::make_pair(
-          *String::Utf8Value(node->Get(0)),
-          node->Get(1)->Int32Value()));
-      }
-    }/*
+        if (Nan::Has(obj, Nan::New("ti").ToLocalChecked()) == Nan::Just(true)) {
+            Nan::MaybeLocal<Object> ti = Nan::Get(obj, Nan::New("ti").ToLocalChecked()); // to object
+            p.ti = new libtorrent::torrent_info(*TorrentInfoWrap::Unwrap(ti));
+        }
+        if (Nan::Has(obj, Nan::New("trackers").ToLocalChecked()) == Nan::Just(true)) {
+            Local<Array> trackers = Array::Cast(*obj->Get(Nan::New("trackers")));
+
+            for (uint32_t i = 0, e = trackers->Length(); i < e; ++i)
+                p.trackers.push_back(*String::Utf8Value(trackers->Get(i)));
+        }
+        if (Nan::Has(obj, Nan::New("dht_nodes").ToLocalChecked()) == Nan::Just(true)) {
+            Local<Array> dht_nodes = Local<Array>::Cast(Nan::Get(obj, Nan::New("dht_nodes")));
+
+            for (uint32_t i = 0, e = dht_nodes->Length(); i < e; ++i) {
+                Local<Array> node = Local<Array>::Cast(*dht_nodes->Get(i));
+                p.dht_nodes.push_back(std::make_pair(
+                    *String::Utf8Value(node->Get(0)),
+                    node->Get(1)->Int32Value()));
+            }
+        }/*
     if (obj->Has(Nan::New("info_hash"))) {
       String::AsciiValue info_hash(obj->Get(Nan::New("info_hash"))->ToString());
       libtorrent::from_hex(*info_hash, 40, (char*)&p.info_hash[0]);
@@ -68,10 +70,10 @@ namespace nodelt {
     if (obj->Has(Nan::New("flags")))
       p.flags = obj->Get(Nan::New("flags"))->IntegerValue();
 */
-    return p;
-  }
+        return p;
+    }
 
-  void bind_add_torrent_params(Handle<Object> target) {
+    void bind_add_torrent_params(Handle<Object> target) {
     // add_torrent_params::flags_t
     /*
     Local<Object> flags_t = Object::New();
@@ -98,5 +100,6 @@ namespace nodelt {
     flags_t->Set(Nan::New("default_flags"),
       Nan::New<Integer>(libtorrent::add_torrent_params::default_flags));
     target->Set(Nan::New("add_torrent_params_flags_t"), flags_t);
-  */};
+  */
+    };
 }; // namespace nodelt
