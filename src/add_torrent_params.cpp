@@ -23,14 +23,14 @@ namespace nodelt {
         }
 
         if (Nan::Has(obj, Nan::New("trackers").ToLocalChecked()) == Nan::Just(true)) {
-            Local<Array> trackers = Nan::Get(obj, Nan::New("trackers") .ToLocalChecked()).ToLocalChecked();
+            Local<Array> trackers = (Nan::Get(obj, Nan::New("trackers") .ToLocalChecked()).ToLocalChecked()).As<Array>();
 
             for (uint32_t i = 0, e = trackers->Length(); i < e; ++i)
                 p.trackers.push_back(*String::Utf8Value(trackers->Get(i)));
         }
 
         if (Nan::Has(obj, Nan::New("dht_nodes").ToLocalChecked()) == Nan::Just(true)) {
-            Local<Array> dht_nodes = Nan::Get(obj, Nan::New("dht_nodes").ToLocalChecked()).ToLocalChecked();
+            Local<Array> dht_nodes = (Nan::Get(obj, Nan::New("dht_nodes").ToLocalChecked()).ToLocalChecked()).As<Array>();
 
             for (uint32_t i = 0, e = dht_nodes->Length(); i < e; ++i) {
                 Local<Array> node = dht_nodes->Get(i).As<Array>();
@@ -62,7 +62,7 @@ namespace nodelt {
                     (Nan::Get(obj, Nan::New("storage_mode").ToLocalChecked()).ToLocalChecked())->Int32Value();
 
         if (Nan::Has(obj, Nan::New("file_priorities").ToLocalChecked()) == Nan::Just(true)) {
-            Local<Array> data = (Nan::Get(obj, Nan::New("file_priorities").ToLocalChecked())).ToLocalChecked();
+            Local<Array> data = (Nan::Get(obj, Nan::New("file_priorities").ToLocalChecked()).ToLocalChecked()).As<Array>();
             std::vector<boost::uint8_t> fp;
             for (uint32_t i = 0, e = data->Length(); i < e; ++i)
                 fp.push_back(data->Get(i)->Int32Value());

@@ -9,7 +9,7 @@
 
 
 namespace nodelt {
-    class TorrentInfoWrap: public node::ObjectWrap {
+    class TorrentInfoWrap: public Nan::ObjectWrap {
         public:
             static void Initialize(v8::Handle<v8::Object> target);
             static v8::Local<v8::Object> New(const libtorrent::torrent_info& ti);
