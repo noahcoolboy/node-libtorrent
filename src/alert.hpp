@@ -6,9 +6,10 @@
 
 #include <libtorrent/alert.hpp>
 
+using namespace v8;
 
 namespace nodelt {
-  v8::Local<v8::Object> alert_to_object(const libtorrent::alert& alert);
+    Local<Object> alert_to_object(const libtorrent::alert& alert);
 };
 
 #endif // NODE_LIBTORRENT_ALERT_HPP_INCLUDED

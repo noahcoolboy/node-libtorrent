@@ -2,6 +2,7 @@
 #include <sstream>
 
 #include <v8.h>
+#include <nan.h>
 #include <node.h>
 
 #include <libtorrent/bencode.hpp>
@@ -14,28 +15,26 @@ using namespace node;
 
 
 namespace nodelt {
-  Handle<Value> bdecode(const Arguments& args) {
-    HandleScope scope;
+    NAN_METHOD(bdecode) {
+        Nan::HandleScope scope;
 
-    std::string buf(*String::AsciiValue(args[0]));
-    libtorrent::entry e_ = libtorrent::bdecode(buf.c_str(), buf.c_str() + buf.size());
+        std::string buf(*Nan::Utf8String(info[0]));
+        libtorrent::entry e_ = libtorrent::bdecode(buf.c_str(), buf.c_str() + buf.size());
 
-    return scope.Close(entry_to_object(e_));
-  };
+        info.GetReturnValue().Set(entry_to_object(e_));
+    };
 
-  Handle<Value> bencode(const Arguments& args) {
-    HandleScope scope;
+    NAN_METHOD(bencode) {
+        Nan::HandleScope scope;
 
-    std::ostringstream oss;
-    libtorrent::bencode(std::ostream_iterator<char>(oss), entry_from_object(args[0]));
+        std::ostringstream oss;
+        libtorrent::bencode(std::ostream_iterator<char>(oss), entry_from_object(info[0]));
 
-    return scope.Close(String::New(oss.str().c_str()));
-  };
+        info.GetReturnValue().Set(Nan::New<String>(oss.str()).ToLocalChecked());
+    };
 
-  void bind_bencode(Handle<Object> target) {
-    target->Set(String::NewSymbol("bdecode"),
-      FunctionTemplate::New(bdecode)->GetFunction());
-    target->Set(String::NewSymbol("bencode"),
-      FunctionTemplate::New(bencode)->GetFunction());
-  };
+    void bind_bencode(Local<Object> target) {
+        Nan::SetMethod(target, "bdecode", bdecode);
+        Nan::SetMethod(target, "bencode", bencode);
+    };
 }; // namespace nodelt
