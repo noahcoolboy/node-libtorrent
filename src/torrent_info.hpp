@@ -13,7 +13,7 @@ namespace nodelt {
       static void Initialize(v8::Handle<v8::Object> target);
       static v8::Local<v8::Object> New(const libtorrent::torrent_info& ti);
       static libtorrent::torrent_info* Unwrap(const v8::Local<v8::Object>& obj) {
-        return node::ObjectWrap::Unwrap<TorrentInfoWrap>(obj)->obj_;
+        return Nan::ObjectWrap::Unwrap<TorrentInfoWrap>(obj)->obj_;
       };
 
     private:
@@ -22,44 +22,44 @@ namespace nodelt {
       TorrentInfoWrap(const std::string& filename);
       ~TorrentInfoWrap();
       static v8::Persistent<v8::Function> constructor;
-      static v8::Handle<v8::Value> NewInstance(const v8::Arguments& args);
+      static NAN_METHOD(NewInstance);
 
-      static v8::Handle<v8::Value> remap_files(const v8::Arguments& args);
-      static v8::Handle<v8::Value> add_tracker(const v8::Arguments& args);
-      static v8::Handle<v8::Value> add_url_seed(const v8::Arguments& args);
-      static v8::Handle<v8::Value> add_http_seed(const v8::Arguments& args);
-      static v8::Handle<v8::Value> web_seeds(const v8::Arguments& args);
+      static NAN_METHOD(remap_files);
+      static NAN_METHOD(add_tracker);
+      static NAN_METHOD(add_url_seed);
+      static NAN_METHOD(add_http_seed);
+      static NAN_METHOD(web_seeds);
 
-      static v8::Handle<v8::Value> name(const v8::Arguments& args);
-      static v8::Handle<v8::Value> comment(const v8::Arguments& args);
-      static v8::Handle<v8::Value> creator(const v8::Arguments& args);
-      static v8::Handle<v8::Value> total_size(const v8::Arguments& args);
-      static v8::Handle<v8::Value> piece_length(const v8::Arguments& args);
-      static v8::Handle<v8::Value> num_pieces(const v8::Arguments& args);
-      static v8::Handle<v8::Value> info_hash(const v8::Arguments& args);
+      static NAN_METHOD(name);
+      static NAN_METHOD(comment);
+      static NAN_METHOD(creator);
+      static NAN_METHOD(total_size);
+      static NAN_METHOD(piece_length);
+      static NAN_METHOD(num_pieces);
+      static NAN_METHOD(info_hash);
 
-      static v8::Handle<v8::Value> hash_for_piece(const v8::Arguments& args);
-      static v8::Handle<v8::Value> merkle_tree(const v8::Arguments& args);
-      static v8::Handle<v8::Value> set_merkle_tree(const v8::Arguments& args);
-      static v8::Handle<v8::Value> piece_size(const v8::Arguments& args);
+      static NAN_METHOD(hash_for_piece);
+      static NAN_METHOD(merkle_tree);
+      static NAN_METHOD(set_merkle_tree);
+      static NAN_METHOD(piece_size);
 
-      static v8::Handle<v8::Value> num_files(const v8::Arguments& args);
-      static v8::Handle<v8::Value> file_at(const v8::Arguments& args);
-      static v8::Handle<v8::Value> files(const v8::Arguments& args);
-      static v8::Handle<v8::Value> orig_files(const v8::Arguments& args);
-      static v8::Handle<v8::Value> rename_file(const v8::Arguments& args);
+      static NAN_METHOD(num_files);
+      static NAN_METHOD(file_at);
+      static NAN_METHOD(files);
+      static NAN_METHOD(orig_files);
+      static NAN_METHOD(rename_file);
 
-      static v8::Handle<v8::Value> priv(const v8::Arguments& args);
-      static v8::Handle<v8::Value> trackers(const v8::Arguments& args);
+      static NAN_METHOD(priv);
+      static NAN_METHOD(trackers);
 
-      static v8::Handle<v8::Value> creation_date(const v8::Arguments& args);
+      static NAN_METHOD(creation_date);
 
-      static v8::Handle<v8::Value> add_node(const v8::Arguments& args);
-      static v8::Handle<v8::Value> nodes(const v8::Arguments& args);
-      static v8::Handle<v8::Value> metadata(const v8::Arguments& args);
-      static v8::Handle<v8::Value> metadata_size(const v8::Arguments& args);
-      static v8::Handle<v8::Value> map_block(const v8::Arguments& args);
-      static v8::Handle<v8::Value> map_file(const v8::Arguments& args);
+      static NAN_METHOD(add_node);
+      static NAN_METHOD(nodes);
+      static NAN_METHOD(metadata);
+      static NAN_METHOD(metadata_size);
+      static NAN_METHOD(map_block);
+      static NAN_METHOD(map_file);
   };
 
   v8::Local<v8::Object> announce_entry_to_object(const libtorrent::announce_entry& ae);

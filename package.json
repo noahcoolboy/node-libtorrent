@@ -15,7 +15,9 @@
   "engines": {
     "node": ">= 0.8.0"
   },
-  "dependencies": {},
+  "dependencies": {
+    "nan": "^2.4.0"
+  },
   "scripts": {
     "install": "node-gyp rebuild",
     "test": "jasmine-node --coffee spec/"

@@ -1,7 +1,9 @@
 #include <node.h>
+#include <nan.h>
 #include <v8.h>
 
 #include <libtorrent/version.hpp>
+
 
 using namespace v8;
 
@@ -22,7 +24,8 @@ namespace nodelt {
   void bind_torrent_info(Handle<Object> target);
   void bind_torrent_status(Handle<Object> target);
 
-  void Initialize(Handle<Object> target) {
+  static NAN_MODULE_INIT(Initialize) {
+    //(Handle<Object> target) 
     bind_add_torrent_params(target);
     bind_alert(target);
     bind_bencode(target);
@@ -38,9 +41,9 @@ namespace nodelt {
     bind_torrent_info(target);
     bind_torrent_status(target);
 
-    target->Set(String::NewSymbol("version"),       String::New(LIBTORRENT_VERSION));
-    target->Set(String::NewSymbol("version_major"), Integer::New(LIBTORRENT_VERSION_MAJOR));
-    target->Set(String::NewSymbol("version_minor"), Integer::New(LIBTORRENT_VERSION_MINOR));
+    target->Set(Nan::New("version").ToLocalChecked(),       Nan::New(LIBTORRENT_VERSION).ToLocalChecked());
+    target->Set(Nan::New("version_major").ToLocalChecked(), Nan::New<Integer>(LIBTORRENT_VERSION_MAJOR));
+    target->Set(Nan::New("version_minor").ToLocalChecked(), Nan::New<Integer>(LIBTORRENT_VERSION_MINOR));
   };
 }; // namespace nodelt
 
