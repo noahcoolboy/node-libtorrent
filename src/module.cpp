@@ -7,20 +7,20 @@
 using namespace v8;
 
 namespace nodelt {
-    void bind_add_torrent_params(Handle<Object> target);
-    void bind_alert(Handle<Object> target);
-    void bind_bencode(Handle<Object> target);
-    void bind_create_torrent(Handle<Object> target);
-    void bind_file_storage(Handle<Object> target);
-    void bind_fingerprint(Handle<Object> target);
-    void bind_ip_filter(Handle<Object> target);
-    void bind_peer_info(Handle<Object> target);
-    void bind_session(Handle<Object> target);
-    void bind_session_settings(Handle<Object> target);
-    void bind_storage(Handle<Object> target);
-    void bind_torrent_handle(Handle<Object> target);
-    void bind_torrent_info(Handle<Object> target);
-    void bind_torrent_status(Handle<Object> target);
+    void bind_add_torrent_params(Local<Object> target);
+    void bind_alert(Local<Object> target);
+    void bind_bencode(Local<Object> target);
+    void bind_create_torrent(Local<Object> target);
+    void bind_file_storage(Local<Object> target);
+    void bind_fingerprint(Local<Object> target);
+    void bind_ip_filter(Local<Object> target);
+    void bind_peer_info(Local<Object> target);
+    void bind_session(Local<Object> target);
+    void bind_session_settings(Local<Object> target);
+    void bind_storage(Local<Object> target);
+    void bind_torrent_handle(Local<Object> target);
+    void bind_torrent_info(Local<Object> target);
+    void bind_torrent_status(Local<Object> target);
 
     static NAN_MODULE_INIT(Initialize) {
         bind_add_torrent_params(target);
