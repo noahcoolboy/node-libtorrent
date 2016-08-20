@@ -149,7 +149,7 @@ namespace nodelt {
     return scope.Close(obj);
   };
 
-  void bind_torrent_status(Handle<Object> target) {
+  void bind_torrent_status(Local<Object> target) {
     // set libtorrent::torrent_status::state_t
     Local<Object> state_t = Object::New();
     state_t->Set(String::NewSymbol("queued_for_checking"),

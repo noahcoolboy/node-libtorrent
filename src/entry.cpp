@@ -13,7 +13,7 @@ namespace nodelt {
         Nan::EscapableHandleScope scope;
 
         if (e_.type() == libtorrent::entry::int_t) {
-            return scope.Escape(Nan::New<Integer>(e_.integer()));
+            return scope.Escape(Nan::New<Number>(e_.integer()));
         } else if (e_.type() == libtorrent::entry::string_t) {
             return scope.Escape(Nan::New<String>(e_.string()).ToLocalChecked());
         } else if (e_.type() == libtorrent::entry::list_t) {
@@ -27,7 +27,7 @@ namespace nodelt {
             Local<Object> obj = Nan::New<Object>();
 
             for (libtorrent::entry::dictionary_type::const_iterator i(e_.dict().begin()), e(e_.dict().end()); i != e; ++i)
-                obj->Set(Nan::New<String>(i->first), entry_to_object(i->second));
+                obj->Set(Nan::New<String>(i->first).ToLocalChecked(), entry_to_object(i->second));
 
             return scope.Escape(obj);
         }
@@ -41,10 +41,10 @@ namespace nodelt {
         if (obj->IsNumber()) {
             e_ = (libtorrent::entry::integer_type) obj->IntegerValue();
         } else if (obj->IsString()) {
-            e_ = std::string(*Nan::Utf8String(obj).ToLocalChecked());
+            e_ = std::string(*Nan::Utf8String(obj));
         } else if (obj->IsArray()) {
             libtorrent::entry::list_type res;
-            Local<Array> src = Array::Cast(*obj);
+            Local<Array> src = obj.As<Array>();
 
             for (uint32_t i = 0, e = src->Length(); i < e; ++i)
                 res.push_back(entry_from_object(src->Get(i)));
@@ -57,7 +57,7 @@ namespace nodelt {
 
             for (uint32_t i = 0, e = keys->Length(); i < e; ++i)
                 res.insert(std::make_pair(
-                    std::string(Nan::New<String>(keys->Get(i))),
+                    std::string(*Nan::Utf8String(keys->Get(i))),
                     entry_from_object(src->Get(i))));
 
             e_ = res;

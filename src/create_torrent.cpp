@@ -1,6 +1,8 @@
-#include <string>
 #include <v8.h>
+#include <nan.h>
 #include <node.h>
+
+#include <string>
 
 #include <libtorrent/create_torrent.hpp>
 #include <libtorrent/file_storage.hpp>
@@ -14,223 +16,239 @@ using namespace node;
 
 
 namespace nodelt {
-  void CreateTorrentWrap::Initialize(Handle<Object> target) {
-    Local<FunctionTemplate> tpl = FunctionTemplate::New(NewInstance);
-    tpl->SetClassName(String::NewSymbol("create_torrent"));
-    tpl->InstanceTemplate()->SetInternalFieldCount(1);
 
-    tpl->PrototypeTemplate()->Set(String::NewSymbol("generate"),
-      FunctionTemplate::New(generate)->GetFunction());
-    tpl->PrototypeTemplate()->Set(String::NewSymbol("files"),
-      FunctionTemplate::New(files)->GetFunction());
-    tpl->PrototypeTemplate()->Set(String::NewSymbol("set_comment"),
-      FunctionTemplate::New(set_comment)->GetFunction());
-    tpl->PrototypeTemplate()->Set(String::NewSymbol("set_creator"),
-      FunctionTemplate::New(set_creator)->GetFunction());
-    tpl->PrototypeTemplate()->Set(String::NewSymbol("set_hash"),
-      FunctionTemplate::New(set_hash)->GetFunction());
-    tpl->PrototypeTemplate()->Set(String::NewSymbol("set_file_hash"),
-      FunctionTemplate::New(set_file_hash)->GetFunction());
-    tpl->PrototypeTemplate()->Set(String::NewSymbol("add_url_seed"),
-      FunctionTemplate::New(add_url_seed)->GetFunction());
-    tpl->PrototypeTemplate()->Set(String::NewSymbol("add_http_seed"),
-      FunctionTemplate::New(add_http_seed)->GetFunction());
-    tpl->PrototypeTemplate()->Set(String::NewSymbol("add_node"),
-      FunctionTemplate::New(add_node)->GetFunction());
-    tpl->PrototypeTemplate()->Set(String::NewSymbol("add_tracker"),
-      FunctionTemplate::New(add_tracker)->GetFunction());
-    tpl->PrototypeTemplate()->Set(String::NewSymbol("set_priv"),
-      FunctionTemplate::New(set_priv)->GetFunction());
-    tpl->PrototypeTemplate()->Set(String::NewSymbol("num_pieces"),
-      FunctionTemplate::New(num_pieces)->GetFunction());
-    tpl->PrototypeTemplate()->Set(String::NewSymbol("piece_length"),
-      FunctionTemplate::New(piece_length)->GetFunction());
-    tpl->PrototypeTemplate()->Set(String::NewSymbol("piece_size"),
-      FunctionTemplate::New(piece_size)->GetFunction());
-    tpl->PrototypeTemplate()->Set(String::NewSymbol("priv"),
-      FunctionTemplate::New(priv)->GetFunction());
-    tpl->PrototypeTemplate()->Set(String::NewSymbol("set_root_cert"),
-      FunctionTemplate::New(set_root_cert)->GetFunction());
+    Nan::Persistent<Function> CreateTorrentWrap::constructor;
 
-    target->Set(String::NewSymbol("create_torrent"),
-      Persistent<Function>::New(tpl->GetFunction()));
-  };
+    CreateTorrentWrap::CreateTorrentWrap(libtorrent::file_storage& fs_) {
+        obj_ = new libtorrent::create_torrent(fs_);
+    };
 
-  CreateTorrentWrap::CreateTorrentWrap(libtorrent::file_storage& fs_) {
-    obj_ = new libtorrent::create_torrent(fs_);
-  };
+    CreateTorrentWrap::~CreateTorrentWrap() {
+        delete obj_;
+    };
 
-  CreateTorrentWrap::~CreateTorrentWrap() {
-    delete obj_;
-  };
+    void CreateTorrentWrap::Initialize(Local<Object> target) {
+        Nan::HandleScope scope;
 
-  Handle<Value> CreateTorrentWrap::NewInstance(const Arguments& args) {
-    HandleScope scope;
+        Local<FunctionTemplate> tpl = Nan::New<FunctionTemplate>(NewInstance);
 
-    if (!args.IsConstructCall())
-      return ThrowException(Exception::TypeError(
-        String::New("Use the new operator to create instances of this object.")));
+        tpl->SetClassName(Nan::New("create_torrent").ToLocalChecked());
+        tpl->InstanceTemplate()->SetInternalFieldCount(1);
 
-    CreateTorrentWrap* ct = new CreateTorrentWrap(*FileStorageWrap::Unwrap(args[0]->ToObject()));
-    ct->Wrap(args.This());
+        Nan::SetPrototypeMethod(tpl, "generate", generate);
+        Nan::SetPrototypeMethod(tpl, "files", files);
+        Nan::SetPrototypeMethod(tpl, "set_comment", set_comment);
+        Nan::SetPrototypeMethod(tpl, "set_creator", set_creator);
+        Nan::SetPrototypeMethod(tpl, "set_hash", set_hash);
+        Nan::SetPrototypeMethod(tpl, "set_file_hash", set_file_hash);
+        Nan::SetPrototypeMethod(tpl, "add_url_seed", add_url_seed);
+        Nan::SetPrototypeMethod(tpl, "add_http_seed", add_http_seed);
+        Nan::SetPrototypeMethod(tpl, "add_node", add_node);
+        Nan::SetPrototypeMethod(tpl, "add_tracker", add_tracker);
+        Nan::SetPrototypeMethod(tpl, "set_priv", set_priv);
+        Nan::SetPrototypeMethod(tpl, "num_pieces", num_pieces);
+        Nan::SetPrototypeMethod(tpl, "piece_length", piece_length);
+        Nan::SetPrototypeMethod(tpl, "piece_size", piece_size);
+        Nan::SetPrototypeMethod(tpl, "priv", priv);
+        Nan::SetPrototypeMethod(tpl, "set_root_cert", set_root_cert);
 
-    return scope.Close(args.This());
-  };
+        constructor.Reset(tpl->GetFunction());
 
-  Handle<Value> CreateTorrentWrap::generate(const Arguments& args) {
-    HandleScope scope;
-    libtorrent::entry e = CreateTorrentWrap::Unwrap(args.This())->generate();
-    return scope.Close(entry_to_object(e));
-  };
+        target->Set(Nan::New("create_torrent").ToLocalChecked(), tpl->GetFunction());
+    };
 
-  Handle<Value> CreateTorrentWrap::files(const Arguments& args) {
-    HandleScope scope;
-    return scope.Close(FileStorageWrap::New(
-      CreateTorrentWrap::Unwrap(args.This())->files()));
-  };
+    void bind_create_torrent(Local<Object> target) {
+        CreateTorrentWrap::Initialize(target);
 
-  Handle<Value> CreateTorrentWrap::set_comment(const Arguments& args) {
-    HandleScope scope;
-    CreateTorrentWrap::Unwrap(args.This())->set_comment(
-      *String::AsciiValue(args[0]));
-    return scope.Close(Undefined());
-  };
+        Local<Object> create_torrent_flags_t = Nan::New<Object>();
 
-  Handle<Value> CreateTorrentWrap::set_creator(const Arguments& args) {
-    HandleScope scope;
-    CreateTorrentWrap::Unwrap(args.This())->set_creator(
-      *String::AsciiValue(args[0]));
-    return scope.Close(Undefined());
-  };
+        create_torrent_flags_t->Set(Nan::New("optimize").ToLocalChecked(),
+            Nan::New<Integer>(libtorrent::create_torrent::optimize));
+        create_torrent_flags_t->Set(Nan::New("merkle").ToLocalChecked(),
+            Nan::New<Integer>(libtorrent::create_torrent::merkle));
+        create_torrent_flags_t->Set(Nan::New("modification_time").ToLocalChecked(),
+            Nan::New<Integer>(libtorrent::create_torrent::modification_time));
+        create_torrent_flags_t->Set(Nan::New("symlinks").ToLocalChecked(),
+            Nan::New<Integer>(libtorrent::create_torrent::symlinks));
+        create_torrent_flags_t->Set(Nan::New("calculate_file_hashes").ToLocalChecked(),
+            Nan::New<Integer>(libtorrent::create_torrent::calculate_file_hashes));
 
-  Handle<Value> CreateTorrentWrap::set_hash(const Arguments& args) {
-    HandleScope scope;
-    libtorrent::sha1_hash h;
-    libtorrent::from_hex(*String::AsciiValue(args[1]), 40, (char*)&h[0]);
-    CreateTorrentWrap::Unwrap(args.This())->set_hash(args[0]->IntegerValue(), h);
-    return scope.Close(Undefined());
-  };
+        target->Set(Nan::New("create_torrent_flags_t").ToLocalChecked(), create_torrent_flags_t);
 
-  Handle<Value> CreateTorrentWrap::set_file_hash(const Arguments& args) {
-    HandleScope scope;
-    libtorrent::sha1_hash h;
-    libtorrent::from_hex(*String::AsciiValue(args[1]), 40, (char*)&h[0]);
-    CreateTorrentWrap::Unwrap(args.This())->set_file_hash(args[0]->IntegerValue(), h);
-    return scope.Close(Undefined());
-  };
+        //Nan::SetMethod(target, "add_files", add_files);
+        //Nan::SetMethod(target, "set_piece_hashes", set_piece_hashes);
+    };
 
-  Handle<Value> CreateTorrentWrap::add_url_seed(const Arguments& args) {
-    HandleScope scope;
-    CreateTorrentWrap::Unwrap(args.This())->add_url_seed(
-      std::string(*String::AsciiValue(args[0])));
-    return scope.Close(Undefined());
-  };
+    NAN_METHOD(CreateTorrentWrap::NewInstance) {
+        Nan::HandleScope scope;
 
-  Handle<Value> CreateTorrentWrap::add_http_seed(const Arguments& args) {
-    HandleScope scope;
-    CreateTorrentWrap::Unwrap(args.This())->add_http_seed(
-      std::string(*String::AsciiValue(args[0])));
-    return scope.Close(Undefined());
-  };
+        if (!info.IsConstructCall()) {
+            Nan::ThrowTypeError("Use the new operator to create instances of this object.");
+            return;
+        }
 
-  Handle<Value> CreateTorrentWrap::add_node(const Arguments& args) {
-    HandleScope scope;
-    CreateTorrentWrap::Unwrap(args.This())->add_node(std::make_pair(
-      std::string(*String::AsciiValue(args[0])),
-      args[1]->IntegerValue()));
-    return scope.Close(Undefined());
-  };
+        CreateTorrentWrap* ct = new CreateTorrentWrap(*FileStorageWrap::Unwrap(info[0]->ToObject()));
 
-  Handle<Value> CreateTorrentWrap::add_tracker(const Arguments& args) {
-    HandleScope scope;
-    libtorrent::create_torrent* ct = CreateTorrentWrap::Unwrap(args.This());
-    std::string url(*String::AsciiValue(args[0]));
-    if (args.Length() == 2)
-      ct->add_tracker(url, args[1]->IntegerValue());
-    else
-      ct->add_tracker(url);
-    return scope.Close(Undefined());
-  };
+        ct->Wrap(info.This());
 
-  Handle<Value> CreateTorrentWrap::set_priv(const Arguments& args) {
-    HandleScope scope;
-    CreateTorrentWrap::Unwrap(args.This())->set_priv(args[0]->BooleanValue());
-    return scope.Close(Undefined());
-  };
+        info.GetReturnValue().Set(info.This());
+    };
 
-  Handle<Value> CreateTorrentWrap::num_pieces(const Arguments& args) {
-    HandleScope scope;
-    return scope.Close(Integer::New(
-      CreateTorrentWrap::Unwrap(args.This())->num_pieces()));
-  };
+    NAN_METHOD(CreateTorrentWrap::generate) {
+        Nan::HandleScope scope;
 
-  Handle<Value> CreateTorrentWrap::piece_length(const Arguments& args) {
-    HandleScope scope;
-    return scope.Close(Integer::New(
-      CreateTorrentWrap::Unwrap(args.This())->piece_length()));
-  };
+        libtorrent::entry e = CreateTorrentWrap::Unwrap(info.This())->generate();
 
-  Handle<Value> CreateTorrentWrap::piece_size(const Arguments& args) {
-    HandleScope scope;
-    return scope.Close(Integer::New(
-      CreateTorrentWrap::Unwrap(args.This())->piece_size(args[0]->IntegerValue())));
-  };
+        info.GetReturnValue().Set(entry_to_object(e));
+    };
 
-  Handle<Value> CreateTorrentWrap::priv(const Arguments& args) {
-    HandleScope scope;
-    return scope.Close(Boolean::New(
-      CreateTorrentWrap::Unwrap(args.This())->priv()));
-  };
+    NAN_METHOD(CreateTorrentWrap::files) {
+        Nan::HandleScope scope;
 
-  Handle<Value> CreateTorrentWrap::set_root_cert(const Arguments& args) {
-    HandleScope scope;
-    CreateTorrentWrap::Unwrap(args.This())->set_root_cert(
-      std::string(*String::AsciiValue(args[0])));
-    return scope.Close(Undefined());
-  };
+        info.GetReturnValue().Set(FileStorageWrap::New(CreateTorrentWrap::Unwrap(info.This())->files()));
+    };
 
+    NAN_METHOD(CreateTorrentWrap::set_comment) {
+        Nan::HandleScope scope;
 
-  Handle<Value> add_files(const Arguments& args) {
-    HandleScope scope;
+        CreateTorrentWrap::Unwrap(info.This())->set_comment(*Nan::Utf8String(info[0]));
 
-    libtorrent::file_storage* fs = FileStorageWrap::Unwrap(args[0]->ToObject());
-    std::string path(*String::Utf8Value(args[1]->ToString()));
-    if (args.Length() == 2)
-      libtorrent::add_files(*fs, path);
-    else
-      libtorrent::add_files(*fs, path, args[2]->ToUint32()->Value());
-    return scope.Close(Undefined());
-  };
+        info.GetReturnValue().SetUndefined();
+    };
 
-  Handle<Value> set_piece_hashes(const Arguments& args) {
-    HandleScope scope;
+    NAN_METHOD(CreateTorrentWrap::set_creator) {
+        Nan::HandleScope scope;
 
-    libtorrent::create_torrent* ct = CreateTorrentWrap::Unwrap(args[0]->ToObject());
-    std::string path(*String::Utf8Value(args[1]->ToString()));
-    libtorrent::error_code ec;
-    libtorrent::set_piece_hashes(*ct, path, ec);
-    return scope.Close(Undefined());
-  };
+        CreateTorrentWrap::Unwrap(info.This())->set_creator(*Nan::Utf8String(info[0]));
 
-  void bind_create_torrent(v8::Handle<v8::Object> target) {
-    CreateTorrentWrap::Initialize(target);
+        info.GetReturnValue().SetUndefined();
+    };
 
-    Local<Object> create_torrent_flags_t = Object::New();
-    create_torrent_flags_t->Set(String::NewSymbol("optimize"),
-      Integer::New(libtorrent::create_torrent::optimize));
-    create_torrent_flags_t->Set(String::NewSymbol("merkle"),
-      Integer::New(libtorrent::create_torrent::merkle));
-    create_torrent_flags_t->Set(String::NewSymbol("modification_time"),
-      Integer::New(libtorrent::create_torrent::modification_time));
-    create_torrent_flags_t->Set(String::NewSymbol("symlinks"),
-      Integer::New(libtorrent::create_torrent::symlinks));
-    create_torrent_flags_t->Set(String::NewSymbol("calculate_file_hashes"),
-      Integer::New(libtorrent::create_torrent::calculate_file_hashes));
-    target->Set(String::NewSymbol("create_torrent_flags_t"), create_torrent_flags_t);
+    NAN_METHOD(CreateTorrentWrap::set_hash) {
+        Nan::HandleScope scope;
 
-    target->Set(String::NewSymbol("add_files"),
-      FunctionTemplate::New(add_files)->GetFunction());
-    target->Set(String::NewSymbol("set_piece_hashes"),
-      FunctionTemplate::New(set_piece_hashes)->GetFunction());
+        libtorrent::sha1_hash h;
+        libtorrent::from_hex(*Nan::Utf8String(info[1]), 40, (char*)&h[0]);
+
+        CreateTorrentWrap::Unwrap(info.This())->set_hash(info[0]->IntegerValue(), h);
+
+        info.GetReturnValue().SetUndefined();
+    };
+
+    NAN_METHOD(CreateTorrentWrap::set_file_hash) {
+        Nan::HandleScope scope;
+
+        libtorrent::sha1_hash h;
+        libtorrent::from_hex(*Nan::Utf8String(info[1]), 40, (char*)&h[0]);
+
+        CreateTorrentWrap::Unwrap(info.This())->set_file_hash(info[0]->IntegerValue(), h);
+
+        info.GetReturnValue().SetUndefined();
+    };
+
+    NAN_METHOD(CreateTorrentWrap::add_url_seed) {
+        Nan::HandleScope scope;
+
+        CreateTorrentWrap::Unwrap(info.This())->add_url_seed(std::string(*Nan::Utf8String(info[0])));
+
+        info.GetReturnValue().SetUndefined();
+    };
+
+    NAN_METHOD(CreateTorrentWrap::add_http_seed) {
+        Nan::HandleScope scope;
+
+        CreateTorrentWrap::Unwrap(info.This())->add_http_seed(std::string(*Nan::Utf8String(info[0])));
+
+        info.GetReturnValue().SetUndefined();
+    };
+
+    NAN_METHOD(CreateTorrentWrap::add_node) {
+        Nan::HandleScope scope;
+
+        CreateTorrentWrap::Unwrap(info.This())->add_node(std::make_pair(
+            std::string(*Nan::Utf8String(info[0])),
+            info[1]->IntegerValue()));
+
+        info.GetReturnValue().SetUndefined();
+    };
+
+    NAN_METHOD(CreateTorrentWrap::add_tracker) {
+        Nan::HandleScope scope;
+
+        libtorrent::create_torrent* ct = CreateTorrentWrap::Unwrap(info.This());
+
+        std::string url(*Nan::Utf8String(info[0]));
+
+        if (info.Length() == 2)
+            ct->add_tracker(url, info[1]->IntegerValue());
+        else
+            ct->add_tracker(url);
+
+        info.GetReturnValue().SetUndefined();
+    };
+
+    NAN_METHOD(CreateTorrentWrap::set_priv) {
+        Nan::HandleScope scope;
+
+        CreateTorrentWrap::Unwrap(info.This())->set_priv(info[0]->BooleanValue());
+
+        info.GetReturnValue().SetUndefined();
+    };
+
+    NAN_METHOD(CreateTorrentWrap::num_pieces) {
+        Nan::HandleScope scope;
+
+        info.GetReturnValue().Set(Nan::New<Integer>(CreateTorrentWrap::Unwrap(info.This())->num_pieces()));
+    };
+
+    NAN_METHOD(CreateTorrentWrap::piece_length) {
+        Nan::HandleScope scope;
+
+        info.GetReturnValue().Set(Nan::New<Integer>(CreateTorrentWrap::Unwrap(info.This())->piece_length()));
+    };
+
+    NAN_METHOD(CreateTorrentWrap::piece_size) {
+        Nan::HandleScope scope;
+
+        info.GetReturnValue().Set(Nan::New<Integer>(CreateTorrentWrap::Unwrap(info.This())->piece_size(info[0]->IntegerValue())));
+    };
+
+    NAN_METHOD(CreateTorrentWrap::priv) {
+        Nan::HandleScope scope;
+
+        info.GetReturnValue().Set(Nan::New<Boolean>(CreateTorrentWrap::Unwrap(info.This())->priv()));
+    };
+
+    NAN_METHOD(CreateTorrentWrap::set_root_cert) {
+        Nan::HandleScope scope;
+
+        CreateTorrentWrap::Unwrap(info.This())->set_root_cert(std::string(*Nan::Utf8String(info[0])));
+
+        info.GetReturnValue().SetUndefined();
+    };
+
+    NAN_METHOD(add_files) {
+        Nan::HandleScope scope;
+
+        libtorrent::file_storage* fs = FileStorageWrap::Unwrap(info[0]->ToObject());
+        std::string path(*Nan::Utf8String(info[1]->ToString()));
+
+        if (info.Length() == 2)
+            libtorrent::add_files(*fs, path);
+        else
+            libtorrent::add_files(*fs, path, Nan::To<uint32_t>(info[2]).FromJust());
+
+        info.GetReturnValue().SetUndefined();
+    };
+
+    NAN_METHOD(set_piece_hashes) {
+        Nan::HandleScope scope;
+
+        libtorrent::create_torrent* ct = CreateTorrentWrap::Unwrap(info[0]->ToObject());
+        std::string path(*Nan::Utf8String(info[1]->ToString()));
+        libtorrent::error_code ec;
+        libtorrent::set_piece_hashes(*ct, path, ec);
+
+        info.GetReturnValue().SetUndefined();
     };
 }; // namespace nodelt
