@@ -1,4 +1,5 @@
 #include <v8.h>
+#include <nan.h>
 #include <node.h>
 
 #include <libtorrent/ip_filter.hpp>
@@ -10,108 +11,116 @@ using namespace node;
 
 
 namespace nodelt {
-  Persistent<Function> IpFilterWrap::constructor;
+    Nan::Persistent<Function> IpFilterWrap::constructor;
 
-  void IpFilterWrap::Initialize(Handle<Object> target) {
-    Local<FunctionTemplate> tpl = FunctionTemplate::New(NewInstance);
-    tpl->SetClassName(String::NewSymbol("ip_filter"));
-    tpl->InstanceTemplate()->SetInternalFieldCount(1);
+    void bind_ip_filter(Local<Object> target) {
+        IpFilterWrap::Initialize(target);
+    };
 
-    tpl->PrototypeTemplate()->Set(String::NewSymbol("add_rule"),
-      FunctionTemplate::New(add_rule)->GetFunction());
-    tpl->PrototypeTemplate()->Set(String::NewSymbol("access"),
-      FunctionTemplate::New(access)->GetFunction());
-    tpl->PrototypeTemplate()->Set(String::NewSymbol("export_filter"),
-      FunctionTemplate::New(export_filter)->GetFunction());
+    void IpFilterWrap::Initialize(Local<Object> target) {
+        Local<FunctionTemplate> tpl = Nan::New<FunctionTemplate>(NewInstance);
 
-    constructor = Persistent<Function>::New(tpl->GetFunction());
-  };
+        tpl->SetClassName(Nan::New("ip_filter").ToLocalChecked());
+        tpl->InstanceTemplate()->SetInternalFieldCount(1);
 
-  IpFilterWrap::IpFilterWrap() {
-    obj_ = NULL;
-  };
+        Nan::SetPrototypeMethod(tpl, "add_rule", add_rule);
+        Nan::SetPrototypeMethod(tpl, "access", access);
+        Nan::SetPrototypeMethod(tpl, "export_filter", export_filter);
 
-  IpFilterWrap::~IpFilterWrap() {
-    if (obj_ != NULL)
-      delete obj_;
-  };
+        constructor.Reset(tpl->GetFunction());
+    };
 
-  Handle<Value> IpFilterWrap::NewInstance(const Arguments& args) {
-    HandleScope scope;
+    IpFilterWrap::IpFilterWrap() {
+        obj_ = NULL;
+    };
 
-    if (!args.IsConstructCall())
-      return ThrowException(Exception::TypeError(
-        String::New("Use the new operator to create instances of this object.")));
+    IpFilterWrap::~IpFilterWrap() {
+        if (obj_ != NULL)
+            delete obj_;
+    };
 
-    IpFilterWrap* fs = new IpFilterWrap();
-    fs->Wrap(args.This());
+    Local<Object> IpFilterWrap::New(const libtorrent::ip_filter& f) {
+        Nan::EscapableHandleScope scope;
 
-    return scope.Close(args.This());
-  };
+        Local<Function> c = Nan::New<Function>(constructor);
+        Nan::MaybeLocal<Object> obj = c->NewInstance(Nan::GetCurrentContext());
 
-  Local<Object> IpFilterWrap::New(const libtorrent::ip_filter& f) {
-    HandleScope scope;
+        Nan::ObjectWrap::Unwrap<IpFilterWrap>(obj.ToLocalChecked())->obj_ = new libtorrent::ip_filter(f);
 
-    Local<Object> obj = constructor->NewInstance();
-    ObjectWrap::Unwrap<IpFilterWrap>(obj)->obj_ = new libtorrent::ip_filter(f);
+        return scope.Escape(obj.ToLocalChecked());
+    };
 
-    return scope.Close(obj);
-  };
+    template <class Addr> Local<Object> ip_range_to_object(const libtorrent::ip_range<Addr>& s) {
+        Nan::EscapableHandleScope scope;
 
-  Handle<Value> IpFilterWrap::add_rule(const Arguments& args) {
-    HandleScope scope;
+        Local<Object> obj = Nan::New<Object>();
 
-    libtorrent::address first, last;
-    first = libtorrent::address::from_string(std::string(*String::AsciiValue(args[0])));
-    last = libtorrent::address::from_string(std::string(*String::AsciiValue(args[1])));
-    IpFilterWrap::Unwrap(args.This())->add_rule(first, last, args[2]->IntegerValue());
-    return scope.Close(Undefined());
-  };
+        obj->Set(Nan::New("first").ToLocalChecked(), Nan::New<String>(s.first.to_string()).ToLocalChecked());
+        obj->Set(Nan::New("last").ToLocalChecked(), Nan::New<String>(s.first.to_string()).ToLocalChecked());
+        obj->Set(Nan::New("flags").ToLocalChecked(), Nan::New<Integer>(s.flags));
 
-  Handle<Value> IpFilterWrap::access(const Arguments& args) {
-    HandleScope scope;
+        return scope.Escape(obj);
+    };
 
-    int ret = IpFilterWrap::Unwrap(args.This())->access(
-      libtorrent::address::from_string(std::string(*String::AsciiValue(args[0]))));
-    return scope.Close(Integer::New(ret));
-  };
+    NAN_METHOD(IpFilterWrap::NewInstance) {
+        Nan::HandleScope scope;
 
-  template <class Addr>
-  Local<Object> ip_range_to_object(const libtorrent::ip_range<Addr>& s) {
-    HandleScope scope;
-    Local<Object> obj = Object::New();
+        if (!info.IsConstructCall()) {
+            Nan::ThrowTypeError("Use the new operator to create instances of this object.");
+            return;
+        }
 
-    obj->Set(String::NewSymbol("first"), String::New(s.first.to_string().c_str()));
-    obj->Set(String::NewSymbol("last"), String::New(s.first.to_string().c_str()));
-    obj->Set(String::NewSymbol("flags"), Integer::New(s.flags));
-    return scope.Close(obj);
-  };
+        IpFilterWrap* fs = new IpFilterWrap();
+        fs->Wrap(info.This());
 
-  Handle<Value> IpFilterWrap::export_filter(const Arguments& args) {
-    HandleScope scope;
+        info.GetReturnValue().Set(info.This());
+    };
 
-    libtorrent::ip_filter::filter_tuple_t res = IpFilterWrap::Unwrap(args.This())->export_filter();
-    Local<Array> ret = Array::New();
+    NAN_METHOD(IpFilterWrap::add_rule) {
+        Nan::HandleScope scope;
+
+        libtorrent::address first, last;
+        first = libtorrent::address::from_string(std::string(*Nan::Utf8String(info[0])));
+        last = libtorrent::address::from_string(std::string(*Nan::Utf8String(info[1])));
+        IpFilterWrap::Unwrap(info.This())->add_rule(first, last, info[2]->IntegerValue());
+
+        info.GetReturnValue().SetUndefined();
+    };
+
+    NAN_METHOD(IpFilterWrap::access) {
+        Nan::HandleScope scope;
+
+        int ret = IpFilterWrap::Unwrap(info.This())->access(
+            libtorrent::address::from_string(std::string(*Nan::Utf8String(info[0]))));
+
+        info.GetReturnValue().Set(Nan::New<Integer>(ret));
+    };
+
+
+    NAN_METHOD(IpFilterWrap::export_filter) {
+        Nan::HandleScope scope;
+
+        libtorrent::ip_filter::filter_tuple_t res = IpFilterWrap::Unwrap(info.This())->export_filter();
+        Local<Array> ret = Nan::New<Array>();
+
 #if TORRENT_USE_IPV6
-    Local<Array> v4 = Array::New(), v6 = Array::New();
-    for (std::vector<libtorrent::ip_range<libtorrent::address_v4> >::iterator
-     i(res.get<0>().begin()), e(res.get<0>().end()); i != e; ++i)
-      v4->Set(v4->Length(), ip_range_to_object<libtorrent::address_v4>(*i));
-    for (std::vector<libtorrent::ip_range<libtorrent::address_v6> >::iterator
-     i(res.get<1>().begin()), e(res.get<1>().end()); i != e; ++i)
-      v6->Set(v6->Length(), ip_range_to_object<libtorrent::address_v6>(*i));
-    ret->Set(0, v4);
-    ret->Set(1, v6);
+        Local<Array> v4 = Nan::New<Array>(), v6 = Nan::New<Array>();
+
+        for (std::vector<libtorrent::ip_range<libtorrent::address_v4> >::iterator
+            i(res.get<0>().begin()), e(res.get<0>().end()); i != e; ++i)
+            v4->Set(v4->Length(), ip_range_to_object<libtorrent::address_v4>(*i));
+
+        for (std::vector<libtorrent::ip_range<libtorrent::address_v6> >::iterator
+            i(res.get<1>().begin()), e(res.get<1>().end()); i != e; ++i)
+            v6->Set(v6->Length(), ip_range_to_object<libtorrent::address_v6>(*i));
+
+        ret->Set(0, v4);
+        ret->Set(1, v6);
 #else
-    for (std::vector<libtorrent::ip_range<libtorrent::address_v4> >::iterator
-     i(res.begin()), e(res.end()); i != e; ++i)
-      ret->Set(ret->Length(), ip_range_to_object<libtorrent::address_v4>(*i));
+        for (std::vector<libtorrent::ip_range<libtorrent::address_v4> >::iterator
+            i(res.begin()), e(res.end()); i != e; ++i)
+            ret->Set(ret->Length(), ip_range_to_object<libtorrent::address_v4>(*i));
 #endif
-    return scope.Close(ret);
-  };
-
-
-  void bind_ip_filter(Handle<Object> target) {
-    IpFilterWrap::Initialize(target);
-  };
+        info.GetReturnValue().Set(ret);
+    };
 }; // namespace nodelt
