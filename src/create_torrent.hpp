@@ -10,6 +10,8 @@
 using namespace v8;
 
 namespace nodelt {
+    void bind_create_torrent(Local<Object> target);
+
     class CreateTorrentWrap: public Nan::ObjectWrap {
         public:
             static void Initialize(Local<Object> target);
@@ -39,7 +41,8 @@ namespace nodelt {
             static NAN_METHOD(piece_size);
             static NAN_METHOD(priv);
             static NAN_METHOD(set_root_cert);
-
+            static NAN_METHOD(set_piece_hashes);
+            static NAN_METHOD(add_files);
 
             static Nan::Persistent<Function> constructor;
     };

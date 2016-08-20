@@ -227,7 +227,7 @@ namespace nodelt {
         info.GetReturnValue().SetUndefined();
     };
 
-    NAN_METHOD(add_files) {
+    NAN_METHOD(CreateTorrentWrap::add_files) {
         Nan::HandleScope scope;
 
         libtorrent::file_storage* fs = FileStorageWrap::Unwrap(info[0]->ToObject());
@@ -241,7 +241,7 @@ namespace nodelt {
         info.GetReturnValue().SetUndefined();
     };
 
-    NAN_METHOD(set_piece_hashes) {
+    NAN_METHOD(CreateTorrentWrap::set_piece_hashes) {
         Nan::HandleScope scope;
 
         libtorrent::create_torrent* ct = CreateTorrentWrap::Unwrap(info[0]->ToObject());

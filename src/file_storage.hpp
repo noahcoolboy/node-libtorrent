@@ -14,6 +14,8 @@ namespace nodelt {
     Local<Object> file_slice_to_object(const libtorrent::file_slice& fs);
     libtorrent::file_entry file_entry_from_object(Local<Object> obj);
 
+    void bind_file_storage(Local<Object> target);
+
     class FileStorageWrap: public Nan::ObjectWrap {
         public:
             static void Initialize(Local<Object> target);

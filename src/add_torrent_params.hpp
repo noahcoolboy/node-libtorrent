@@ -5,9 +5,11 @@
 
 #include <libtorrent/add_torrent_params.hpp>
 
+using namespace v8;
 
 namespace nodelt {
-    libtorrent::add_torrent_params add_torrent_params_from_object(v8::Local<v8::Object> obj);
+    libtorrent::add_torrent_params add_torrent_params_from_object(Local<Object> obj);
+    void bind_add_torrent_params(Local<Object> target);
 };
 
 #endif // NODE_LIBTORRENT_ADD_TORRENT_PARAMS_HPP_INCLUDED
