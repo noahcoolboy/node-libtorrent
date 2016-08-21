@@ -13,132 +13,143 @@ using namespace node;
 
 
 namespace nodelt {
-  libtorrent::feed_settings feed_settings_from_object(Local<Object> obj) {
-    libtorrent::feed_settings fs;
+    Nan::Persistent<Function> FeedHandleWrap::constructor;
 
-    if (obj->Has(String::NewSymbol("url")))
-      fs.url = std::string(*String::Utf8Value(obj->Get(String::NewSymbol("url"))));
-    if (obj->Has(String::NewSymbol("auto_download")))
-      fs.auto_download = obj->Get(String::NewSymbol("auto_download"))->BooleanValue();
-    if (obj->Has(String::NewSymbol("auto_map_handles")))
-      fs.auto_download = obj->Get(String::NewSymbol("auto_map_handles"))->BooleanValue();
-    if (obj->Has(String::NewSymbol("default_ttl")))
-      fs.auto_download = obj->Get(String::NewSymbol("default_ttl"))->IntegerValue();
-    if (obj->Has(String::NewSymbol("add_args")))
-      fs.add_args =
-        add_torrent_params_from_object(obj->Get(String::NewSymbol("add_args"))->ToObject());
-    return fs;
-  };
+    FeedHandleWrap::FeedHandleWrap() {
+        obj_ = NULL;
+    };
 
-  Local<Object> feed_settings_to_object(const libtorrent::feed_settings& fs) {
-    HandleScope scope;
-    Local<Object> obj = Object::New();
+    FeedHandleWrap::~FeedHandleWrap() {
+        if (obj_ != NULL)
+            delete obj_;
+    };
 
-    obj->Set(String::NewSymbol("url"), String::New(fs.url.c_str()));
-    obj->Set(String::NewSymbol("auto_download"), Boolean::New(fs.auto_download));
-    obj->Set(String::NewSymbol("default_ttl"), Integer::New(fs.default_ttl));
-    return scope.Close(obj);
-  };
+    libtorrent::feed_settings feed_settings_from_object(Local<Object> obj) {
+        libtorrent::feed_settings fs;
 
+        if (Nan::Has(obj, Nan::New("url").ToLocalChecked()) == Nan::Just(true))
+            fs.url = std::string(*Nan::Utf8String(Nan::Get(obj, Nan::New("url").ToLocalChecked()).ToLocalChecked()));
+        if (Nan::Has(obj, Nan::New("auto_download").ToLocalChecked()) == Nan::Just(true))
+            fs.auto_download = (Nan::Get(obj, Nan::New("auto_download").ToLocalChecked()).ToLocalChecked())->BooleanValue();
+        if (Nan::Has(obj, Nan::New("auto_map_handles").ToLocalChecked()) == Nan::Just(true))
+            fs.auto_download = (Nan::Get(obj, Nan::New("auto_map_handles").ToLocalChecked()).ToLocalChecked())->BooleanValue();
+        if (Nan::Has(obj, Nan::New("default_ttl").ToLocalChecked()) == Nan::Just(true))
+            fs.auto_download = (Nan::Get(obj, Nan::New("default_ttl").ToLocalChecked()).ToLocalChecked())->BooleanValue();
+        if (Nan::Has(obj, Nan::New("add_args").ToLocalChecked()) == Nan::Just(true))
+            fs.add_args = add_torrent_params_from_object((Nan::Get(obj, Nan::New("add_args").ToLocalChecked()).ToLocalChecked()).As<Object>());
 
-  Persistent<Function> FeedHandleWrap::constructor;
+        return fs;
+    };
 
-  void FeedHandleWrap::Initialize(Handle<Object> target) {
-    Local<FunctionTemplate> tpl = FunctionTemplate::New(NewInstance);
-    tpl->SetClassName(String::NewSymbol("FeedHandle"));
-    tpl->InstanceTemplate()->SetInternalFieldCount(1);
+    Local<Object> feed_settings_to_object(const libtorrent::feed_settings& fs) {
+        Nan::EscapableHandleScope scope;
 
-    tpl->PrototypeTemplate()->Set(String::NewSymbol("update_feed"),
-      FunctionTemplate::New(update_feed)->GetFunction());
-    tpl->PrototypeTemplate()->Set(String::NewSymbol("get_feed_status"),
-      FunctionTemplate::New(get_feed_status)->GetFunction());
-    tpl->PrototypeTemplate()->Set(String::NewSymbol("set_settings"),
-      FunctionTemplate::New(set_settings)->GetFunction());
-    tpl->PrototypeTemplate()->Set(String::NewSymbol("settings"),
-      FunctionTemplate::New(settings)->GetFunction());
+        Local<Object> obj = Nan::New<Object>();
 
-    constructor = Persistent<Function>::New(tpl->GetFunction());
-  };
+        obj->Set(Nan::New("url").ToLocalChecked(), Nan::New<String>(fs.url).ToLocalChecked());
+        obj->Set(Nan::New("auto_download").ToLocalChecked(), Nan::New<Boolean>(fs.auto_download));
+        obj->Set(Nan::New("default_ttl").ToLocalChecked(), Nan::New<Integer>(fs.default_ttl));
 
-  FeedHandleWrap::FeedHandleWrap() {
-    obj_ = NULL;
-  };
+        return scope.Escape(obj);
+    };
 
-  FeedHandleWrap::~FeedHandleWrap() {
-    if (obj_ != NULL)
-      delete obj_;
-  };
+    void FeedHandleWrap::Initialize(Local<Object> target) {
+        Local<FunctionTemplate> tpl = Nan::New<FunctionTemplate>(NewInstance);
 
-  Handle<Value> FeedHandleWrap::NewInstance(const v8::Arguments& args) {
-    HandleScope scope;
+        tpl->SetClassName(Nan::New("FeedHandle").ToLocalChecked());
+        tpl->InstanceTemplate()->SetInternalFieldCount(1);
 
-    if (!args.IsConstructCall())
-      return ThrowException(Exception::TypeError(
-        String::New("Use the new operator to create instances of this object.")));
+        Nan::SetPrototypeMethod(tpl, "update_feed", update_feed);
+        Nan::SetPrototypeMethod(tpl, "get_feed_status", get_feed_status);
+        Nan::SetPrototypeMethod(tpl, "set_settings", set_settings);
+        Nan::SetPrototypeMethod(tpl, "settings", settings);
 
-    FeedHandleWrap* fh = new FeedHandleWrap();
-    fh->Wrap(args.This());
+        constructor.Reset(tpl->GetFunction());
+    };
 
-    return scope.Close(args.This());
-  };
+    Local<Object> FeedHandleWrap::New(const libtorrent::feed_handle& fh) {
+        Nan::EscapableHandleScope scope;
 
-  Local<Object> FeedHandleWrap::New(const libtorrent::feed_handle& fh) {
-    HandleScope scope;
+        Local<Function> c = Nan::New<Function>(constructor);
+        Nan::MaybeLocal<Object> obj = c->NewInstance(Nan::GetCurrentContext());
 
-    Local<Object> obj = constructor->NewInstance();
-    ObjectWrap::Unwrap<FeedHandleWrap>(obj)->obj_ = new libtorrent::feed_handle(fh);
+        Nan::ObjectWrap::Unwrap<FeedHandleWrap>(obj.ToLocalChecked())->obj_ = new libtorrent::feed_handle(fh);
 
-    return scope.Close(obj);
-  };
+        return scope.Escape(obj.ToLocalChecked());
+    };
 
-  Handle<Value> FeedHandleWrap::update_feed(const Arguments& args) {
-    HandleScope scope;
-    FeedHandleWrap::Unwrap(args.This())->update_feed();
-    return scope.Close(Undefined());
-  };
+    NAN_METHOD(FeedHandleWrap::NewInstance) {
+        Nan::HandleScope scope;
 
-  Handle<Value> FeedHandleWrap::get_feed_status(const Arguments& args) {
-    HandleScope scope;
+        if (!info.IsConstructCall()) {
+            Nan::ThrowTypeError("Use the new operator to create instances of this object.");
+            return;
+        }
 
-    libtorrent::feed_status s = FeedHandleWrap::Unwrap(args.This())->get_feed_status();
-    Local<Object> obj = Object::New();
-    obj->Set(String::NewSymbol("url"), String::New(s.url.c_str()));
-    obj->Set(String::NewSymbol("title"), String::New(s.url.c_str()));
-    obj->Set(String::NewSymbol("description"), String::New(s.url.c_str()));
-    obj->Set(String::NewSymbol("next_update"), Integer::New(s.next_update));
-    obj->Set(String::NewSymbol("updating"), Boolean::New(s.updating));
-    Local<Array> items = Array::New();
-    for (std::vector<libtorrent::feed_item>::iterator
-         i(s.items.begin()) , e(s.items.end()); i != e; ++i) {
-      Local<Object> item = Object::New();
-      item->Set(String::NewSymbol("url"), String::New(i->url.c_str()));
-      item->Set(String::NewSymbol("uuid"), String::New(i->uuid.c_str()));
-      item->Set(String::NewSymbol("title"), String::New(i->title.c_str()));
-      item->Set(String::NewSymbol("description"), String::New(i->description.c_str()));
-      item->Set(String::NewSymbol("comment"), String::New(i->comment.c_str()));
-      item->Set(String::NewSymbol("category"), String::New(i->category.c_str()));
-      item->Set(String::NewSymbol("size"), Integer::New(i->size));
-      item->Set(String::NewSymbol("handle"), TorrentHandleWrap::New(i->handle));
-      item->Set(String::NewSymbol("info_hash"),
-        String::New(libtorrent::to_hex(i->info_hash.to_string()).c_str()));
-      items->Set(items->Length(), item);
-    }
-    obj->Set(String::NewSymbol("items"), items);
-    obj->Set(String::NewSymbol("error"), String::New(s.error ? s.error.message().c_str() : ""));
-    obj->Set(String::NewSymbol("ttl"), Integer::New(s.ttl));
-    return scope.Close(Undefined());
-  };
+        FeedHandleWrap* fh = new FeedHandleWrap();
+        fh->Wrap(info.This());
 
-  Handle<Value> FeedHandleWrap::set_settings(const Arguments& args) {
-    HandleScope scope;
-    FeedHandleWrap::Unwrap(args.This())->set_settings(
-      feed_settings_from_object(args[0]->ToObject()));
-    return scope.Close(Undefined());
-  };
+        info.GetReturnValue().Set(info.This());
+    };
 
-  Handle<Value> FeedHandleWrap::settings(const Arguments& args) {
-    HandleScope scope;
-    libtorrent::feed_settings fs = FeedHandleWrap::Unwrap(args.This())->settings();
-    return scope.Close(feed_settings_to_object(fs));
-  };
+    NAN_METHOD(FeedHandleWrap::update_feed) {
+        Nan::HandleScope scope;
+
+        FeedHandleWrap::Unwrap(info.This())->update_feed();
+
+        info.GetReturnValue().SetUndefined();
+    };
+
+    NAN_METHOD(FeedHandleWrap::get_feed_status) {
+        Nan::HandleScope scope;
+
+        libtorrent::feed_status s = FeedHandleWrap::Unwrap(info.This())->get_feed_status();
+        Local<Object> obj = Nan::New<Object>();
+
+        obj->Set(Nan::New("url").ToLocalChecked(), Nan::New<String>(s.url).ToLocalChecked());
+        obj->Set(Nan::New("title").ToLocalChecked(), Nan::New<String>(s.url).ToLocalChecked());
+        obj->Set(Nan::New("description").ToLocalChecked(), Nan::New<String>(s.url).ToLocalChecked());
+        obj->Set(Nan::New("next_update").ToLocalChecked(), Nan::New<Integer>(s.next_update));
+        obj->Set(Nan::New("updating").ToLocalChecked(), Nan::New<Boolean>(s.updating));
+
+        Local<Array> items = Nan::New<Array>();
+
+        for (std::vector<libtorrent::feed_item>::iterator i(s.items.begin()) , e(s.items.end()); i != e; ++i) {
+            Local<Object> item = Nan::New<Object>();
+
+            item->Set(Nan::New("url").ToLocalChecked(), Nan::New<String>(i->url).ToLocalChecked());
+            item->Set(Nan::New("uuid").ToLocalChecked(), Nan::New<String>(i->uuid).ToLocalChecked());
+            item->Set(Nan::New("title").ToLocalChecked(), Nan::New<String>(i->title).ToLocalChecked());
+            item->Set(Nan::New("description").ToLocalChecked(), Nan::New<String>(i->description).ToLocalChecked());
+            item->Set(Nan::New("comment").ToLocalChecked(), Nan::New<String>(i->comment).ToLocalChecked());
+            item->Set(Nan::New("category").ToLocalChecked(), Nan::New<String>(i->category).ToLocalChecked());
+            item->Set(Nan::New("size").ToLocalChecked(), Nan::New<Number>(i->size));
+            item->Set(Nan::New("handle").ToLocalChecked(), TorrentHandleWrap::New(i->handle));
+            item->Set(Nan::New("info_hash").ToLocalChecked(), Nan::New<String>(libtorrent::to_hex(i->info_hash.to_string())).ToLocalChecked());
+
+            items->Set(items->Length(), item);
+        }
+
+        obj->Set(Nan::New("items").ToLocalChecked(), items);
+        obj->Set(Nan::New("error").ToLocalChecked(), Nan::New<String>(s.error ? s.error.message() : "").ToLocalChecked());
+        obj->Set(Nan::New("ttl").ToLocalChecked(), Nan::New<Integer>(s.ttl));
+
+        info.GetReturnValue().SetUndefined();
+    };
+
+    NAN_METHOD(FeedHandleWrap::set_settings) {
+        Nan::HandleScope scope;
+
+        FeedHandleWrap::Unwrap(info.This())->set_settings(feed_settings_from_object(info[0]->ToObject()));
+
+        info.GetReturnValue().SetUndefined();
+    };
+
+    NAN_METHOD(FeedHandleWrap::settings) {
+        Nan::HandleScope scope;
+
+        libtorrent::feed_settings fs = FeedHandleWrap::Unwrap(info.This())->settings();
+
+        info.GetReturnValue().Set(feed_settings_to_object(fs));
+    };
 }; //namespace nodelt

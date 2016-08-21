@@ -1,4 +1,5 @@
 #include <v8.h>
+#include <nan.h>
 #include <node.h>
 
 #include <libtorrent/torrent_handle.hpp>
@@ -10,806 +11,865 @@
 
 
 using namespace v8;
-using namespace node;
-
 
 namespace nodelt {
-  Persistent<Function> TorrentHandleWrap::constructor;
+    Nan::Persistent<Function> TorrentHandleWrap::constructor;
 
-  void TorrentHandleWrap::Initialize(Handle<Object> target) {
-    Local<FunctionTemplate> tpl = FunctionTemplate::New(NewInstance);
-    tpl->SetClassName(String::NewSymbol("TorrentHandle"));
-    tpl->InstanceTemplate()->SetInternalFieldCount(1);
+    void bind_torrent_handle(Handle<Object> target) {
+        TorrentHandleWrap::Initialize(target);
 
-    tpl->PrototypeTemplate()->Set(String::NewSymbol("get_peer_info"),
-      FunctionTemplate::New(get_peer_info)->GetFunction());
-    tpl->PrototypeTemplate()->Set(String::NewSymbol("status"),
-      FunctionTemplate::New(status)->GetFunction());
-    tpl->PrototypeTemplate()->Set(String::NewSymbol("get_download_queue"),
-      FunctionTemplate::New(get_download_queue)->GetFunction());
-    tpl->PrototypeTemplate()->Set(String::NewSymbol("file_progress"),
-      FunctionTemplate::New(file_progress)->GetFunction());
-    tpl->PrototypeTemplate()->Set(String::NewSymbol("trackers"),
-      FunctionTemplate::New(trackers)->GetFunction());
-    tpl->PrototypeTemplate()->Set(String::NewSymbol("replace_trackers"),
-      FunctionTemplate::New(replace_trackers)->GetFunction());
-    tpl->PrototypeTemplate()->Set(String::NewSymbol("add_tracker"),
-      FunctionTemplate::New(add_tracker)->GetFunction());
-    tpl->PrototypeTemplate()->Set(String::NewSymbol("add_url_seed"),
-      FunctionTemplate::New(add_url_seed)->GetFunction());
-    tpl->PrototypeTemplate()->Set(String::NewSymbol("remove_url_seed"),
-      FunctionTemplate::New(remove_url_seed)->GetFunction());
-    tpl->PrototypeTemplate()->Set(String::NewSymbol("url_seeds"),
-      FunctionTemplate::New(url_seeds)->GetFunction());
-    tpl->PrototypeTemplate()->Set(String::NewSymbol("add_http_seed"),
-      FunctionTemplate::New(add_http_seed)->GetFunction());
-    tpl->PrototypeTemplate()->Set(String::NewSymbol("remove_http_seed"),
-      FunctionTemplate::New(remove_http_seed)->GetFunction());
-    tpl->PrototypeTemplate()->Set(String::NewSymbol("http_seeds"),
-      FunctionTemplate::New(http_seeds)->GetFunction());
-    tpl->PrototypeTemplate()->Set(String::NewSymbol("get_torrent_info"),
-      FunctionTemplate::New(get_torrent_info)->GetFunction());
-    tpl->PrototypeTemplate()->Set(String::NewSymbol("set_metadata"),
-      FunctionTemplate::New(set_metadata)->GetFunction());
-    tpl->PrototypeTemplate()->Set(String::NewSymbol("is_valid"),
-      FunctionTemplate::New(is_valid)->GetFunction());
-    tpl->PrototypeTemplate()->Set(String::NewSymbol("has_metadata"),
-      FunctionTemplate::New(has_metadata)->GetFunction());
-    tpl->PrototypeTemplate()->Set(String::NewSymbol("pause"),
-      FunctionTemplate::New(pause)->GetFunction());
-    tpl->PrototypeTemplate()->Set(String::NewSymbol("resume"),
-      FunctionTemplate::New(resume)->GetFunction());
-    tpl->PrototypeTemplate()->Set(String::NewSymbol("clear_error"),
-      FunctionTemplate::New(clear_error)->GetFunction());
-    tpl->PrototypeTemplate()->Set(String::NewSymbol("set_priority"),
-      FunctionTemplate::New(set_priority)->GetFunction());
-    tpl->PrototypeTemplate()->Set(String::NewSymbol("super_seeding"),
-      FunctionTemplate::New(super_seeding)->GetFunction());
+        // set libtorrent::torrent_handle::status_flags_t
+        Local<Object> status_flags_t = Nan::New<Object>();
 
-    tpl->PrototypeTemplate()->Set(String::NewSymbol("auto_managed"),
-      FunctionTemplate::New(auto_managed)->GetFunction());
-    tpl->PrototypeTemplate()->Set(String::NewSymbol("queue_position"),
-      FunctionTemplate::New(queue_position)->GetFunction());
-    tpl->PrototypeTemplate()->Set(String::NewSymbol("queue_position_up"),
-      FunctionTemplate::New(queue_position_up)->GetFunction());
-    tpl->PrototypeTemplate()->Set(String::NewSymbol("queue_position_down"),
-      FunctionTemplate::New(queue_position_down)->GetFunction());
-    tpl->PrototypeTemplate()->Set(String::NewSymbol("queue_position_top"),
-      FunctionTemplate::New(queue_position_top)->GetFunction());
-    tpl->PrototypeTemplate()->Set(String::NewSymbol("queue_position_bottom"),
-      FunctionTemplate::New(queue_position_bottom)->GetFunction());
+        status_flags_t->Set(Nan::New("query_distributed_copies").ToLocalChecked(),
+            Nan::New<Integer>(libtorrent::torrent_handle::query_distributed_copies));
+        status_flags_t->Set(Nan::New("query_accurate_download_counters").ToLocalChecked(),
+            Nan::New<Integer>(libtorrent::torrent_handle::query_accurate_download_counters));
+        status_flags_t->Set(Nan::New("query_last_seen_complete").ToLocalChecked(),
+            Nan::New<Integer>(libtorrent::torrent_handle::query_last_seen_complete));
+        status_flags_t->Set(Nan::New("query_pieces").ToLocalChecked(),
+            Nan::New<Integer>(libtorrent::torrent_handle::query_pieces));
+        status_flags_t->Set(Nan::New("query_verified_pieces").ToLocalChecked(),
+            Nan::New<Integer>(libtorrent::torrent_handle::query_verified_pieces));
+
+        target->Set(Nan::New("status_flags_t").ToLocalChecked(), status_flags_t);
+    };
+
+    TorrentHandleWrap::TorrentHandleWrap() {
+        obj_ = NULL;
+    };
+
+    TorrentHandleWrap::~TorrentHandleWrap() {
+        if (obj_ != NULL)
+            delete obj_;
+    };
+
+    void TorrentHandleWrap::Initialize(Local<Object> target) {
+        Local<FunctionTemplate> tpl = Nan::New<FunctionTemplate>(NewInstance);
+
+        tpl->SetClassName(Nan::New("TorrentHandle").ToLocalChecked());
+        tpl->InstanceTemplate()->SetInternalFieldCount(1);
+
+        Nan::SetPrototypeMethod(tpl, "get_peer_info", get_peer_info);
+        Nan::SetPrototypeMethod(tpl, "status", status);
+        Nan::SetPrototypeMethod(tpl, "get_download_queue", get_download_queue);
+        Nan::SetPrototypeMethod(tpl, "file_progress", file_progress);
+        Nan::SetPrototypeMethod(tpl, "trackers", trackers);
+        Nan::SetPrototypeMethod(tpl, "replace_trackers", replace_trackers);
+        Nan::SetPrototypeMethod(tpl, "add_tracker", add_tracker);
+        Nan::SetPrototypeMethod(tpl, "add_url_seed", add_url_seed);
+        Nan::SetPrototypeMethod(tpl, "remove_url_seed", remove_url_seed);
+        Nan::SetPrototypeMethod(tpl, "url_seeds", url_seeds);
+        Nan::SetPrototypeMethod(tpl, "add_http_seed", add_http_seed);
+        Nan::SetPrototypeMethod(tpl, "remove_http_seed", remove_http_seed);
+        Nan::SetPrototypeMethod(tpl, "http_seeds", http_seeds);
+        Nan::SetPrototypeMethod(tpl, "get_torrent_info", get_torrent_info);
+        Nan::SetPrototypeMethod(tpl, "set_metadata", set_metadata);
+        Nan::SetPrototypeMethod(tpl, "is_valid", is_valid);
+        Nan::SetPrototypeMethod(tpl, "has_metadata", has_metadata);
+        Nan::SetPrototypeMethod(tpl, "pause", pause);
+        Nan::SetPrototypeMethod(tpl, "resume", resume);
+        Nan::SetPrototypeMethod(tpl, "clear_error", clear_error);
+        Nan::SetPrototypeMethod(tpl, "set_priority", set_priority);
+        Nan::SetPrototypeMethod(tpl, "super_seeding", super_seeding);
+
+        Nan::SetPrototypeMethod(tpl, "auto_managed", auto_managed);
+        Nan::SetPrototypeMethod(tpl, "queue_position", queue_position);
+        Nan::SetPrototypeMethod(tpl, "queue_position_up", queue_position_up);
+        Nan::SetPrototypeMethod(tpl, "queue_position_down", queue_position_down);
+        Nan::SetPrototypeMethod(tpl, "queue_position_top", queue_position_top);
+        Nan::SetPrototypeMethod(tpl, "queue_position_bottom", queue_position_bottom);
 
 #ifndef TORRENT_DISABLE_RESOLVE_COUNTRIES
-    tpl->PrototypeTemplate()->Set(String::NewSymbol("resolve_countries"),
-      FunctionTemplate::New(resolve_countries)->GetFunction());
+        Nan::SetPrototypeMethod(tpl, "resolve_countries", resolve_countries);
 #endif
 
-    tpl->PrototypeTemplate()->Set(String::NewSymbol("add_piece"),
-      FunctionTemplate::New(add_piece)->GetFunction());
-    tpl->PrototypeTemplate()->Set(String::NewSymbol("read_piece"),
-      FunctionTemplate::New(read_piece)->GetFunction());
-    tpl->PrototypeTemplate()->Set(String::NewSymbol("have_piece"),
-      FunctionTemplate::New(have_piece)->GetFunction());
-    tpl->PrototypeTemplate()->Set(String::NewSymbol("set_piece_deadline"),
-      FunctionTemplate::New(set_piece_deadline)->GetFunction());
-    tpl->PrototypeTemplate()->Set(String::NewSymbol("reset_piece_deadline"),
-      FunctionTemplate::New(reset_piece_deadline)->GetFunction());
-    tpl->PrototypeTemplate()->Set(String::NewSymbol("piece_availability"),
-      FunctionTemplate::New(piece_availability)->GetFunction());
-    tpl->PrototypeTemplate()->Set(String::NewSymbol("piece_priority"),
-      FunctionTemplate::New(piece_priority)->GetFunction());
-    tpl->PrototypeTemplate()->Set(String::NewSymbol("prioritize_pieces"),
-      FunctionTemplate::New(prioritize_pieces)->GetFunction());
-    tpl->PrototypeTemplate()->Set(String::NewSymbol("piece_priorities"),
-      FunctionTemplate::New(piece_priorities)->GetFunction());
-    tpl->PrototypeTemplate()->Set(String::NewSymbol("prioritize_files"),
-      FunctionTemplate::New(prioritize_files)->GetFunction());
-    tpl->PrototypeTemplate()->Set(String::NewSymbol("file_priorities"),
-      FunctionTemplate::New(file_priorities)->GetFunction());
-    tpl->PrototypeTemplate()->Set(String::NewSymbol("file_priority"),
-      FunctionTemplate::New(file_priority)->GetFunction());
-    tpl->PrototypeTemplate()->Set(String::NewSymbol("use_interface"),
-      FunctionTemplate::New(use_interface)->GetFunction());
-    tpl->PrototypeTemplate()->Set(String::NewSymbol("save_resume_data"),
-      FunctionTemplate::New(save_resume_data)->GetFunction());
-    tpl->PrototypeTemplate()->Set(String::NewSymbol("need_save_resume_data"),
-      FunctionTemplate::New(need_save_resume_data)->GetFunction());
-    tpl->PrototypeTemplate()->Set(String::NewSymbol("force_reannounce"),
-      FunctionTemplate::New(force_reannounce)->GetFunction());
+        Nan::SetPrototypeMethod(tpl, "add_piece", add_piece);
+        Nan::SetPrototypeMethod(tpl, "read_piece", read_piece);
+        Nan::SetPrototypeMethod(tpl, "have_piece", have_piece);
+        Nan::SetPrototypeMethod(tpl, "set_piece_deadline", set_piece_deadline);
+        Nan::SetPrototypeMethod(tpl, "reset_piece_deadline", reset_piece_deadline);
+        Nan::SetPrototypeMethod(tpl, "piece_availability", piece_availability);
+        Nan::SetPrototypeMethod(tpl, "piece_priority", piece_priority);
+        Nan::SetPrototypeMethod(tpl, "prioritize_pieces", prioritize_pieces);
+        Nan::SetPrototypeMethod(tpl, "piece_priorities", piece_priorities);
+        Nan::SetPrototypeMethod(tpl, "prioritize_files", prioritize_files);
+        Nan::SetPrototypeMethod(tpl, "file_priorities", file_priorities);
+        Nan::SetPrototypeMethod(tpl, "file_priority", file_priority);
+        Nan::SetPrototypeMethod(tpl, "use_interface", use_interface);
+        Nan::SetPrototypeMethod(tpl, "save_resume_data", save_resume_data);
+        Nan::SetPrototypeMethod(tpl, "need_save_resume_data", need_save_resume_data);
+        Nan::SetPrototypeMethod(tpl, "force_reannounce", force_reannounce);
 
 #ifndef TORRENT_DISABLE_DHT
-    tpl->PrototypeTemplate()->Set(String::NewSymbol("force_dht_announce"),
-      FunctionTemplate::New(force_dht_announce)->GetFunction());
+        Nan::SetPrototypeMethod(tpl, "force_dht_announce", force_dht_announce);
 #endif
 
-    tpl->PrototypeTemplate()->Set(String::NewSymbol("scrape_tracker"),
-      FunctionTemplate::New(scrape_tracker)->GetFunction());
-    tpl->PrototypeTemplate()->Set(String::NewSymbol("name"),
-      FunctionTemplate::New(name)->GetFunction());
-    tpl->PrototypeTemplate()->Set(String::NewSymbol("set_upload_mode"),
-      FunctionTemplate::New(set_upload_mode)->GetFunction());
-    tpl->PrototypeTemplate()->Set(String::NewSymbol("set_share_mode"),
-      FunctionTemplate::New(set_share_mode)->GetFunction());
-    tpl->PrototypeTemplate()->Set(String::NewSymbol("flush_cache"),
-      FunctionTemplate::New(flush_cache)->GetFunction());
-    tpl->PrototypeTemplate()->Set(String::NewSymbol("apply_ip_filter"),
-      FunctionTemplate::New(apply_ip_filter)->GetFunction());
-    tpl->PrototypeTemplate()->Set(String::NewSymbol("set_upload_limit"),
-      FunctionTemplate::New(set_upload_limit)->GetFunction());
-    tpl->PrototypeTemplate()->Set(String::NewSymbol("set_download_limit"),
-      FunctionTemplate::New(set_download_limit)->GetFunction());
-    tpl->PrototypeTemplate()->Set(String::NewSymbol("upload_limit"),
-      FunctionTemplate::New(upload_limit)->GetFunction());
-    tpl->PrototypeTemplate()->Set(String::NewSymbol("download_limit"),
-      FunctionTemplate::New(download_limit)->GetFunction());
-    tpl->PrototypeTemplate()->Set(String::NewSymbol("set_sequential_download"),
-      FunctionTemplate::New(set_sequential_download)->GetFunction());
-    tpl->PrototypeTemplate()->Set(String::NewSymbol("connect_peer"),
-      FunctionTemplate::New(connect_peer)->GetFunction());
-    tpl->PrototypeTemplate()->Set(String::NewSymbol("save_path"),
-      FunctionTemplate::New(save_path)->GetFunction());
-    tpl->PrototypeTemplate()->Set(String::NewSymbol("set_max_uploads"),
-      FunctionTemplate::New(set_max_uploads)->GetFunction());
-    tpl->PrototypeTemplate()->Set(String::NewSymbol("max_uploads"),
-      FunctionTemplate::New(max_uploads)->GetFunction());
-    tpl->PrototypeTemplate()->Set(String::NewSymbol("set_max_connections"),
-      FunctionTemplate::New(set_max_connections)->GetFunction());
-    tpl->PrototypeTemplate()->Set(String::NewSymbol("max_connections"),
-      FunctionTemplate::New(max_connections)->GetFunction());
-    tpl->PrototypeTemplate()->Set(String::NewSymbol("set_tracker_login"),
-      FunctionTemplate::New(set_tracker_login)->GetFunction());
-    tpl->PrototypeTemplate()->Set(String::NewSymbol("move_storage"),
-      FunctionTemplate::New(move_storage)->GetFunction());
-    tpl->PrototypeTemplate()->Set(String::NewSymbol("info_hash"),
-      FunctionTemplate::New(info_hash)->GetFunction());
-    tpl->PrototypeTemplate()->Set(String::NewSymbol("force_recheck"),
-      FunctionTemplate::New(force_recheck)->GetFunction());
-    tpl->PrototypeTemplate()->Set(String::NewSymbol("rename_file"),
-      FunctionTemplate::New(rename_file)->GetFunction());
-    tpl->PrototypeTemplate()->Set(String::NewSymbol("set_ssl_certificate"),
-      FunctionTemplate::New(set_ssl_certificate)->GetFunction());
+        Nan::SetPrototypeMethod(tpl, "scrape_tracker", scrape_tracker);
+        Nan::SetPrototypeMethod(tpl, "name", name);
+        Nan::SetPrototypeMethod(tpl, "set_upload_mode", set_upload_mode);
+        Nan::SetPrototypeMethod(tpl, "set_share_mode", set_share_mode);
+        Nan::SetPrototypeMethod(tpl, "flush_cache", flush_cache);
+        Nan::SetPrototypeMethod(tpl, "apply_ip_filter", apply_ip_filter);
+        Nan::SetPrototypeMethod(tpl, "set_upload_limit", set_upload_limit);
+        Nan::SetPrototypeMethod(tpl, "set_download_limit", set_download_limit);
+        Nan::SetPrototypeMethod(tpl, "upload_limit", upload_limit);
+        Nan::SetPrototypeMethod(tpl, "download_limit", download_limit);
+        Nan::SetPrototypeMethod(tpl, "set_sequential_download", set_sequential_download);
+        Nan::SetPrototypeMethod(tpl, "connect_peer", connect_peer);
+        Nan::SetPrototypeMethod(tpl, "save_path", save_path);
+        Nan::SetPrototypeMethod(tpl, "set_max_uploads", set_max_uploads);
+        Nan::SetPrototypeMethod(tpl, "max_uploads", max_uploads);
+        Nan::SetPrototypeMethod(tpl, "set_max_connections", set_max_connections);
+        Nan::SetPrototypeMethod(tpl, "max_connections", max_connections);
+        Nan::SetPrototypeMethod(tpl, "set_tracker_login", set_tracker_login);
+        Nan::SetPrototypeMethod(tpl, "move_storage", move_storage);
+        Nan::SetPrototypeMethod(tpl, "info_hash", info_hash);
+        Nan::SetPrototypeMethod(tpl, "force_recheck", force_recheck);
+        Nan::SetPrototypeMethod(tpl, "rename_file", rename_file);
+        Nan::SetPrototypeMethod(tpl, "set_ssl_certificate", set_ssl_certificate);
 
-    constructor = Persistent<Function>::New(tpl->GetFunction());
-  };
+        constructor.Reset(tpl->GetFunction());
+    };
 
-  TorrentHandleWrap::TorrentHandleWrap() {
-    obj_ = NULL;
-  };
+    Local<Object> TorrentHandleWrap::New(const libtorrent::torrent_handle& th) {
+        Nan::EscapableHandleScope scope;
 
-  TorrentHandleWrap::~TorrentHandleWrap() {
-    if (obj_ != NULL)
-      delete obj_;
-  };
+        Local<Function> c = Nan::New<Function>(constructor);
+        Nan::MaybeLocal<Object> obj = c->NewInstance(Nan::GetCurrentContext());
 
-  Handle<Value> TorrentHandleWrap::NewInstance(const v8::Arguments& args) {
-    HandleScope scope;
+        Nan::ObjectWrap::Unwrap<TorrentHandleWrap>(obj.ToLocalChecked())->obj_ = new libtorrent::torrent_handle(th);
 
-    if (!args.IsConstructCall())
-      return ThrowException(Exception::TypeError(
-        String::New("Use the new operator to create instances of this object.")));
+        return scope.Escape(obj.ToLocalChecked());
+    };
 
-    TorrentHandleWrap* th = new TorrentHandleWrap();
-    th->Wrap(args.This());
 
-    return scope.Close(args.This());
-  };
+    NAN_METHOD(TorrentHandleWrap::NewInstance) {
+        Nan::HandleScope scope;
 
-  Local<Object> TorrentHandleWrap::New(const libtorrent::torrent_handle& th) {
-    HandleScope scope;
+        if (!args.IsConstructCall()) {
+            Nan::ThrowTypeError("Use the new operator to create instances of this object.");
+            return;
+        }
 
-    Local<Object> obj = constructor->NewInstance();
-    ObjectWrap::Unwrap<TorrentHandleWrap>(obj)->obj_ = new libtorrent::torrent_handle(th);
+        TorrentHandleWrap* th = new TorrentHandleWrap();
+        th->Wrap(info.This());
 
-    return scope.Close(obj);
-  };
+        info.GetReturnValue().Set(info.This());
+    };
 
-  Handle<Value> TorrentHandleWrap::get_peer_info(const Arguments& args) {
-    HandleScope scope;
 
-    std::vector<libtorrent::peer_info> res;
-    TorrentHandleWrap::Unwrap(args.This())->get_peer_info(res);
-    Local<Array> ret = Array::New();
-    for (std::vector<libtorrent::peer_info>::iterator
-         i(res.begin()), e(res.end()); i != e; ++i)
-      ret->Set(ret->Length(), peer_info_to_object(*i));
-    return scope.Close(ret);
-  };
+    NAN_METHOD(TorrentHandleWrap::get_peer_info) {
+        Nan::HandleScope scope;
 
-  Handle<Value> TorrentHandleWrap::status(const Arguments& args) {
-    HandleScope scope;
+        std::vector<libtorrent::peer_info> res;
+        TorrentHandleWrap::Unwrap(info.This())->get_peer_info(res);
 
-    libtorrent::torrent_handle* th = TorrentHandleWrap::Unwrap(args.This());
-    libtorrent::torrent_status st;
-    if (args.Length() == 1)
-      st = th->status(args[0]->IntegerValue());
-    else
-      st = th->status();
-    return scope.Close(torrent_status_to_object(st));
-  };
+        Local<Array> ret = Nan::New<Array>();
 
-  Handle<Value> TorrentHandleWrap::get_download_queue(const Arguments& args) {
-    HandleScope scope;
+        for (std::vector<libtorrent::peer_info>::iterator i(res.begin()), e(res.end()); i != e; ++i)
+            ret->Set(ret->Length(), peer_info_to_object(*i));
 
-    std::vector<libtorrent::partial_piece_info> res;
-    TorrentHandleWrap::Unwrap(args.This())->get_download_queue(res);
-    Local<Array> ret = Array::New();
-    for (std::vector<libtorrent::partial_piece_info>::iterator
-         i(res.begin()), e(res.end()); i != e; ++i) {
-      Local<Object> obj = Object::New();
-      obj->Set(String::NewSymbol("piece_index"), Integer::New(i->piece_index));
-      obj->Set(String::NewSymbol("blocks_in_piece"), Integer::New(i->blocks_in_piece));
-      obj->Set(String::NewSymbol("finished"), Integer::New(i->piece_index));
-      obj->Set(String::NewSymbol("writing"), Integer::New(i->piece_index));
-      obj->Set(String::NewSymbol("requested"), Integer::New(i->piece_index));
-      Local<Array> blocks = Array::New();
-      for (int k = 0; k < i->blocks_in_piece; ++k) {
-        Local<Object> block = Object::New();
-        block->Set(String::NewSymbol("state"), Uint32::New(i->blocks[k].state));
-        block->Set(String::NewSymbol("num_peers"), Uint32::New(i->blocks[k].num_peers));
-        block->Set(String::NewSymbol("bytes_progress"), Uint32::New(i->blocks[k].bytes_progress));
-        block->Set(String::NewSymbol("block_size"), Uint32::New(i->blocks[k].block_size));
-        Local<Array> peer = Array::New();
-        peer->Set(0, String::New(i->blocks[k].peer().address().to_string().c_str()));
-        peer->Set(1, Integer::New(i->blocks[k].peer().port()));
-        block->Set(String::NewSymbol("peer"), peer);
-        blocks->Set(blocks->Length(), block);
-      }
-      obj->Set(String::NewSymbol("blocks"), blocks);
-      ret->Set(ret->Length(), obj);
-    }
-    return scope.Close(ret);
-  };
+        info.GetReturnValue().Set(info.This());
+    };
 
-  Handle<Value> TorrentHandleWrap::file_progress(const Arguments& args) {
-    HandleScope scope;
+    NAN_METHOD(TorrentHandleWrap::status) {
+        Nan::HandleScope scope;
 
-    libtorrent::torrent_handle* th = TorrentHandleWrap::Unwrap(args.This());
-    std::vector<libtorrent::size_type> res;
-    res.reserve(th->get_torrent_info().num_files());
-    Local<Array> ret = Array::New();
-    if (args.Length() == 1)
-      th->file_progress(res, args[0]->IntegerValue());
-    else
-      th->file_progress(res);
-    for (std::vector<libtorrent::size_type>::iterator
-         i(res.begin()), e(res.end()); i != e; ++i)
-      ret->Set(ret->Length(), Integer::New(*i));
+        libtorrent::torrent_handle* th = TorrentHandleWrap::Unwrap(info.This());
+        libtorrent::torrent_status st;
 
-    return scope.Close(ret);
-  };
+        if (info.Length() == 1)
+            st = th->status(info[0]->IntegerValue());
+        else
+            st = th->status();
 
-  Handle<Value> TorrentHandleWrap::trackers(const Arguments& args) {
-    HandleScope scope;
+        info.GetReturnValue().Set(torrent_status_to_object(st));
+    };
 
-    std::vector<libtorrent::announce_entry> const res =
-      TorrentHandleWrap::Unwrap(args.This())->trackers();
-    Local<Array> ret = Array::New();
-    for (std::vector<libtorrent::announce_entry>::const_iterator
-         i(res.begin()), e(res.end()); i != e; ++i)
-      ret->Set(ret->Length(), announce_entry_to_object(*i));
-    return scope.Close(ret);
-  };
+    NAN_METHOD(TorrentHandleWrap::get_download_queue) {
+        Nan::HandleScope scope;
 
-  Handle<Value> TorrentHandleWrap::replace_trackers(const Arguments& args) {
-    HandleScope scope;
+        std::vector<libtorrent::partial_piece_info> res;
+        TorrentHandleWrap::Unwrap(info.This())->get_download_queue(res);
 
-    std::vector<libtorrent::announce_entry> trackers;
-    Local<Array> src = Array::Cast(*args[0]);
-    for (uint32_t i = 0, e = src->Length(); i < e; ++i)
-        trackers.push_back(announce_entry_from_object(src->Get(i)->ToObject()));
-    TorrentHandleWrap::Unwrap(args.This())->replace_trackers(trackers);
-    return scope.Close(Undefined());
-  };
+        Local<Array> ret = Nan::New<Array>();
 
-  Handle<Value> TorrentHandleWrap::add_tracker(const Arguments& args) {
-    HandleScope scope;
-    TorrentHandleWrap::Unwrap(args.This())->add_tracker(
-      announce_entry_from_object(args[0]->ToObject()));
-    return scope.Close(Undefined());
-  };
+        for (std::vector<libtorrent::partial_piece_info>::iterator i(res.begin()), e(res.end()); i != e; ++i) {
+            Local<Object> obj = Nan::New<Object>();
 
-  Handle<Value> TorrentHandleWrap::add_url_seed(const Arguments& args) {
-    HandleScope scope;
-    TorrentHandleWrap::Unwrap(args.This())->add_url_seed(
-      std::string(*String::Utf8Value(args[0])));
-    return scope.Close(Undefined());
-  };
+            obj->Set(Nan::New("piece_index").ToLocalChecked(), Nan::New<Integer>(i->piece_index));
+            obj->Set(Nan::New("blocks_in_piece").ToLocalChecked(), Nan::New<Integer>(i->blocks_in_piece));
+            obj->Set(Nan::New("finished").ToLocalChecked(), Nan::New<Integer>(i->piece_index));
+            obj->Set(Nan::New("writing").ToLocalChecked(), Nan::New<Integer>(i->piece_index));
+            obj->Set(Nan::New("requested").ToLocalChecked(), Nan::New<Integer>(i->piece_index));
 
-  Handle<Value> TorrentHandleWrap::remove_url_seed(const Arguments& args) {
-    HandleScope scope;
-    TorrentHandleWrap::Unwrap(args.This())->remove_url_seed(
-      std::string(*String::Utf8Value(args[0])));
-    return scope.Close(Undefined());
-  };
+            Local<Array> blocks = Nan::New<Array>();
 
-  Handle<Value> TorrentHandleWrap::url_seeds(const Arguments& args) {
-    HandleScope scope;
+            for (int k = 0; k < i->blocks_in_piece; ++k) {
+                Local<Object> block = Nan::New<Object>();
+                Local<Array> peer = Nan::New<Array>();
 
-    std::set<std::string> urls = TorrentHandleWrap::Unwrap(args.This())->url_seeds();
-    Local<Array> ret = Array::New();
-    for (std::set<std::string>::iterator
-         i(urls.begin()), e(urls.end()); i != e; ++i)
-      ret->Set(ret->Length(), String::New(i->c_str()));
-    return scope.Close(ret);
-  };
+                block->Set(Nan::New("state").ToLocalChecked(), Nan::New<Uint32>(i->blocks[k].state));
+                block->Set(Nan::New("num_peers").ToLocalChecked(), Nan::New<Uint32>(i->blocks[k].num_peers));
+                block->Set(Nan::New("bytes_progress").ToLocalChecked(), Nan::New<Uint32>(i->blocks[k].bytes_progress));
+                block->Set(Nan::New("block_size").ToLocalChecked(), Nan::New<Uint32>(i->blocks[k].block_size));
 
-  Handle<Value> TorrentHandleWrap::add_http_seed(const Arguments& args) {
-    HandleScope scope;
-    TorrentHandleWrap::Unwrap(args.This())->add_http_seed(
-      std::string(*String::Utf8Value(args[0])));
-    return scope.Close(Undefined());
-  };
+                peer->Set(0, Nan::New<String>(i->blocks[k].peer().address().to_string()));
+                peer->Set(1, Nan::New<Integer>(i->blocks[k].peer().port()));
 
-  Handle<Value> TorrentHandleWrap::remove_http_seed(const Arguments& args) {
-    HandleScope scope;
-    TorrentHandleWrap::Unwrap(args.This())->remove_http_seed(
-      std::string(*String::Utf8Value(args[0])));
-    return scope.Close(Undefined());
-  };
+                block->Set(Nan::New("peer").ToLocalChecked(), peer);
+                blocks->Set(blocks->Length(), block);
+            }
 
-  Handle<Value> TorrentHandleWrap::http_seeds(const Arguments& args) {
-    HandleScope scope;
+            obj->Set(Nan::New("blocks").ToLocalChecked(), blocks);
+            ret->Set(ret->Length(), obj);
+        }
 
-    std::set<std::string> urls = TorrentHandleWrap::Unwrap(args.This())->http_seeds();
-    Local<Array> ret = Array::New();
-    for (std::set<std::string>::iterator
-         i(urls.begin()), e(urls.end()); i != e; ++i)
-      ret->Set(ret->Length(), String::New(i->c_str()));
-    return scope.Close(Undefined());
-  };
+        info.GetReturnValue().Set(ret);
+    };
 
-  Handle<Value> TorrentHandleWrap::get_torrent_info(const Arguments& args) {
-    HandleScope scope;
-    libtorrent::torrent_info ti = TorrentHandleWrap::Unwrap(args.This())->get_torrent_info();
-    return scope.Close(TorrentInfoWrap::New(ti));
-  };
+    NAN_METHOD(TorrentHandleWrap::file_progress) {
+        Nan::HandleScope scope;
 
-  Handle<Value> TorrentHandleWrap::set_metadata(const Arguments& args) {
-    HandleScope scope;
+        libtorrent::torrent_handle* th = TorrentHandleWrap::Unwrap(info.This());
+        std::vector<libtorrent::size_type> res;
+
+        res.reserve(th->get_torrent_info().num_files());
+
+        Local<Array> ret = Nan::New<Array>();
+
+        if (info.Length() == 1)
+            th->file_progress(res, info[0]->IntegerValue());
+        else
+            th->file_progress(res);
+
+        for (std::vector<libtorrent::size_type>::iterator i(res.begin()), e(res.end()); i != e; ++i)
+            ret->Set(ret->Length(), Nan::New<Integer>(*i));
+
+        info.GetReturnValue().Set(ret);
+    };
+
+    NAN_METHOD(TorrentHandleWrap::trackers) {
+        Nan::HandleScope scope;
+
+        std::vector<libtorrent::announce_entry> const res = TorrentHandleWrap::Unwrap(info.This())->trackers();
+
+        Local<Array> ret = Nan::New<Array>();
+
+        for (std::vector<libtorrent::announce_entry>::const_iterator i(res.begin()), e(res.end()); i != e; ++i)
+            ret->Set(ret->Length(), announce_entry_to_object(*i));
+
+        info.GetReturnValue().Set(ret);
+    };
+
+    NAN_METHOD(TorrentHandleWrap::replace_trackers) {
+        Nan::HandleScope scope;
+
+        std::vector<libtorrent::announce_entry> trackers;
+
+        Local<Array> src = Array::Cast(*info[0]);
+
+        for (uint32_t i = 0, e = src->Length(); i < e; ++i)
+            trackers.push_back(announce_entry_from_object(src->Get(i)->ToObject()));
+
+        TorrentHandleWrap::Unwrap(info.This())->replace_trackers(trackers);
+
+        info.GetReturnValue().SetUndefined();
+    };
+
+    NAN_METHOD(TorrentHandleWrap::add_tracker) {
+        Nan::HandleScope scope;
+
+        TorrentHandleWrap::Unwrap(info.This())->add_tracker(announce_entry_from_object(info[0]->ToObject()));
+
+        info.GetReturnValue().SetUndefined();
+    };
+
+    NAN_METHOD(TorrentHandleWrap::add_url_seed) {
+        Nan::HandleScope scope;
+
+        TorrentHandleWrap::Unwrap(info.This())->add_url_seed(std::string(*Nan::Utf8String(info[0])));
+
+        info.GetReturnValue().SetUndefined();
+    };
+
+    NAN_METHOD(TorrentHandleWrap::remove_url_seed) {
+        Nan::HandleScope scope;
+
+        TorrentHandleWrap::Unwrap(info.This())->remove_url_seed(std::string(*Nan::Utf8String(info[0])));
+
+        info.GetReturnValue().SetUndefined();
+    };
+
+    NAN_METHOD(TorrentHandleWrap::url_seeds) {
+        Nan::HandleScope scope;
+
+        std::set<std::string> urls = TorrentHandleWrap::Unwrap(info.This())->url_seeds();
+
+        Local<Array> ret = Nan::New<Array>();
+
+        for (std::set<std::string>::iterator i(urls.begin()), e(urls.end()); i != e; ++i)
+            ret->Set(ret->Length(), Nan::New<String>(i));
+
+        info.GetReturnValue().Set(ret);
+    };
+
+    NAN_METHOD(TorrentHandleWrap::add_http_seed) {
+        Nan::HandleScope scope;
+
+        TorrentHandleWrap::Unwrap(info.This())->add_http_seed(std::string(*Nan::Utf8String(info[0])));
+
+        info.GetReturnValue().SetUndefined();
+    };
+
+    NAN_METHOD(TorrentHandleWrap::remove_http_seed) {
+        Nan::HandleScope scope;
+
+        TorrentHandleWrap::Unwrap(info.This())->remove_http_seed(std::string(*Nan::Utf8String(info[0])));
+
+        info.GetReturnValue().SetUndefined();
+    };
+
+    NAN_METHOD(TorrentHandleWrap::http_seeds) {
+        Nan::HandleScope scope;
+
+        std::set<std::string> urls = TorrentHandleWrap::Unwrap(info.This())->http_seeds();
+
+        Local<Array> ret = Nan::New<Array>();
+
+        for (std::set<std::string>::iterator i(urls.begin()), e(urls.end()); i != e; ++i)
+            ret->Set(ret->Length(), Nan::New<String>(i));
+
+        info.GetReturnValue().SetUndefined();
+    };
+
+    NAN_METHOD(TorrentHandleWrap::get_torrent_info) {
+        Nan::HandleScope scope;
+
+        libtorrent::torrent_info ti = TorrentHandleWrap::Unwrap(info.This())->get_torrent_info();
+
+        info.GetReturnValue().Set(TorrentInfoWrap::New(ti));
+    };
+
+    NAN_METHOD(TorrentHandleWrap::set_metadata) {
+        Nan::HandleScope scope;
     
-    std::string md(*String::AsciiValue(args[0]));
-    TorrentHandleWrap::Unwrap(args.This())->set_metadata(md.c_str(), md.size());
-    return scope.Close(Undefined());
-  };
+        std::string md(*Nan::Utf8String(info[0]));
 
-  Handle<Value> TorrentHandleWrap::is_valid(const Arguments& args) {
-    HandleScope scope;
-    return scope.Close(Boolean::New(
-      TorrentHandleWrap::Unwrap(args.This())->is_valid()));
-  };
+        TorrentHandleWrap::Unwrap(info.This())->set_metadata(md.c_str(), md.size());
+
+        info.GetReturnValue().SetUndefined();
+    };
+
+    NAN_METHOD(TorrentHandleWrap::is_valid) {
+        Nan::HandleScope scope;
+
+        info.GetReturnValue().Set(Nan::New<Boolean>(TorrentHandleWrap::Unwrap(info.This())->is_valid()));
+    };
   
-  Handle<Value> TorrentHandleWrap::has_metadata(const Arguments& args) {
-    HandleScope scope;
-    return scope.Close(Boolean::New(
-      TorrentHandleWrap::Unwrap(args.This())->has_metadata()));
-  };
+    NAN_METHOD(TorrentHandleWrap::has_metadata) {
+        Nan::HandleScope scope;
 
-  Handle<Value> TorrentHandleWrap::pause(const Arguments& args) {
-    HandleScope scope;
-    if (args.Length() == 1)
-      TorrentHandleWrap::Unwrap(args.This())->pause(args[0]->IntegerValue());
-    else
-      TorrentHandleWrap::Unwrap(args.This())->pause();
-    return scope.Close(Undefined());
-  };
+        info.GetReturnValue().Set(Nan::New<Boolean>(TorrentHandleWrap::Unwrap(info.This())->has_metadata()));
+    };
 
-  Handle<Value> TorrentHandleWrap::resume(const Arguments& args) {
-    HandleScope scope;
-    TorrentHandleWrap::Unwrap(args.This())->resume();
-    return scope.Close(Undefined());
-  };
+    NAN_METHOD(TorrentHandleWrap::pause) {
+        Nan::HandleScope scope;
 
-  Handle<Value> TorrentHandleWrap::clear_error(const Arguments& args) {
-    HandleScope scope;
-    TorrentHandleWrap::Unwrap(args.This())->clear_error();
-    return scope.Close(Undefined());
-  };
+        if (info.Length() == 1)
+            TorrentHandleWrap::Unwrap(info.This())->pause(info[0]->IntegerValue());
+        else
+            TorrentHandleWrap::Unwrap(info.This())->pause();
 
-  Handle<Value> TorrentHandleWrap::set_priority(const Arguments& args) {
-    HandleScope scope;
-    TorrentHandleWrap::Unwrap(args.This())->set_priority(args[0]->IntegerValue());
-    return scope.Close(Undefined());
-  };
+        info.GetReturnValue().SetUndefined();
+    };
 
-  Handle<Value> TorrentHandleWrap::super_seeding(const Arguments& args) {
-    HandleScope scope;
-    TorrentHandleWrap::Unwrap(args.This())->super_seeding(args[0]->BooleanValue());
-    return scope.Close(Undefined());
-  };
+    NAN_METHOD(TorrentHandleWrap::resume) {
+        Nan::HandleScope scope;
 
+        TorrentHandleWrap::Unwrap(info.This())->resume();
 
-  Handle<Value> TorrentHandleWrap::auto_managed(const Arguments& args) {
-    HandleScope scope;
-    TorrentHandleWrap::Unwrap(args.This())->auto_managed(args[0]->BooleanValue());
-    return scope.Close(Undefined());
-  };
+        info.GetReturnValue().SetUndefined();
+    };
 
-  Handle<Value> TorrentHandleWrap::queue_position(const Arguments& args) {
-    HandleScope scope;
-    return scope.Close(Integer::New(
-      TorrentHandleWrap::Unwrap(args.This())->queue_position()));
-  };
+    NAN_METHOD(TorrentHandleWrap::clear_error) {
+        Nan::HandleScope scope;
 
-  Handle<Value> TorrentHandleWrap::queue_position_up(const Arguments& args) {
-    HandleScope scope;
-    TorrentHandleWrap::Unwrap(args.This())->queue_position_up();
-    return scope.Close(Undefined());
-  };
+        TorrentHandleWrap::Unwrap(info.This())->clear_error();
 
-  Handle<Value> TorrentHandleWrap::queue_position_down(const Arguments& args) {
-    HandleScope scope;
-    TorrentHandleWrap::Unwrap(args.This())->queue_position_down();
-    return scope.Close(Undefined());
-  };
+        info.GetReturnValue().SetUndefined();
+    };
 
-  Handle<Value> TorrentHandleWrap::queue_position_top(const Arguments& args) {
-    HandleScope scope;
-    TorrentHandleWrap::Unwrap(args.This())->queue_position_top();
-    return scope.Close(Undefined());
-  };
+    NAN_METHOD(TorrentHandleWrap::set_priority) {
+        Nan::HandleScope scope;
 
-  Handle<Value> TorrentHandleWrap::queue_position_bottom(const Arguments& args) {
-    HandleScope scope;
-    TorrentHandleWrap::Unwrap(args.This())->queue_position_bottom();
-    return scope.Close(Undefined());
-  };
+        TorrentHandleWrap::Unwrap(info.This())->set_priority(info[0]->IntegerValue());
+
+        info.GetReturnValue().SetUndefined();
+    };
+
+    NAN_METHOD(TorrentHandleWrap::super_seeding) {
+        Nan::HandleScope scope;
+
+        TorrentHandleWrap::Unwrap(info.This())->super_seeding(info[0]->BooleanValue());
+
+        info.GetReturnValue().SetUndefined();
+    };
+
+    NAN_METHOD(TorrentHandleWrap::auto_managed) {
+        Nan::HandleScope scope;
+
+        TorrentHandleWrap::Unwrap(info.This())->auto_managed(info[0]->BooleanValue());
+
+        info.GetReturnValue().SetUndefined();
+    };
+
+    NAN_METHOD(TorrentHandleWrap::queue_position) {
+        Nan::HandleScope scope;
+
+        info.GetReturnValue().Set(Nan::New<Integer>(TorrentHandleWrap::Unwrap(info.This())->queue_position()));
+    };
+
+    NAN_METHOD(TorrentHandleWrap::queue_position_up) {
+        Nan::HandleScope scope;
+
+        TorrentHandleWrap::Unwrap(info.This())->queue_position_up();
+
+        info.GetReturnValue().SetUndefined();
+    };
+
+    NAN_METHOD(TorrentHandleWrap::queue_position_down) {
+        Nan::HandleScope scope;
+
+        TorrentHandleWrap::Unwrap(info.This())->queue_position_down();
+
+        info.GetReturnValue().SetUndefined();
+    };
+
+    NAN_METHOD(TorrentHandleWrap::queue_position_top) {
+        Nan::HandleScope scope;
+
+        TorrentHandleWrap::Unwrap(info.This())->queue_position_top();
+
+        info.GetReturnValue().SetUndefined();
+    };
+
+    NAN_METHOD(TorrentHandleWrap::queue_position_bottom) {
+        Nan::HandleScope scope;
+
+        TorrentHandleWrap::Unwrap(info.This())->queue_position_bottom();
+
+        info.GetReturnValue().SetUndefined();
+    };
 
 #ifndef TORRENT_DISABLE_RESOLVE_COUNTRIES
-  Handle<Value> TorrentHandleWrap::resolve_countries(const Arguments& args) {
-    HandleScope scope;
+    NAN_METHOD(TorrentHandleWrap::resolve_countries) {
+        Nan::HandleScope scope;
 
-    if (args.Length() == 1) {
-      TorrentHandleWrap::Unwrap(args.This())->resolve_countries(args[0]->BooleanValue());
-      return scope.Close(Undefined());
-    } else {
-      return scope.Close(Boolean::New(
-        TorrentHandleWrap::Unwrap(args.This())->resolve_countries()));
-    }
-  };
+        if (info.Length() == 1) {
+            TorrentHandleWrap::Unwrap(info.This())->resolve_countries(info[0]->BooleanValue());
+            info.GetReturnValue().SetUndefined();
+        } else {
+            info.GetReturnValue().Set(Nan::New<Boolean>(TorrentHandleWrap::Unwrap(info.This())->resolve_countries()));
+        }
+    };
 #endif
 
-  Handle<Value> TorrentHandleWrap::add_piece(const Arguments& args) {
-    HandleScope scope;
+    NAN_METHOD(TorrentHandleWrap::add_piece) {
+        Nan::HandleScope scope;
 
-    libtorrent::torrent_handle* th = TorrentHandleWrap::Unwrap(args.This());
-    std::string data(*String::AsciiValue(args[1]));
-    if (args.Length() == 3)
-      th->add_piece(args[0]->IntegerValue(), data.c_str(), args[2]->IntegerValue());
-    else
-      th->add_piece(args[0]->IntegerValue(), data.c_str());
-    return scope.Close(Undefined());
-  };
+        libtorrent::torrent_handle* th = TorrentHandleWrap::Unwrap(info.This());
 
-  Handle<Value> TorrentHandleWrap::read_piece(const Arguments& args) {
-    HandleScope scope;
-    TorrentHandleWrap::Unwrap(args.This())->read_piece(args[0]->IntegerValue());
-    return scope.Close(Undefined());
-  };
+        std::string data(*Nan::Utf8String(info[1]));
 
-  Handle<Value> TorrentHandleWrap::have_piece(const Arguments& args) {
-    HandleScope scope;
-    bool ret = TorrentHandleWrap::Unwrap(args.This())->have_piece(args[0]->IntegerValue());
-    return scope.Close(Boolean::New(ret));
-  };
+        if (info.Length() == 3)
+            th->add_piece(info[0]->IntegerValue(), data.c_str(), info[2]->IntegerValue());
+        else
+            th->add_piece(info[0]->IntegerValue(), data.c_str());
 
-  Handle<Value> TorrentHandleWrap::set_piece_deadline(const Arguments& args) {
-    HandleScope scope;
-    libtorrent::torrent_handle* th = TorrentHandleWrap::Unwrap(args.This());
-    int index = args[0]->IntegerValue(), deadline = args[1]->IntegerValue();
-    if (args.Length() == 3)
-      th->set_piece_deadline(index, deadline, args[2]->IntegerValue());
-    else
-      th->set_piece_deadline(index, deadline);
-    return scope.Close(Undefined());
-  };
+        info.GetReturnValue().SetUndefined();
+    };
 
-  Handle<Value> TorrentHandleWrap::reset_piece_deadline(const Arguments& args) {
-    HandleScope scope;
-    TorrentHandleWrap::Unwrap(args.This())->reset_piece_deadline(
-      args[0]->IntegerValue());
-    return scope.Close(Undefined());
-  };
+    NAN_METHOD(TorrentHandleWrap::read_piece) {
+        Nan::HandleScope scope;
 
-  Handle<Value> TorrentHandleWrap::piece_availability(const Arguments& args) {
-    HandleScope scope;
+        TorrentHandleWrap::Unwrap(info.This())->read_piece(info[0]->IntegerValue());
+
+        info.GetReturnValue().SetUndefined();
+    };
+
+    NAN_METHOD(TorrentHandleWrap::have_piece) {
+        Nan::HandleScope scope;
+
+        bool ret = TorrentHandleWrap::Unwrap(info.This())->have_piece(info[0]->IntegerValue());
+
+        info.GetReturnValue().Set(Nan::New<Boolean>(ret));
+    };
+
+    NAN_METHOD(TorrentHandleWrap::set_piece_deadline) {
+        Nan::HandleScope scope;
+
+        libtorrent::torrent_handle* th = TorrentHandleWrap::Unwrap(info.This());
+
+        int index = info[0]->IntegerValue(), deadline = info[1]->IntegerValue();
+
+        if (info.Length() == 3)
+            th->set_piece_deadline(index, deadline, info[2]->IntegerValue());
+        else
+            th->set_piece_deadline(index, deadline);
+
+        info.GetReturnValue().SetUndefined();
+    };
+
+    NAN_METHOD(TorrentHandleWrap::reset_piece_deadline) {
+        Nan::HandleScope scope;
+
+        TorrentHandleWrap::Unwrap(info.This())->reset_piece_deadline(info[0]->IntegerValue());
+
+        info.GetReturnValue().SetUndefined();
+    };
+
+    NAN_METHOD(TorrentHandleWrap::piece_availability) {
+        Nan::HandleScope scope;
     
-    std::vector<int> a;
-    Local<Array> avail = Array::Cast(*args[0]);
-    for (uint32_t i(0), e(avail->Length()); i < e; ++i)
-      a.push_back(avail->Get(i)->IntegerValue());
-    TorrentHandleWrap::Unwrap(args.This())->piece_availability(a);
-    return scope.Close(Undefined());
-  };
+        std::vector<int> a;
 
-  Handle<Value> TorrentHandleWrap::piece_priority(const Arguments& args) {
-    HandleScope scope;
+        Local<Array> avail = Array::Cast(*info[0]);
 
-    libtorrent::torrent_handle* th = TorrentHandleWrap::Unwrap(args.This());
-    if (args.Length() == 2) {
-      th->piece_priority(args[0]->IntegerValue(), args[1]->IntegerValue());
-      return scope.Close(Undefined());
-    } else {
-      return scope.Close(Integer::New(th->piece_priority(args[0]->IntegerValue())));
-    }
-  };
+        for (uint32_t i(0), e(avail->Length()); i < e; ++i)
+            a.push_back(avail->Get(i)->IntegerValue());
 
-  Handle<Value> TorrentHandleWrap::prioritize_pieces(const Arguments& args) {
-    HandleScope scope;
-    
-    std::vector<int> p;
-    Local<Array> pieces = Array::Cast(*args[0]);
-    for (uint32_t i(0), e(pieces->Length()); i < e; ++i)
-      p.push_back(pieces->Get(i)->IntegerValue());
-    TorrentHandleWrap::Unwrap(args.This())->prioritize_pieces(p);
-    return scope.Close(Undefined());
-  };
+        TorrentHandleWrap::Unwrap(info.This())->piece_availability(a);
 
-  Handle<Value> TorrentHandleWrap::piece_priorities(const Arguments& args) {
-    HandleScope scope;
-    
-    std::vector<int> p(TorrentHandleWrap::Unwrap(args.This())->piece_priorities());
-    Local<Array> ret = Array::New();
-    for (std::vector<int>::iterator i(p.begin()), e(p.end()); i != e; ++i)
-      ret->Set(ret->Length(), Integer::New(*i));
-    return scope.Close(ret);
-  };
+        info.GetReturnValue().SetUndefined();
+    };
 
-  Handle<Value> TorrentHandleWrap::prioritize_files(const Arguments& args) {
-    HandleScope scope;
-    
-    std::vector<int> f;
-    Local<Array> files = Array::Cast(*args[0]);
-    for (uint32_t i(0), e(files->Length()); i < e; ++i)
-      f.push_back(files->Get(i)->IntegerValue());
-    TorrentHandleWrap::Unwrap(args.This())->prioritize_files(f);
-    return scope.Close(Undefined());
-  };
+    NAN_METHOD(TorrentHandleWrap::piece_priority) {
+        Nan::HandleScope scope;
 
-  Handle<Value> TorrentHandleWrap::file_priorities(const Arguments& args) {
-    HandleScope scope;
-    
-    std::vector<int> f(TorrentHandleWrap::Unwrap(args.This())->file_priorities());
-    Local<Array> ret = Array::New();
-    for (std::vector<int>::iterator i(f.begin()), e(f.end()); i != e; ++i)
-      ret->Set(ret->Length(), Integer::New(*i));
-    return scope.Close(ret);
-  };
+        libtorrent::torrent_handle* th = TorrentHandleWrap::Unwrap(info.This());
 
-  Handle<Value> TorrentHandleWrap::file_priority(const Arguments& args) {
-    HandleScope scope;
+        if (info.Length() == 2) {
+            th->piece_priority(info[0]->IntegerValue(), info[1]->IntegerValue());
+            info.GetReturnValue().SetUndefined();
+        } else {
+            info.GetReturnValue().Set(Nan::New<Integer>(th->piece_priority(info[0]->IntegerValue())));
+        }
+    };
 
-    libtorrent::torrent_handle* th = TorrentHandleWrap::Unwrap(args.This());
-    if (args.Length() == 2) {
-      th->file_priority(args[0]->IntegerValue(), args[1]->IntegerValue());
-      return scope.Close(Undefined());
-    } else {
-      return scope.Close(Integer::New(th->file_priority(args[0]->IntegerValue())));
-    }
-    return scope.Close(Undefined());
-  };
+    NAN_METHOD(TorrentHandleWrap::prioritize_pieces) {
+        Nan::HandleScope scope;
 
-  Handle<Value> TorrentHandleWrap::use_interface(const Arguments& args) {
-    HandleScope scope;
-    TorrentHandleWrap::Unwrap(args.This())->use_interface(*String::AsciiValue(args[0]));
-    return scope.Close(Undefined());
-  };
+        std::vector<int> p;
 
-  Handle<Value> TorrentHandleWrap::save_resume_data(const Arguments& args) {
-    HandleScope scope;
-    if (args.Length() == 1)
-      TorrentHandleWrap::Unwrap(args.This())->save_resume_data(args[0]->IntegerValue());
-    else
-      TorrentHandleWrap::Unwrap(args.This())->save_resume_data();
-    return scope.Close(Undefined());
-  };
+        Local<Array> pieces = Array::Cast(*info[0]);
 
-  Handle<Value> TorrentHandleWrap::need_save_resume_data(const Arguments& args) {
-    HandleScope scope;
-    return scope.Close(Boolean::New(
-      TorrentHandleWrap::Unwrap(args.This())->need_save_resume_data()));
-  };
+        for (uint32_t i(0), e(pieces->Length()); i < e; ++i)
+            p.push_back(pieces->Get(i)->IntegerValue());
 
-  Handle<Value> TorrentHandleWrap::force_reannounce(const Arguments& args) {
-    HandleScope scope;
-    TorrentHandleWrap::Unwrap(args.This())->force_reannounce();
-    return scope.Close(Undefined());
-  };
+        TorrentHandleWrap::Unwrap(info.This())->prioritize_pieces(p);
+
+        info.GetReturnValue().SetUndefined();
+    };
+
+    NAN_METHOD(TorrentHandleWrap::piece_priorities) {
+        Nan::HandleScope scope;
+
+        std::vector<int> p(TorrentHandleWrap::Unwrap(info.This())->piece_priorities());
+
+        Local<Array> ret = Nan::New<Array>();
+
+        for (std::vector<int>::iterator i(p.begin()), e(p.end()); i != e; ++i)
+            ret->Set(ret->Length(), Nan::New<Integer>(*i));
+
+        info.GetReturnValue().Set(ret);
+    };
+
+    NAN_METHOD(TorrentHandleWrap::prioritize_files) {
+        Nan::HandleScope scope;
+
+        std::vector<int> f;
+
+        Local<Array> files = Array::Cast(*info[0]);
+
+        for (uint32_t i(0), e(files->Length()); i < e; ++i)
+            f.push_back(files->Get(i)->IntegerValue());
+
+        TorrentHandleWrap::Unwrap(info.This())->prioritize_files(f);
+
+        info.GetReturnValue().SetUndefined();
+    };
+
+    NAN_METHOD(TorrentHandleWrap::file_priorities) {
+        Nan::HandleScope scope;
+
+        std::vector<int> f(TorrentHandleWrap::Unwrap(info.This())->file_priorities());
+
+        Local<Array> ret = Nan::New<Array>();
+
+        for (std::vector<int>::iterator i(f.begin()), e(f.end()); i != e; ++i)
+            ret->Set(ret->Length(), Nan::New<Integer>(*i));
+
+        info.GetReturnValue().Set(ret);
+    };
+
+    NAN_METHOD(TorrentHandleWrap::file_priority) {
+        Nan::HandleScope scope;
+
+        libtorrent::torrent_handle* th = TorrentHandleWrap::Unwrap(info.This());
+
+        if (info.Length() == 2) {
+            th->file_priority(info[0]->IntegerValue(), args[1]->IntegerValue());
+            info.GetReturnValue().SetUndefined();
+        } else {
+            info.GetReturnValue().Set(Nan::New<Integer>(th->file_priority(info[0]->IntegerValue())));
+        }
+
+        info.GetReturnValue().SetUndefined();
+    };
+
+    NAN_METHOD(TorrentHandleWrap::use_interface) {
+        Nan::HandleScope scope;
+
+        TorrentHandleWrap::Unwrap(info.This())->use_interface(*Nan::Utf8String(info[0]));
+
+        info.GetReturnValue().SetUndefined();
+    };
+
+    NAN_METHOD(TorrentHandleWrap::save_resume_data) {
+        Nan::HandleScope scope;
+
+        if (info.Length() == 1)
+            TorrentHandleWrap::Unwrap(info.This())->save_resume_data(info[0]->IntegerValue());
+        else
+            TorrentHandleWrap::Unwrap(info.This())->save_resume_data();
+
+        info.GetReturnValue().SetUndefined();
+    };
+
+    NAN_METHOD(TorrentHandleWrap::need_save_resume_data) {
+        Nan::HandleScope scope;
+
+        info.GetReturnValue().Set(Nan::New<Boolean>(TorrentHandleWrap::Unwrap(info.This())->need_save_resume_data()));
+    };
+
+    NAN_METHOD(TorrentHandleWrap::force_reannounce) {
+        Nan::HandleScope scope;
+
+        TorrentHandleWrap::Unwrap(info.This())->force_reannounce();
+
+        info.GetReturnValue().SetUndefined();
+    };
 
 #ifndef TORRENT_DISABLE_DHT
-  Handle<Value> TorrentHandleWrap::force_dht_announce(const Arguments& args) {
-    HandleScope scope;
-    TorrentHandleWrap::Unwrap(args.This())->force_dht_announce();
-    return scope.Close(Undefined());
-  };
+    NAN_METHOD(TorrentHandleWrap::force_dht_announce) {
+        Nan::HandleScope scope;
+
+        TorrentHandleWrap::Unwrap(info.This())->force_dht_announce();
+
+        info.GetReturnValue().SetUndefined();
+    };
 #endif
 
-  Handle<Value> TorrentHandleWrap::scrape_tracker(const Arguments& args) {
-    HandleScope scope;
-    TorrentHandleWrap::Unwrap(args.This())->scrape_tracker();
-    return scope.Close(Undefined());
-  };
+    NAN_METHOD(TorrentHandleWrap::scrape_tracker) {
+        Nan::HandleScope scope;
 
-  Handle<Value> TorrentHandleWrap::name(const Arguments& args) {
-    HandleScope scope;
-    return scope.Close(String::New(
-      TorrentHandleWrap::Unwrap(args.This())->name().c_str()));
-  };
+        TorrentHandleWrap::Unwrap(info.This())->scrape_tracker();
 
-  Handle<Value> TorrentHandleWrap::set_upload_mode(const Arguments& args) {
-    HandleScope scope;
-    TorrentHandleWrap::Unwrap(args.This())->set_upload_mode(args[0]->BooleanValue());
-    return scope.Close(Undefined());
-  };
+        info.GetReturnValue().SetUndefined();
+    };
 
-  Handle<Value> TorrentHandleWrap::set_share_mode(const Arguments& args) {
-    HandleScope scope;
-    TorrentHandleWrap::Unwrap(args.This())->set_share_mode(args[0]->BooleanValue());
-    return scope.Close(Undefined());
-  };
+    NAN_METHOD(TorrentHandleWrap::name) {
+        Nan::HandleScope scope;
 
-  Handle<Value> TorrentHandleWrap::flush_cache(const Arguments& args) {
-    HandleScope scope;
-    TorrentHandleWrap::Unwrap(args.This())->flush_cache();
-    return scope.Close(Undefined());
-  };
+        info.GetReturnValue().Set(Nan::New<String>(TorrentHandleWrap::Unwrap(info.This())->name()).ToLocalChecked());
+    };
 
-  Handle<Value> TorrentHandleWrap::apply_ip_filter(const Arguments& args) {
-    HandleScope scope;
-    TorrentHandleWrap::Unwrap(args.This())->apply_ip_filter(args[0]->BooleanValue());
-    return scope.Close(Undefined());
-  };
+    NAN_METHOD(TorrentHandleWrap::set_upload_mode) {
+        Nan::HandleScope scope;
 
-  Handle<Value> TorrentHandleWrap::set_upload_limit(const Arguments& args) {
-    HandleScope scope;
+        TorrentHandleWrap::Unwrap(info.This())->set_upload_mode(info[0]->BooleanValue());
 
-    libtorrent::torrent_handle* th = TorrentHandleWrap::Unwrap(args.This());
-    th->set_upload_limit(args[0]->Int32Value());
+        info.GetReturnValue().SetUndefined();
+    };
 
-    return scope.Close(Undefined());
-  };
+    NAN_METHOD(TorrentHandleWrap::set_share_mode) {
+        Nan::HandleScope scope;
 
-  Handle<Value> TorrentHandleWrap::set_download_limit(const Arguments& args) {
-    HandleScope scope;
+        TorrentHandleWrap::Unwrap(info.This())->set_share_mode(info[0]->BooleanValue());
 
-    libtorrent::torrent_handle* th = TorrentHandleWrap::Unwrap(args.This());
-    th->set_download_limit(args[0]->Int32Value());
+        info.GetReturnValue().SetUndefined();
+    };
 
-    return scope.Close(Undefined());
-  };
+    NAN_METHOD(TorrentHandleWrap::flush_cache) {
+        Nan::HandleScope scope;
 
-  Handle<Value> TorrentHandleWrap::upload_limit(const Arguments& args) {
-    HandleScope scope;
+        TorrentHandleWrap::Unwrap(info.This())->flush_cache();
 
-    libtorrent::torrent_handle* th = TorrentHandleWrap::Unwrap(args.This());
+        info.GetReturnValue().SetUndefined();
+    };
 
-    return scope.Close(Int32::New(th->upload_limit()));
-  };
+    NAN_METHOD(TorrentHandleWrap::apply_ip_filter) {
+        Nan::HandleScope scope;
 
-  Handle<Value> TorrentHandleWrap::download_limit(const Arguments& args) {
-    HandleScope scope;
+        TorrentHandleWrap::Unwrap(info.This())->apply_ip_filter(info[0]->BooleanValue());
 
-    libtorrent::torrent_handle* th = TorrentHandleWrap::Unwrap(args.This());
+        info.GetReturnValue().SetUndefined();
+    };
 
-    return scope.Close(Int32::New(th->download_limit()));
-  };
+    NAN_METHOD(TorrentHandleWrap::set_upload_limit) {
+        Nan::HandleScope scope;
 
-  Handle<Value> TorrentHandleWrap::set_sequential_download(const Arguments& args) {
-    HandleScope scope;
-    TorrentHandleWrap::Unwrap(args.This())->set_sequential_download(args[0]->BooleanValue());
-    return scope.Close(Undefined());
-  };
+        libtorrent::torrent_handle* th = TorrentHandleWrap::Unwrap(info.This());
 
-  Handle<Value> TorrentHandleWrap::connect_peer(const Arguments& args) {
-    HandleScope scope;
-    
-    libtorrent::torrent_handle* th = TorrentHandleWrap::Unwrap(args.This());
-    Local<Array> arg0 = Array::Cast(*args[0]);
-    libtorrent::tcp::endpoint ip(
-      libtorrent::address::from_string(std::string(*String::AsciiValue(arg0->Get(0)))),
-      arg0->Get(0)->IntegerValue());
-    if (args.Length() == 2)
-      th->connect_peer(ip, args[1]->IntegerValue());
-    else
-      th->connect_peer(ip);
-    return scope.Close(Undefined());
-  };
+        th->set_upload_limit(info[0]->Int32Value());
 
-  Handle<Value> TorrentHandleWrap::save_path(const Arguments& args) {
-    HandleScope scope;
-    return scope.Close(String::New(
-      TorrentHandleWrap::Unwrap(args.This())->save_path().c_str()));
-  };
+        info.GetReturnValue().SetUndefined();
+    };
 
-  Handle<Value> TorrentHandleWrap::set_max_uploads(const Arguments& args) {
-    HandleScope scope;
-    TorrentHandleWrap::Unwrap(args.This())->set_max_uploads(args[0]->IntegerValue());
-    return scope.Close(Undefined());
-  };
+    NAN_METHOD(TorrentHandleWrap::set_download_limit) {
+        Nan::HandleScope scope;
 
-  Handle<Value> TorrentHandleWrap::max_uploads(const Arguments& args) {
-    HandleScope scope;
-    return scope.Close(Integer::New(
-      TorrentHandleWrap::Unwrap(args.This())->max_uploads()));
-  };
+        libtorrent::torrent_handle* th = TorrentHandleWrap::Unwrap(info.This());
 
-  Handle<Value> TorrentHandleWrap::set_max_connections(const Arguments& args) {
-    HandleScope scope;
-    TorrentHandleWrap::Unwrap(args.This())->set_max_connections(args[0]->IntegerValue());
-    return scope.Close(Undefined());
-  };
+        th->set_download_limit(info[0]->Int32Value());
 
-  Handle<Value> TorrentHandleWrap::max_connections(const Arguments& args) {
-    HandleScope scope;
-    return scope.Close(Integer::New(
-      TorrentHandleWrap::Unwrap(args.This())->max_connections()));
-  };
+        info.GetReturnValue().SetUndefined();
+    };
 
-  Handle<Value> TorrentHandleWrap::set_tracker_login(const Arguments& args) {
-    HandleScope scope;
-    TorrentHandleWrap::Unwrap(args.This())->set_tracker_login(
-      std::string(*String::AsciiValue(args[0])),
-      std::string(*String::AsciiValue(args[1])));
-    return scope.Close(Undefined());
-  };
+    NAN_METHOD(TorrentHandleWrap::upload_limit) {
+        Nan::HandleScope scope;
 
-  Handle<Value> TorrentHandleWrap::move_storage(const Arguments& args) {
-    HandleScope scope;
-    TorrentHandleWrap::Unwrap(args.This())->move_storage(
-      std::string(*String::AsciiValue(args[0])));
-    return scope.Close(Undefined());
-  };
+        libtorrent::torrent_handle* th = TorrentHandleWrap::Unwrap(info.This());
 
-  Handle<Value> TorrentHandleWrap::info_hash(const Arguments& args) {
-    HandleScope scope;
-    libtorrent::sha1_hash h(TorrentHandleWrap::Unwrap(args.This())->info_hash());
-    return scope.Close(String::New(libtorrent::to_hex(h.to_string()).c_str()));
-  };
+        info.GetReturnValue().Set(Nan::New<Int32>(th->upload_limit()));
+    };
 
-  Handle<Value> TorrentHandleWrap::force_recheck(const Arguments& args) {
-    HandleScope scope;
-    TorrentHandleWrap::Unwrap(args.This())->force_recheck();
-    return scope.Close(Undefined());
-  };
+    NAN_METHOD(TorrentHandleWrap::download_limit) {
+        Nan::HandleScope scope;
 
-  Handle<Value> TorrentHandleWrap::rename_file(const Arguments& args) {
-    HandleScope scope;
-    TorrentHandleWrap::Unwrap(args.This())->rename_file(args[0]->IntegerValue(),
-      std::string(*String::AsciiValue(args[1])));
-    return scope.Close(Undefined());
-  };
+        libtorrent::torrent_handle* th = TorrentHandleWrap::Unwrap(info.This());
 
-  Handle<Value> TorrentHandleWrap::set_ssl_certificate(const Arguments& args) {
-    HandleScope scope;
+        info.GetReturnValue().Set(Nan::New<Int32>(th->download_limit()));
+    };
 
-    libtorrent::torrent_handle* th = TorrentHandleWrap::Unwrap(args.This());
-    std::string
-      certificate(*String::AsciiValue(args[0])),
-      private_key(*String::AsciiValue(args[1])),
-      dh_params(*String::AsciiValue(args[2]));
-    if (args.Length() == 4)
-      th->set_ssl_certificate(certificate, private_key, dh_params,
-        std::string(*String::AsciiValue(args[3])));
-    else
-      th->set_ssl_certificate(certificate, private_key, dh_params);
-    return scope.Close(Undefined());
-  };
+    NAN_METHOD(TorrentHandleWrap::set_sequential_download) {
+        Nan::HandleScope scope;
 
+        TorrentHandleWrap::Unwrap(info.This())->set_sequential_download(info[0]->BooleanValue());
 
-  void bind_torrent_handle(Handle<Object> target) {
-    TorrentHandleWrap::Initialize(target);
+        info.GetReturnValue().SetUndefined();
+    };
 
-    // set libtorrent::torrent_handle::status_flags_t
-    Local<Object> status_flags_t = Object::New();
-    status_flags_t->Set(String::NewSymbol("query_distributed_copies"),
-      Integer::New(libtorrent::torrent_handle::query_distributed_copies));
-    status_flags_t->Set(String::NewSymbol("query_accurate_download_counters"),
-      Integer::New(libtorrent::torrent_handle::query_accurate_download_counters));
-    status_flags_t->Set(String::NewSymbol("query_last_seen_complete"),
-      Integer::New(libtorrent::torrent_handle::query_last_seen_complete));
-    status_flags_t->Set(String::NewSymbol("query_pieces"),
-      Integer::New(libtorrent::torrent_handle::query_pieces));
-    status_flags_t->Set(String::NewSymbol("query_verified_pieces"),
-      Integer::New(libtorrent::torrent_handle::query_verified_pieces));
-    target->Set(String::NewSymbol("status_flags_t"), status_flags_t);
-  };
+    NAN_METHOD(TorrentHandleWrap::connect_peer) {
+        Nan::HandleScope scope;
+
+        libtorrent::torrent_handle* th = TorrentHandleWrap::Unwrap(info.This());
+
+        Local<Array> arg0 = Array::Cast(*info[0]);
+
+        libtorrent::tcp::endpoint ip(libtorrent::address::from_string(std::string(*Nan::Utf8String(arg0->Get(0)))),
+            arg0->Get(0)->IntegerValue());
+
+        if (info.Length() == 2)
+            th->connect_peer(ip, info[1]->IntegerValue());
+        else
+            th->connect_peer(ip);
+
+        info.GetReturnValue().SetUndefined();
+    };
+
+    NAN_METHOD(TorrentHandleWrap::save_path) {
+        Nan::HandleScope scope;
+
+        info.GetReturnValue().Set(Nan::New<String>(TorrentHandleWrap::Unwrap(info.This())->save_path()));
+    };
+
+    NAN_METHOD(TorrentHandleWrap::set_max_uploads) {
+        Nan::HandleScope scope;
+
+        TorrentHandleWrap::Unwrap(info.This())->set_max_uploads(info[0]->IntegerValue());
+
+        info.GetReturnValue().SetUndefined();
+    };
+
+    NAN_METHOD(TorrentHandleWrap::max_uploads) {
+        Nan::HandleScope scope;
+
+        info.GetReturnValue().Set(Nan::New<Integer>(TorrentHandleWrap::Unwrap(info.This())->max_uploads()));
+    };
+
+    NAN_METHOD(TorrentHandleWrap::set_max_connections) {
+        Nan::HandleScope scope;
+
+        TorrentHandleWrap::Unwrap(info.This())->set_max_connections(info[0]->IntegerValue());
+
+        info.GetReturnValue().SetUndefined();
+    };
+
+    NAN_METHOD(TorrentHandleWrap::max_connections) {
+        Nan::HandleScope scope;
+
+        info.GetReturnValue().Set(Nan::New<Integer>(TorrentHandleWrap::Unwrap(info.This())->max_connections()));
+    };
+
+    NAN_METHOD(TorrentHandleWrap::set_tracker_login) {
+        Nan::HandleScope scope;
+
+        TorrentHandleWrap::Unwrap(info.This())->set_tracker_login(std::string(*Nan::Utf8String(info[0])),
+            std::string(*Nan::Utf8String(info[1])));
+
+        info.GetReturnValue().SetUndefined();
+    };
+
+    NAN_METHOD(TorrentHandleWrap::move_storage) {
+        Nan::HandleScope scope;
+
+        TorrentHandleWrap::Unwrap(info.This())->move_storage(std::string(*Nan::Utf8String(info[0])));
+
+        info.GetReturnValue().SetUndefined();
+    };
+
+    NAN_METHOD(TorrentHandleWrap::info_hash) {
+        Nan::HandleScope scope;
+
+        libtorrent::sha1_hash h(TorrentHandleWrap::Unwrap(info.This())->info_hash());
+
+        info.GetReturnValue().Set(Nan::New<String>(libtorrent::to_hex(h.to_string())));
+    };
+
+    NAN_METHOD(TorrentHandleWrap::force_recheck) {
+        Nan::HandleScope scope;
+
+        TorrentHandleWrap::Unwrap(info.This())->force_recheck();
+
+        info.GetReturnValue().SetUndefined();
+    };
+
+    NAN_METHOD(TorrentHandleWrap::rename_file) {
+        Nan::HandleScope scope;
+
+        TorrentHandleWrap::Unwrap(info.This())->rename_file(info[0]->IntegerValue(),
+            std::string(*Nan::Utf8String(info[1])));
+
+        info.GetReturnValue().SetUndefined();
+    };
+
+    NAN_METHOD(TorrentHandleWrap::set_ssl_certificate) {
+        Nan::HandleScope scope;
+
+        libtorrent::torrent_handle* th = TorrentHandleWrap::Unwrap(info.This());
+
+        std::string certificate(*Nan::Utf8String(info[0])),
+            private_key(*Nan::Utf8String(info[1])),
+            dh_params(*Nan::Utf8String(info[2]));
+
+        if (info.Length() == 4)
+            th->set_ssl_certificate(certificate, private_key, dh_params, std::string(*Nan::Utf8String(info[3])));
+        else
+            th->set_ssl_certificate(certificate, private_key, dh_params);
+
+        info.GetReturnValue().SetUndefined();
+    };
 }; // namespace nodelt
