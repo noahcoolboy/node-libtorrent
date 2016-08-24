@@ -1,15 +1,19 @@
-# node-libtorrent-mt
+# node-libtorrent-ng
+
+#### node-libtorrent New Generation
 
 node-libtorrent provides native bindings to [libtorrent rastebar](http://www.rasterbar.com/products/libtorrent/) as a [Node.js addon](http://nodejs.org/docs/latest/api/addons.html).
 
-this is a fork of https://github.com/fanatid/node-libtorrent
+This is a fork of https://github.com/fanatid/node-libtorrent which incorporates few fixes from various
+contributors and which is ported to NAN² to allows its usage across all versions of node.js
+(NAN claims to support all major versions).
 
-This library supports version 1.0+
+Please report any issues you find while running this code. Feel free to open a PR as well.
 
 # Getting started
 Execute in command line:
 ```
-$ npm install node-libtorrent-mt
+$ npm install node-libtorrent-ng
 ```
 or copy repository and build bindings manually
 ```

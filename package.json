@@ -1,17 +1,30 @@
 {
-  "name": "node-libtorrent-mt",
-  "description": "rb-libtorrent bindings for node.js (fork with fixes)",
-  "author": "Martin Trojer <martin.trojer@gmail.com>",
-  "homepage": "https://github.com/martintrojer/node-libtorrent",
+  "name": "node-libtorrent-ng",
+  "description": "rb-libtorrent bindings for node.js (nan2-compatible fork with fixes)",
+  "author": "Alexander Revin <lyssdod@gmail.com>",
+  "contributors": [{
+    "name": "Kirill Fomichev <fanatid@ya.ru>",
+    "url": "https://github.com/fanatid"
+  }, {
+    "name": "Martin Trojer <martin.trojer@gmail.com>",
+    "url": "https://github.com/martintrojer"
+  }, {
+    "name": "maboiteaspam",
+    "url": "https://github.com/maboiteaspam",
+  }, {
+    "name": "adomneiandrei",
+    "url": "https://github.com/adomneiandrei"
+  }],
+  "homepage": "https://github.com/lyssdod/node-libtorrent",
   "repository": {
     "type": "git",
-    "url": "https://github.com/martintrojer/node-libtorrent.git"
+    "url": "https://github.com/lyssdod/node-libtorrent.git"
   },
   "bugs": {
-    "url": "https://github.com/martintrojer/node-libtorrent/issues"
+    "url": "https://github.com/lyssdod/node-libtorrent/issues"
   },
   "main": "./lib/libtorrent.js",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "engines": {
     "node": ">= 0.8.0"
   },
@@ -24,7 +37,8 @@
   },
   "keywords": [
     "libtorrent",
-    "torrents"
+    "torrents",
+    "nan"
   ],
   "readmeFilename": "README.md",
   "gypfile": true,
