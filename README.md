@@ -5,7 +5,7 @@
 node-libtorrent provides native bindings to [libtorrent rastebar](http://www.rasterbar.com/products/libtorrent/) as a [Node.js addon](http://nodejs.org/docs/latest/api/addons.html).
 
 This is a fork of https://github.com/fanatid/node-libtorrent which incorporates few fixes from various
-contributors and which is ported to NAN² to allows its usage across all versions of node.js
+contributors and which was ported to NAN² to allow its usage across all versions of node.js
 (NAN claims to support all major versions).
 
 Please report any issues you find while running this code. Feel free to open a PR as well.
