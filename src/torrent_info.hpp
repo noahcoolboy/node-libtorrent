@@ -7,14 +7,22 @@
 
 #include <libtorrent/torrent_info.hpp>
 
+using namespace v8;
 
 namespace nodelt {
+    void bind_torrent_info(Local<Object> target);
+
+    Local<Object> web_seed_entry_headers_t_to_object(const libtorrent::web_seed_entry::headers_t& h);
+    libtorrent::web_seed_entry::headers_t web_seed_entry_headers_t_from_object(Local<Object> obj);
+    Local<Object> announce_entry_to_object(const libtorrent::announce_entry& ae);
+    libtorrent::announce_entry announce_entry_from_object(Local<Object> obj);
+
     class TorrentInfoWrap: public Nan::ObjectWrap {
         public:
-            static void Initialize(v8::Handle<v8::Object> target);
-            static v8::Local<v8::Object> New(const libtorrent::torrent_info& ti);
+            static void Initialize(Local<Object> target);
+            static Local<Object> New(const libtorrent::torrent_info& ti);
 
-            static libtorrent::torrent_info* Unwrap(const v8::Local<v8::Object>& obj) {
+            static libtorrent::torrent_info* Unwrap(const Local<Object>& obj) {
                 return Nan::ObjectWrap::Unwrap<TorrentInfoWrap>(obj)->obj_;
             };
 
@@ -25,7 +33,8 @@ namespace nodelt {
             TorrentInfoWrap(const std::string& filename);
             ~TorrentInfoWrap();
 
-            static v8::Persistent<v8::Function> constructor;
+            static Nan::Persistent<Function> constructor;
+
             static NAN_METHOD(NewInstance);
 
             static NAN_METHOD(remap_files);
@@ -65,9 +74,6 @@ namespace nodelt {
             static NAN_METHOD(map_block);
             static NAN_METHOD(map_file);
     };
-
-    v8::Local<v8::Object> announce_entry_to_object(const libtorrent::announce_entry& ae);
-    libtorrent::announce_entry announce_entry_from_object(v8::Local<v8::Object> obj);
 };
 
 #endif // NODE_LIBTORRENT_TORRENT_INFO_HPP_INCLUDED
