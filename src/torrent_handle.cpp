@@ -147,7 +147,7 @@ namespace nodelt {
     NAN_METHOD(TorrentHandleWrap::NewInstance) {
         Nan::HandleScope scope;
 
-        if (!args.IsConstructCall()) {
+        if (!info.IsConstructCall()) {
             Nan::ThrowTypeError("Use the new operator to create instances of this object.");
             return;
         }
@@ -215,7 +215,7 @@ namespace nodelt {
                 block->Set(Nan::New("bytes_progress").ToLocalChecked(), Nan::New<Uint32>(i->blocks[k].bytes_progress));
                 block->Set(Nan::New("block_size").ToLocalChecked(), Nan::New<Uint32>(i->blocks[k].block_size));
 
-                peer->Set(0, Nan::New<String>(i->blocks[k].peer().address().to_string()));
+                peer->Set(0, Nan::New<String>(i->blocks[k].peer().address().to_string()).ToLocalChecked());
                 peer->Set(1, Nan::New<Integer>(i->blocks[k].peer().port()));
 
                 block->Set(Nan::New("peer").ToLocalChecked(), peer);
@@ -245,7 +245,7 @@ namespace nodelt {
             th->file_progress(res);
 
         for (std::vector<libtorrent::size_type>::iterator i(res.begin()), e(res.end()); i != e; ++i)
-            ret->Set(ret->Length(), Nan::New<Integer>(*i));
+            ret->Set(ret->Length(), Nan::New<Number>(*i));
 
         info.GetReturnValue().Set(ret);
     };
@@ -268,7 +268,7 @@ namespace nodelt {
 
         std::vector<libtorrent::announce_entry> trackers;
 
-        Local<Array> src = Array::Cast(*info[0]);
+        Local<Array> src = info[0].As<Array>();
 
         for (uint32_t i = 0, e = src->Length(); i < e; ++i)
             trackers.push_back(announce_entry_from_object(src->Get(i)->ToObject()));
@@ -310,7 +310,7 @@ namespace nodelt {
         Local<Array> ret = Nan::New<Array>();
 
         for (std::set<std::string>::iterator i(urls.begin()), e(urls.end()); i != e; ++i)
-            ret->Set(ret->Length(), Nan::New<String>(i));
+            ret->Set(ret->Length(), Nan::New<String>(*i).ToLocalChecked());
 
         info.GetReturnValue().Set(ret);
     };
@@ -339,7 +339,7 @@ namespace nodelt {
         Local<Array> ret = Nan::New<Array>();
 
         for (std::set<std::string>::iterator i(urls.begin()), e(urls.end()); i != e; ++i)
-            ret->Set(ret->Length(), Nan::New<String>(i));
+            ret->Set(ret->Length(), Nan::New<String>((*i).c_str()).ToLocalChecked());
 
         info.GetReturnValue().SetUndefined();
     };
@@ -535,7 +535,7 @@ namespace nodelt {
     
         std::vector<int> a;
 
-        Local<Array> avail = Array::Cast(*info[0]);
+        Local<Array> avail = info[0].As<Array>();
 
         for (uint32_t i(0), e(avail->Length()); i < e; ++i)
             a.push_back(avail->Get(i)->IntegerValue());
@@ -563,7 +563,7 @@ namespace nodelt {
 
         std::vector<int> p;
 
-        Local<Array> pieces = Array::Cast(*info[0]);
+        Local<Array> pieces = info[0].As<Array>();
 
         for (uint32_t i(0), e(pieces->Length()); i < e; ++i)
             p.push_back(pieces->Get(i)->IntegerValue());
@@ -591,7 +591,7 @@ namespace nodelt {
 
         std::vector<int> f;
 
-        Local<Array> files = Array::Cast(*info[0]);
+        Local<Array> files = info[0].As<Array>();
 
         for (uint32_t i(0), e(files->Length()); i < e; ++i)
             f.push_back(files->Get(i)->IntegerValue());
@@ -620,7 +620,7 @@ namespace nodelt {
         libtorrent::torrent_handle* th = TorrentHandleWrap::Unwrap(info.This());
 
         if (info.Length() == 2) {
-            th->file_priority(info[0]->IntegerValue(), args[1]->IntegerValue());
+            th->file_priority(info[0]->IntegerValue(), info[1]->IntegerValue());
             info.GetReturnValue().SetUndefined();
         } else {
             info.GetReturnValue().Set(Nan::New<Integer>(th->file_priority(info[0]->IntegerValue())));
@@ -767,7 +767,7 @@ namespace nodelt {
 
         libtorrent::torrent_handle* th = TorrentHandleWrap::Unwrap(info.This());
 
-        Local<Array> arg0 = Array::Cast(*info[0]);
+        Local<Array> arg0 = info[0].As<Array>();
 
         libtorrent::tcp::endpoint ip(libtorrent::address::from_string(std::string(*Nan::Utf8String(arg0->Get(0)))),
             arg0->Get(0)->IntegerValue());
@@ -783,7 +783,7 @@ namespace nodelt {
     NAN_METHOD(TorrentHandleWrap::save_path) {
         Nan::HandleScope scope;
 
-        info.GetReturnValue().Set(Nan::New<String>(TorrentHandleWrap::Unwrap(info.This())->save_path()));
+        info.GetReturnValue().Set(Nan::New<String>(TorrentHandleWrap::Unwrap(info.This())->save_path()).ToLocalChecked());
     };
 
     NAN_METHOD(TorrentHandleWrap::set_max_uploads) {
@@ -836,7 +836,7 @@ namespace nodelt {
 
         libtorrent::sha1_hash h(TorrentHandleWrap::Unwrap(info.This())->info_hash());
 
-        info.GetReturnValue().Set(Nan::New<String>(libtorrent::to_hex(h.to_string())));
+        info.GetReturnValue().Set(Nan::New<String>(libtorrent::to_hex(h.to_string())).ToLocalChecked());
     };
 
     NAN_METHOD(TorrentHandleWrap::force_recheck) {
