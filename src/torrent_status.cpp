@@ -1,4 +1,5 @@
 #include <v8.h>
+#include <nan.h>
 #include <node.h>
 
 #include <libtorrent/torrent_handle.hpp>
@@ -13,161 +14,165 @@ using namespace node;
 
 
 namespace nodelt {
-  Local<Array> bitfield_to_array(const libtorrent::bitfield& bf) {
-    HandleScope scope;
+    void bind_torrent_status(Local<Object> target) {
+        // set libtorrent::torrent_status::state_t
+        Local<Object> state_t = Nan::New<Object>();
 
-    Local<Array> obj = Array::New();
-    for (libtorrent::bitfield::const_iterator i(bf.begin()), e(bf.end()); i != e; ++i)
-      obj->Set(obj->Length(), Boolean::New(*i));
+        state_t->Set(Nan::New("queued_for_checking").ToLocalChecked(),
+            Nan::New<Integer>(libtorrent::torrent_status::queued_for_checking));
+        state_t->Set(Nan::New("checking_files").ToLocalChecked(),
+            Nan::New<Integer>(libtorrent::torrent_status::checking_files));
+        state_t->Set(Nan::New("downloading_metadata").ToLocalChecked(),
+            Nan::New<Integer>(libtorrent::torrent_status::downloading_metadata));
+        state_t->Set(Nan::New("downloading").ToLocalChecked(),
+            Nan::New<Integer>(libtorrent::torrent_status::downloading));
+        state_t->Set(Nan::New("finished").ToLocalChecked(),
+            Nan::New<Integer>(libtorrent::torrent_status::finished));
+        state_t->Set(Nan::New("seeding").ToLocalChecked(),
+            Nan::New<Integer>(libtorrent::torrent_status::seeding));
+        state_t->Set(Nan::New("allocating").ToLocalChecked(),
+            Nan::New<Integer>(libtorrent::torrent_status::allocating));
+        state_t->Set(Nan::New("checking_resume_data").ToLocalChecked(),
+            Nan::New<Integer>(libtorrent::torrent_status::checking_resume_data));
+        target->Set(Nan::New("states").ToLocalChecked(), state_t);
+    };
 
-    return scope.Close(obj);
-  };
+    Local<Array> bitfield_to_array(const libtorrent::bitfield& bf) {
+        Nan::EscapableHandleScope scope;
 
-  Local<Object> time_duration_to_object(const boost::posix_time::time_duration& td) {
-    HandleScope scope;
+        Local<Array> obj = Nan::New<Array>();
 
-    Local<Object> obj = Object::New();
-    obj->Set(String::NewSymbol("seconds"),      Integer::New(td.total_seconds()));
-    obj->Set(String::NewSymbol("milliseconds"), Integer::New(td.total_milliseconds()));
-    obj->Set(String::NewSymbol("microseconds"), Integer::New(td.total_microseconds()));
+        for (libtorrent::bitfield::const_iterator i(bf.begin()), e(bf.end()); i != e; ++i)
+            obj->Set(obj->Length(), Nan::New<Boolean>(*i));
 
-    return scope.Close(obj);
-  };
+        return scope.Escape(obj);
+    };
 
-  Handle<Value> torrent_status_to_object(const libtorrent::torrent_status& st) {
-    HandleScope scope;
-    Local<Object> obj = Object::New();
+    Local<Object> time_duration_to_object(const boost::posix_time::time_duration& td) {
+        Nan::EscapableHandleScope scope;
 
-    obj->Set(String::NewSymbol("handle"), TorrentHandleWrap::New(st.handle));
+        Local<Object> obj = Nan::New<Object>();
 
-    obj->Set(String::NewSymbol("state"), Integer::New(st.state));
-    obj->Set(String::NewSymbol("paused"), Boolean::New(st.paused));
-    obj->Set(String::NewSymbol("auto_managed"), Boolean::New(st.auto_managed));
-    obj->Set(String::NewSymbol("sequential_download"), Boolean::New(st.sequential_download));
-    obj->Set(String::NewSymbol("seeding"), Boolean::New(st.seeding));
-    obj->Set(String::NewSymbol("finished"), Boolean::New(st.finished));
-    obj->Set(String::NewSymbol("progress"), Number::New(st.progress));
-    obj->Set(String::NewSymbol("progressPpm"), Integer::New(st.progress_ppm));
-    obj->Set(String::NewSymbol("error"), String::New(st.error.c_str()));
+        obj->Set(Nan::New("seconds").ToLocalChecked(),      Nan::New<Integer>(td.total_seconds()));
+        obj->Set(Nan::New("milliseconds").ToLocalChecked(), Nan::New<Number>(td.total_milliseconds()));
+        obj->Set(Nan::New("microseconds").ToLocalChecked(), Nan::New<Number>(td.total_microseconds()));
 
-    obj->Set(String::NewSymbol("next_announce"), time_duration_to_object(st.next_announce));
-    obj->Set(String::NewSymbol("announce_interval"), time_duration_to_object(st.announce_interval));
+        return scope.Escape(obj);
+    };
 
-    obj->Set(String::NewSymbol("current_tracker"), String::New(st.current_tracker.c_str()));
+    Handle<Value> torrent_status_to_object(const libtorrent::torrent_status& st) {
+        Nan::EscapableHandleScope scope;
 
-    obj->Set(String::NewSymbol("total_download"), Uint32::NewFromUnsigned(st.total_download));
-    obj->Set(String::NewSymbol("total_upload"), Uint32::NewFromUnsigned(st.total_upload));
+        Local<Object> obj = Nan::New<Object>();
 
-    obj->Set(String::NewSymbol("total_payload_download"), Uint32::NewFromUnsigned(st.total_payload_download));
-    obj->Set(String::NewSymbol("total_payload_upload"), Uint32::NewFromUnsigned(st.total_payload_upload));
+        obj->Set(Nan::New("handle").ToLocalChecked(), TorrentHandleWrap::New(st.handle));
 
-    obj->Set(String::NewSymbol("total_failed_bytes"), Uint32::NewFromUnsigned(st.total_failed_bytes));
-    obj->Set(String::NewSymbol("total_redundant_bytes"), Uint32::NewFromUnsigned(st.total_redundant_bytes));
+        obj->Set(Nan::New("state").ToLocalChecked(), Nan::New<Integer>(st.state));
+        obj->Set(Nan::New("paused").ToLocalChecked(), Nan::New<Boolean>(st.paused));
+        obj->Set(Nan::New("auto_managed").ToLocalChecked(), Nan::New<Boolean>(st.auto_managed));
+        obj->Set(Nan::New("sequential_download").ToLocalChecked(), Nan::New<Boolean>(st.sequential_download));
+        obj->Set(Nan::New("seeding").ToLocalChecked(), Nan::New<Boolean>(st.seeding));
+        obj->Set(Nan::New("finished").ToLocalChecked(), Nan::New<Boolean>(st.finished));
+        obj->Set(Nan::New("progress").ToLocalChecked(), Nan::New<Number>(st.progress));
+        obj->Set(Nan::New("progressPpm").ToLocalChecked(), Nan::New<Integer>(st.progress_ppm));
+        obj->Set(Nan::New("error").ToLocalChecked(), Nan::New<String>(st.error.c_str()).ToLocalChecked());
 
-    obj->Set(String::NewSymbol("download_rate"), Integer::New(st.download_rate));
-    obj->Set(String::NewSymbol("upload_rate"), Integer::New(st.upload_rate));
+        obj->Set(Nan::New("next_announce").ToLocalChecked(), time_duration_to_object(st.next_announce));
+        obj->Set(Nan::New("announce_interval").ToLocalChecked(), time_duration_to_object(st.announce_interval));
 
-    obj->Set(String::NewSymbol("download_payload_rate"), Integer::New(st.download_payload_rate));
-    obj->Set(String::NewSymbol("upload_payload_rate"), Integer::New(st.upload_payload_rate));
+        obj->Set(Nan::New("current_tracker").ToLocalChecked(), Nan::New<String>(st.current_tracker.c_str()).ToLocalChecked());
 
-    obj->Set(String::NewSymbol("num_peers"), Integer::New(st.num_peers));
+        obj->Set(Nan::New("total_download").ToLocalChecked(), Nan::New<Number>(st.total_download));
+        obj->Set(Nan::New("total_upload").ToLocalChecked(), Nan::New<Number>(st.total_upload));
 
-    obj->Set(String::NewSymbol("num_complete"), Integer::New(st.num_complete));
-    obj->Set(String::NewSymbol("num_incomplete"), Integer::New(st.num_incomplete));
+        obj->Set(Nan::New("total_payload_download").ToLocalChecked(), Nan::New<Number>(st.total_payload_download));
+        obj->Set(Nan::New("total_payload_upload").ToLocalChecked(), Nan::New<Number>(st.total_payload_upload));
 
-    obj->Set(String::NewSymbol("list_seeds"), Integer::New(st.list_seeds));
-    obj->Set(String::NewSymbol("list_peers"), Integer::New(st.list_peers));
+        obj->Set(Nan::New("total_failed_bytes").ToLocalChecked(), Nan::New<Number>(st.total_failed_bytes));
+        obj->Set(Nan::New("total_redundant_bytes").ToLocalChecked(), Nan::New<Number>(st.total_redundant_bytes));
 
-    obj->Set(String::NewSymbol("connect_candidates"), Integer::New(st.connect_candidates));
+        obj->Set(Nan::New("download_rate").ToLocalChecked(), Nan::New<Integer>(st.download_rate));
+        obj->Set(Nan::New("upload_rate").ToLocalChecked(), Nan::New<Integer>(st.upload_rate));
 
-    obj->Set(String::NewSymbol("pieces"), bitfield_to_array(st.pieces));
-    obj->Set(String::NewSymbol("verified_pieces"), bitfield_to_array(st.verified_pieces));
+        obj->Set(Nan::New("download_payload_rate").ToLocalChecked(), Nan::New<Integer>(st.download_payload_rate));
+        obj->Set(Nan::New("upload_payload_rate").ToLocalChecked(), Nan::New<Integer>(st.upload_payload_rate));
 
-    obj->Set(String::NewSymbol("num_pieces"), Integer::New(st.num_pieces));
+        obj->Set(Nan::New("num_peers").ToLocalChecked(), Nan::New<Integer>(st.num_peers));
 
-    obj->Set(String::NewSymbol("total_done"), Uint32::NewFromUnsigned(st.total_done));
-    obj->Set(String::NewSymbol("total_wanted_done"), Uint32::NewFromUnsigned(st.total_wanted_done));
-    obj->Set(String::NewSymbol("total_wanted"), Uint32::NewFromUnsigned(st.total_wanted));
+        obj->Set(Nan::New("num_complete").ToLocalChecked(), Nan::New<Integer>(st.num_complete));
+        obj->Set(Nan::New("num_incomplete").ToLocalChecked(), Nan::New<Integer>(st.num_incomplete));
 
-    obj->Set(String::NewSymbol("num_seeds"), Integer::New(st.num_seeds));
+        obj->Set(Nan::New("list_seeds").ToLocalChecked(), Nan::New<Integer>(st.list_seeds));
+        obj->Set(Nan::New("list_peers").ToLocalChecked(), Nan::New<Integer>(st.list_peers));
 
-    obj->Set(String::NewSymbol("distributed_full_copies"), Integer::New(st.distributed_full_copies));
-    obj->Set(String::NewSymbol("distributed_fraction"), Integer::New(st.distributed_fraction));
+        obj->Set(Nan::New("connect_candidates").ToLocalChecked(), Nan::New<Integer>(st.connect_candidates));
 
-    obj->Set(String::NewSymbol("distributed_copies"), Number::New(st.distributed_copies));
+        obj->Set(Nan::New("pieces").ToLocalChecked(), bitfield_to_array(st.pieces));
+        obj->Set(Nan::New("verified_pieces").ToLocalChecked(), bitfield_to_array(st.verified_pieces));
 
-    obj->Set(String::NewSymbol("block_size"), Integer::New(st.block_size));
+        obj->Set(Nan::New("num_pieces").ToLocalChecked(), Nan::New<Integer>(st.num_pieces));
 
-    obj->Set(String::NewSymbol("num_uploads"), Integer::New(st.num_uploads));
-    obj->Set(String::NewSymbol("num_connections"), Integer::New(st.num_connections));
-    obj->Set(String::NewSymbol("uploads_limit"), Integer::New(st.uploads_limit));
-    obj->Set(String::NewSymbol("connections_limit"), Integer::New(st.connections_limit));
+        obj->Set(Nan::New("total_done").ToLocalChecked(), Nan::New<Number>(st.total_done));
+        obj->Set(Nan::New("total_wanted_done").ToLocalChecked(), Nan::New<Number>(st.total_wanted_done));
+        obj->Set(Nan::New("total_wanted").ToLocalChecked(), Nan::New<Number>(st.total_wanted));
 
-    obj->Set(String::NewSymbol("storage_mode"), Integer::New(st.storage_mode));
+        obj->Set(Nan::New("num_seeds").ToLocalChecked(), Nan::New<Integer>(st.num_seeds));
 
-    obj->Set(String::NewSymbol("up_bandwidth_queue"), Integer::New(st.up_bandwidth_queue));
-    obj->Set(String::NewSymbol("down_bandwidth_queue"), Integer::New(st.down_bandwidth_queue));
+        obj->Set(Nan::New("distributed_full_copies").ToLocalChecked(), Nan::New<Integer>(st.distributed_full_copies));
+        obj->Set(Nan::New("distributed_fraction").ToLocalChecked(), Nan::New<Integer>(st.distributed_fraction));
 
-    obj->Set(String::NewSymbol("all_time_upload"), Uint32::NewFromUnsigned(st.all_time_upload));
-    obj->Set(String::NewSymbol("all_time_download"), Uint32::NewFromUnsigned(st.all_time_download));
+        obj->Set(Nan::New("distributed_copies").ToLocalChecked(), Nan::New<Number>(st.distributed_copies));
 
-    obj->Set(String::NewSymbol("active_time"), Integer::New(st.active_time));
-    obj->Set(String::NewSymbol("finished_time"), Integer::New(st.finished_time));
-    obj->Set(String::NewSymbol("seeding_time"), Integer::New(st.seeding_time));
+        obj->Set(Nan::New("block_size").ToLocalChecked(), Nan::New<Integer>(st.block_size));
 
-    obj->Set(String::NewSymbol("seed_rank"), Integer::New(st.seed_rank));
+        obj->Set(Nan::New("num_uploads").ToLocalChecked(), Nan::New<Integer>(st.num_uploads));
+        obj->Set(Nan::New("num_connections").ToLocalChecked(), Nan::New<Integer>(st.num_connections));
+        obj->Set(Nan::New("uploads_limit").ToLocalChecked(), Nan::New<Integer>(st.uploads_limit));
+        obj->Set(Nan::New("connections_limit").ToLocalChecked(), Nan::New<Integer>(st.connections_limit));
 
-    obj->Set(String::NewSymbol("last_scrape"), Integer::New(st.last_scrape));
+        obj->Set(Nan::New("storage_mode").ToLocalChecked(), Nan::New<Integer>(st.storage_mode));
 
-    obj->Set(String::NewSymbol("has_incoming"), Boolean::New(st.has_incoming));
+        obj->Set(Nan::New("up_bandwidth_queue").ToLocalChecked(), Nan::New<Integer>(st.up_bandwidth_queue));
+        obj->Set(Nan::New("down_bandwidth_queue").ToLocalChecked(), Nan::New<Integer>(st.down_bandwidth_queue));
 
-    obj->Set(String::NewSymbol("sparse_regions"), Integer::New(st.sparse_regions));
+        obj->Set(Nan::New("all_time_upload").ToLocalChecked(), Nan::New<Number>(st.all_time_upload));
+        obj->Set(Nan::New("all_time_download").ToLocalChecked(), Nan::New<Number>(st.all_time_download));
 
-    obj->Set(String::NewSymbol("seed_mode"), Boolean::New(st.seed_mode));
-    obj->Set(String::NewSymbol("upload_mode"), Boolean::New(st.upload_mode));
-    obj->Set(String::NewSymbol("share_mode"), Boolean::New(st.share_mode));
-    obj->Set(String::NewSymbol("super_seeding"), Boolean::New(st.super_seeding));
+        obj->Set(Nan::New("active_time").ToLocalChecked(), Nan::New<Integer>(st.active_time));
+        obj->Set(Nan::New("finished_time").ToLocalChecked(), Nan::New<Integer>(st.finished_time));
+        obj->Set(Nan::New("seeding_time").ToLocalChecked(), Nan::New<Integer>(st.seeding_time));
 
-    obj->Set(String::NewSymbol("priority"), Integer::New(st.priority));
+        obj->Set(Nan::New("seed_rank").ToLocalChecked(), Nan::New<Integer>(st.seed_rank));
 
-    obj->Set(String::NewSymbol("added_time"), Date::New(((double) st.added_time)*1000));
-    obj->Set(String::NewSymbol("completed_time"), Date::New(((double) st.completed_time)*1000));
-    obj->Set(String::NewSymbol("last_seen_complete"), Date::New(((double) st.last_seen_complete)*1000));
+        obj->Set(Nan::New("last_scrape").ToLocalChecked(), Nan::New<Integer>(st.last_scrape));
 
-    obj->Set(String::NewSymbol("time_since_upload"), Integer::New(st.time_since_upload));
-    obj->Set(String::NewSymbol("time_since_download"), Integer::New(st.time_since_download));
+        obj->Set(Nan::New("has_incoming").ToLocalChecked(), Nan::New<Boolean>(st.has_incoming));
 
-    obj->Set(String::NewSymbol("queue_position"), Integer::New(st.queue_position));
-    obj->Set(String::NewSymbol("need_save_resume"), Boolean::New(st.need_save_resume));
-    obj->Set(String::NewSymbol("ip_filter_applies"), Boolean::New(st.ip_filter_applies));
+        obj->Set(Nan::New("sparse_regions").ToLocalChecked(), Nan::New<Integer>(st.sparse_regions));
 
-    std::string info_hash = libtorrent::to_hex(st.info_hash.to_string());
-    obj->Set(String::NewSymbol("info_hash"), String::New(info_hash.c_str()));
+        obj->Set(Nan::New("seed_mode").ToLocalChecked(), Nan::New<Boolean>(st.seed_mode));
+        obj->Set(Nan::New("upload_mode").ToLocalChecked(), Nan::New<Boolean>(st.upload_mode));
+        obj->Set(Nan::New("share_mode").ToLocalChecked(), Nan::New<Boolean>(st.share_mode));
+        obj->Set(Nan::New("super_seeding").ToLocalChecked(), Nan::New<Boolean>(st.super_seeding));
 
-    //obj->Set(String::NewSymbol("listen_port"), Integer::New(st.listen_port));
+        obj->Set(Nan::New("priority").ToLocalChecked(), Nan::New<Integer>(st.priority));
 
-    return scope.Close(obj);
-  };
+        obj->Set(Nan::New("added_time").ToLocalChecked(), Nan::New<Date>(((double) st.added_time)*1000).ToLocalChecked());
+        obj->Set(Nan::New("completed_time").ToLocalChecked(), Nan::New<Date>(((double) st.completed_time)*1000).ToLocalChecked());
+        obj->Set(Nan::New("last_seen_complete").ToLocalChecked(), Nan::New<Date>(((double) st.last_seen_complete)*1000).ToLocalChecked());
 
-  void bind_torrent_status(Local<Object> target) {
-    // set libtorrent::torrent_status::state_t
-    Local<Object> state_t = Object::New();
-    state_t->Set(String::NewSymbol("queued_for_checking"),
-      Integer::New(libtorrent::torrent_status::queued_for_checking));
-    state_t->Set(String::NewSymbol("checking_files"),
-      Integer::New(libtorrent::torrent_status::checking_files));
-    state_t->Set(String::NewSymbol("downloading_metadata"),
-      Integer::New(libtorrent::torrent_status::downloading_metadata));
-    state_t->Set(String::NewSymbol("downloading"),
-      Integer::New(libtorrent::torrent_status::downloading));
-    state_t->Set(String::NewSymbol("finished"),
-      Integer::New(libtorrent::torrent_status::finished));
-    state_t->Set(String::NewSymbol("seeding"),
-      Integer::New(libtorrent::torrent_status::seeding));
-    state_t->Set(String::NewSymbol("allocating"),
-      Integer::New(libtorrent::torrent_status::allocating));
-    state_t->Set(String::NewSymbol("checking_resume_data"),
-      Integer::New(libtorrent::torrent_status::checking_resume_data));
-    target->Set(String::NewSymbol("states"), state_t);
-  };
+        obj->Set(Nan::New("time_since_upload").ToLocalChecked(), Nan::New<Integer>(st.time_since_upload));
+        obj->Set(Nan::New("time_since_download").ToLocalChecked(), Nan::New<Integer>(st.time_since_download));
+
+        obj->Set(Nan::New("queue_position").ToLocalChecked(), Nan::New<Integer>(st.queue_position));
+        obj->Set(Nan::New("need_save_resume").ToLocalChecked(), Nan::New<Boolean>(st.need_save_resume));
+        obj->Set(Nan::New("ip_filter_applies").ToLocalChecked(), Nan::New<Boolean>(st.ip_filter_applies));
+
+        std::string info_hash = libtorrent::to_hex(st.info_hash.to_string());
+        obj->Set(Nan::New("info_hash").ToLocalChecked(), Nan::New<String>(info_hash.c_str()).ToLocalChecked());
+
+        //obj->Set(Nan::New("listen_port").ToLocalChecked(), Nan::New<Integer>(st.listen_port));
+
+        return scope.Escape(obj);
+    };
 }; // namespace nodelt
