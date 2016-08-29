@@ -26,14 +26,14 @@
       ],
       "cflags_cc": [
         "-fPIC",
-        "`pkg-config --cflags libtorrent`"
+        "`pkg-config --cflags libtorrent-rasterbar`"
       ],
       "cflags_cc!": [
         "-fno-exceptions"
       ],
       "ldflags": [],
       "libraries": [
-        "`pkg-config --libs libtorrent`"
+        "`pkg-config --libs libtorrent-rasterbar`"
       ],
       "include_dirs" : [
         "<!(node -e \"require('nan')\")"

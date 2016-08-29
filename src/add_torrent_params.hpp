@@ -3,6 +3,7 @@
 
 #include <v8.h>
 
+#include <libtorrent/storage_defs.hpp>
 #include <libtorrent/add_torrent_params.hpp>
 
 using namespace v8;

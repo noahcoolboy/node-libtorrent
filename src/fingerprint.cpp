@@ -11,6 +11,8 @@ using namespace node;
 
 
 namespace nodelt {
+    Nan::Persistent<Function> FingerprintWrap::constructor;
+
     FingerprintWrap::FingerprintWrap(const char* id_string, int major, int minor, int revision, int tag) {
         obj_ = new libtorrent::fingerprint(id_string, major, minor, revision, tag);
     };
