@@ -5,7 +5,6 @@
       "product_name": "libtorrent",
       "sources": [
 	"src/module.cpp",
-
         "src/add_torrent_params.cpp",
         "src/alert.cpp",
         "src/bencode.cpp",
@@ -48,12 +47,12 @@
             "OTHER_CFLAGS": [
               "-mmacosx-version-min=10.7", "-std=c++11", "-stdlib=libc++", "-O3", "-D__STDC_CONSTANT_MACROS", "-D_FILE_OFFSET_BITS=64", 
               "-D_LARGEFILE_SOURCE", "-fPIC", 
-              "`pkg-config --cflags libtorrent`"
+              "`pkg-config --cflags libtorrent-rasterbar`"
             ],
             "OTHER_CPLUSPLUSFLAGS": [
               "-mmacosx-version-min=10.7", "-std=c++11", "-stdlib=libc++", "-O3", "-D__STDC_CONSTANT_MACROS", "-D_FILE_OFFSET_BITS=64", 
               "-D_LARGEFILE_SOURCE", "-fPIC", 
-              "`pkg-config --cflags libtorrent`"
+              "`pkg-config --cflags libtorrent-rasterbar`"
             ]
           },
         }]
