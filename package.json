@@ -29,7 +29,9 @@
     "node": ">= 0.8.0"
   },
   "dependencies": {
-    "nan": "^2.4.0"
+    "nan": "^2.4.0",
+    "cmake-js": "^3.0.0",
+    "boost-lib": "*"
   },
   "scripts": {
     "install": "node-gyp rebuild",
