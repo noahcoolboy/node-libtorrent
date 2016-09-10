@@ -4,6 +4,7 @@ language: cpp
 
 compiler:
 - gcc
+- clang
 
 os:
 - linux
@@ -35,6 +36,9 @@ addons:
      - cmake-data
 
 matrix:
+  exclude:
+  - os: osx
+    compiler: gcc
   allow_failures:
     - os: osx
 
@@ -43,12 +47,13 @@ before_install:
 #- scripts/validate_tag.sh
 #- echo $NODE_VERSION
 # upgrade nvm
- - rm -rf ~/.nvm/ && git clone --depth 1 https://github.com/creationix/nvm.git ~/.nvm
- - source ~/.nvm/nvm.sh
+ - rm -rf ~/.nvm/ && git clone --depth 1 https://github.com/creationix/nvm.git ~/.nvm && source ~/.nvm/nvm.sh
  - nvm install $NODE_VERSION
  - nvm use $NODE_VERSION
+ - if [[ $NODE_VERSION == "0.12" ]]; then npm install npm@2 && node_modules/.bin/npm install npm; else npm install npm; fi
+ - npm --version
 
-before_install:
+#before_install:
 #- if [[ $(uname -s) == 'Linux' ]]; then
 #     export CXX="clang++-3.5";
 #     export CC="clang-3.5";
@@ -67,7 +72,16 @@ before_install:
 #- if test "${COMMIT_MESSAGE#*'[publish binary]'}" != "$COMMIT_MESSAGE"; then PUBLISH_BINARY=true; fi;
 
 install:
+# linux setup
 - if [ "$TRAVIS_OS_NAME" == "linux" ]; then if [ "$CXX" = "g++" ]; then export CXX="g++-5" CC="gcc-5"; fi; fi
+# osx setup
+- if [[ "$TRAVIS_OS_NAME" == "osx"   ]]; then wget --no-check-certificate http://cmake.org/files/v3.4/cmake-3.4.3-Darwin-x86_64.tar.gz  ;fi
+- if [[ "$TRAVIS_OS_NAME" == "osx"   ]]; then tar -xzf cmake-3.4.3-Darwin-x86_64.tar.gz                                                 ;fi
+- if [[ "$TRAVIS_OS_NAME" == "osx"   ]]; then export PATH=$PWD/cmake-3.4.3-Darwin-x86_64/CMake.app/Contents/bin:$PATH
+
+# upgrade npm
+- npm install npm
+# go
 - npm install
 # test our module
 #- node index.js
