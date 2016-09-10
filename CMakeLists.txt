@@ -9,7 +9,7 @@ message(${CMAKE_MODULE_PATH})
 include(BoostLib)
 
 set(LIBTORRENT_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/deps/libtorrent)
-set(LIBTORRENT_HEADERS ${LIBTORRENT_SOURCE}/include)
+set(LIBTORRENT_HEADERS ${LIBTORRENT_SOURCES}/include)
 
 # locate/download boost
 require_boost_libs(">= 1.57.0" thread;date_time;filesystem)
