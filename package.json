@@ -2,19 +2,24 @@
   "name": "node-libtorrent-ng",
   "description": "rb-libtorrent bindings for node.js (nan2-compatible fork with fixes)",
   "author": "Alexander Revin <lyssdod@gmail.com>",
-  "contributors": [{
-    "name": "Kirill Fomichev <fanatid@ya.ru>",
-    "url": "https://github.com/fanatid"
-  }, {
-    "name": "Martin Trojer <martin.trojer@gmail.com>",
-    "url": "https://github.com/martintrojer"
-  }, {
-    "name": "maboiteaspam",
-    "url": "https://github.com/maboiteaspam"
-  }, {
-    "name": "adomneiandrei",
-    "url": "https://github.com/adomneiandrei"
-  }],
+  "contributors": [
+    {
+      "name": "Kirill Fomichev <fanatid@ya.ru>",
+      "url": "https://github.com/fanatid"
+    },
+    {
+      "name": "Martin Trojer <martin.trojer@gmail.com>",
+      "url": "https://github.com/martintrojer"
+    },
+    {
+      "name": "maboiteaspam",
+      "url": "https://github.com/maboiteaspam"
+    },
+    {
+      "name": "adomneiandrei",
+      "url": "https://github.com/adomneiandrei"
+    }
+  ],
   "homepage": "https://github.com/lyssdod/node-libtorrent",
   "repository": {
     "type": "git",
@@ -29,9 +34,10 @@
     "node": ">= 0.8.0"
   },
   "dependencies": {
-    "nan": "^2.4.0",
+    "bindings": "^1.2.1",
+    "boost-lib": "*",
     "cmake-js": "^3.0.0",
-    "boost-lib": "*"
+    "nan": "^2.4.0"
   },
   "scripts": {
     "install": "cmake-js compile",
