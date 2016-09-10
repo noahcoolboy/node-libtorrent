@@ -19,7 +19,6 @@ branches:
 env:
   matrix:
     # will need to specify arch here
-    - NODE_VERSION="0.12"
     - NODE_VERSION="4.5.0"
     - NODE_VERSION="5.3.0"
     - NODE_VERSION="6.5.0"
@@ -75,7 +74,7 @@ before_install:
 
 install:
 # linux setup
-- if [ "$TRAVIS_OS_NAME" == "linux" ]; then if [ "$CXX" = "g++" ]; then export CXX="g++-5" CC="gcc-5"; fi; fi
+#- if [ "$TRAVIS_OS_NAME" == "linux" ]; then if [ "$CXX" = "g++" ]; then export CXX="g++-5" CC="gcc-5"; fi; fi
 # osx setup
 - if [[ "$TRAVIS_OS_NAME" == "osx"   ]]; then wget --no-check-certificate http://cmake.org/files/v3.4/cmake-3.4.3-Darwin-x86_64.tar.gz  ;fi
 - if [[ "$TRAVIS_OS_NAME" == "osx"   ]]; then tar -xzf cmake-3.4.3-Darwin-x86_64.tar.gz                                                 ;fi
