@@ -1,16 +1,27 @@
 sudo: false
-
 language: cpp
-
-os:
-- linux
-- osx
 
 # don't re-build for tags so that [publish binary] is not re-run
 # https://github.com/travis-ci/travis-ci/issues/1532
 branches:
   except:
     - /^v[0-9]/
+
+os:
+- linux
+- osx
+
+compiler:
+  - gcc
+  - clang
+
+matrix:
+  exclude:
+  - os: osx
+    compiler: gcc
+  - os: linux
+    compiler: clang
+
 
 env:
   matrix:
@@ -25,7 +36,7 @@ addons:
      - george-edison55-precise-backports # cmake 3
      - ubuntu-toolchain-r-test # gcc
     packages:
-     - g++-4.6
+     #- g++-4.6
      - cmake
      - cmake-data
 
