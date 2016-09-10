@@ -34,7 +34,7 @@
     "boost-lib": "*"
   },
   "scripts": {
-    "install": "node-gyp rebuild",
+    "install": "cmake-js compile",
     "test": "jasmine-node --coffee spec/"
   },
   "keywords": [
