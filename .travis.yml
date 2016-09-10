@@ -12,8 +12,8 @@ os:
 - osx
 
 compiler:
-  - gcc
-  - clang
+- gcc
+- clang
 
 matrix:
   exclude:
@@ -45,11 +45,11 @@ before_install:
 #- scripts/validate_tag.sh
 #- echo $NODE_VERSION
 # upgrade nvm
- - rm -rf ~/.nvm/ && git clone --depth 1 https://github.com/creationix/nvm.git ~/.nvm && source ~/.nvm/nvm.sh
- - nvm install $NODE_VERSION
- - nvm use $NODE_VERSION
- - if [[ $NODE_VERSION == "0.12" ]]; then npm install npm@2 && node_modules/.bin/npm install npm; else npm install npm; fi
- - npm --version
+- rm -rf ~/.nvm/ && git clone --depth 1 https://github.com/creationix/nvm.git ~/.nvm && source ~/.nvm/nvm.sh
+- nvm install $NODE_VERSION
+- nvm use $NODE_VERSION
+- if [[ $NODE_VERSION == "0.12" ]]; then npm install npm@2 && node_modules/.bin/npm install npm; else npm install npm; fi
+- npm --version
 
 #before_install:
 #- if [[ $(uname -s) == 'Linux' ]]; then
@@ -71,7 +71,7 @@ before_install:
 
 install:
 # linux setup
-  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then if [ "$CXX" = "g++" ]; then export CXX="g++-4.6" CC="gcc-4.6" ;fi ;fi
+- if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then if [ "$CXX" = "g++" ]; then export CXX="g++-4.6" CC="gcc-4.6" ;fi ;fi
 # osx setup
 - if [[ "$TRAVIS_OS_NAME" == "osx"   ]]; then wget --no-check-certificate http://cmake.org/files/v3.4/cmake-3.4.3-Darwin-x86_64.tar.gz  ;fi
 - if [[ "$TRAVIS_OS_NAME" == "osx"   ]]; then tar -xzf cmake-3.4.3-Darwin-x86_64.tar.gz                                                 ;fi
