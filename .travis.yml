@@ -28,10 +28,10 @@ addons:
   apt:
     sources:
      - george-edison55-precise-backports # cmake 3
-     - ubuntu-toolchain-r-test # gcc 5
+     #- ubuntu-toolchain-r-test # gcc 5
     packages:
-     - g++-5
-     - gcc-5
+     #- g++-5
+     #- gcc-5
      - cmake
      - cmake-data
 
@@ -39,6 +39,8 @@ matrix:
   exclude:
   - os: osx
     compiler: gcc
+  - os: linux
+    compiler: clang
   allow_failures:
     - os: osx
 
