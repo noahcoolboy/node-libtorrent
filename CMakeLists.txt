@@ -29,9 +29,7 @@ set_target_properties(${PROJECT_NAME} PROPERTIES PREFIX "" SUFFIX ".node")
 # specify includes
 target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_JS_INC})
 target_include_directories(${PROJECT_NAME} PRIVATE ${LIBTORRENT_HEADERS})
-#target_include_directories(${PROJECT_NAME} PRIVATE ${Boost_INCLUDE_DIRS})
 
-# Essential library files to link to a node addon,
-# you should add this line in every CMake.js based project.
-# Define Boost dependencies there.
+# specify libs
 target_link_libraries(${PROJECT_NAME} ${CMAKE_JS_LIB})
+target_link_libraries(${PROJECT_NAME} ${LIBTORRENT_SOURCES})
