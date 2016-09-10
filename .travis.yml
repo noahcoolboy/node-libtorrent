@@ -2,10 +2,6 @@ sudo: false
 
 language: cpp
 
-compiler:
-- gcc
-- clang
-
 os:
 - linux
 - osx
@@ -29,19 +25,8 @@ addons:
      - george-edison55-precise-backports # cmake 3
      #- ubuntu-toolchain-r-test # gcc 5
     packages:
-     #- g++-5
-     #- gcc-5
      - cmake
      - cmake-data
-
-matrix:
-  exclude:
-  - os: osx
-    compiler: gcc
-  - os: linux
-    compiler: clang
-  allow_failures:
-    - os: osx
 
 before_install:
 # check if tag exists and matches package.json
@@ -74,7 +59,7 @@ before_install:
 
 install:
 # linux setup
-#- if [ "$TRAVIS_OS_NAME" == "linux" ]; then if [ "$CXX" = "g++" ]; then export CXX="g++-5" CC="gcc-5"; fi; fi
+- if [ "$TRAVIS_OS_NAME" == "linux" ]; then export CXX=g++; fi
 # osx setup
 - if [[ "$TRAVIS_OS_NAME" == "osx"   ]]; then wget --no-check-certificate http://cmake.org/files/v3.4/cmake-3.4.3-Darwin-x86_64.tar.gz  ;fi
 - if [[ "$TRAVIS_OS_NAME" == "osx"   ]]; then tar -xzf cmake-3.4.3-Darwin-x86_64.tar.gz                                                 ;fi
