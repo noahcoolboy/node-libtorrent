@@ -23,9 +23,9 @@ addons:
   apt:
     sources:
      - george-edison55-precise-backports # cmake 3
-     #- ubuntu-toolchain-r-test # gcc 5
+     - ubuntu-toolchain-r-test # gcc
     packages:
-     - g++
+     - g++-4.6
      - cmake
      - cmake-data
 
@@ -61,7 +61,7 @@ before_install:
 install:
 # linux setup
 - if [ "$TRAVIS_OS_NAME" == "linux" ]; then g++ -v; fi
-- if [ "$TRAVIS_OS_NAME" == "linux" ]; then export CXX=g++; fi
+#- if [ "$TRAVIS_OS_NAME" == "linux" ]; then export CXX=g++; fi
 # osx setup
 - if [[ "$TRAVIS_OS_NAME" == "osx"   ]]; then wget --no-check-certificate http://cmake.org/files/v3.4/cmake-3.4.3-Darwin-x86_64.tar.gz  ;fi
 - if [[ "$TRAVIS_OS_NAME" == "osx"   ]]; then tar -xzf cmake-3.4.3-Darwin-x86_64.tar.gz                                                 ;fi
