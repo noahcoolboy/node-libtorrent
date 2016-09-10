@@ -1,4 +1,9 @@
+sudo: false
+
 language: cpp
+
+compiler:
+- gcc
 
 os:
 - linux
@@ -62,7 +67,7 @@ before_install:
 #- if test "${COMMIT_MESSAGE#*'[publish binary]'}" != "$COMMIT_MESSAGE"; then PUBLISH_BINARY=true; fi;
 
 install:
-# ensure source install works
+- if [ "$TRAVIS_OS_NAME" == "linux" ]; then if [ "$CXX" = "g++" ]; then export CXX="g++-5" CC="gcc-5"; fi; fi
 - npm install
 # test our module
 #- node index.js
