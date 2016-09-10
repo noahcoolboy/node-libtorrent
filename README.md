@@ -2,6 +2,8 @@
 
 #### node-libtorrent New Generation
 
+[![Build Status](https://travis-ci.org/lyssdod/node-libtorrent.svg?branch=master)](https://travis-ci.org/lyssdod/node-libtorrent)
+
 node-libtorrent provides native bindings to [libtorrent rastebar](http://www.rasterbar.com/products/libtorrent/) as a [Node.js addon](http://nodejs.org/docs/latest/api/addons.html).
 
 This is a fork of https://github.com/fanatid/node-libtorrent which incorporates few fixes from various
