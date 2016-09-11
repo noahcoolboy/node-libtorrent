@@ -34,6 +34,8 @@ namespace nodelt {
         Nan::SetPrototypeMethod(tpl, "to_string", to_string);
 
         constructor.Reset(tpl->GetFunction());
+
+        target->Set(Nan::New("fingerprint").ToLocalChecked(), tpl->GetFunction());
     };
 
 
