@@ -157,6 +157,8 @@ namespace nodelt {
         Nan::SetPrototypeMethod(tpl, "map_file", map_file);
 
         constructor.Reset(tpl->GetFunction());
+
+        target->Set(Nan::New("torrent_info").ToLocalChecked(), tpl->GetFunction());
     };
 
     Local<Object> TorrentInfoWrap::New(const libtorrent::torrent_info& ti) {

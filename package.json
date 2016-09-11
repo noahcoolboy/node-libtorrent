@@ -29,7 +29,7 @@
     "url": "https://github.com/lyssdod/node-libtorrent/issues"
   },
   "main": "./lib/libtorrent.js",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "engines": {
     "node": ">= 0.8.0"
   },
@@ -40,7 +40,7 @@
     "nan": "^2.4.0"
   },
   "scripts": {
-    "install": "cmake-js compile",
+    "install": "node-gyp rebuild",
     "test": "jasmine-node --coffee spec/"
   },
   "keywords": [
