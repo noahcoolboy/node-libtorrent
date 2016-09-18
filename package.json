@@ -40,8 +40,8 @@
     "nan": "^2.4.0"
   },
   "scripts": {
-    "install": "node-gyp rebuild",
-    "compile": "cmake-js compile",
+    "rebuild": "node-gyp rebuild",
+    "install": "cmake-js compile",
     "test": "jasmine-node --coffee spec/"
   },
   "keywords": [

@@ -81,7 +81,7 @@ install:
 - npm install npm
 # go
 - npm install
-- npm compile
+#- npm compile
 # test our module
 #- node index.js
 
