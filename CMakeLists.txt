@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.1)
 # Name of the project (will be the name of the plugin)
 project (node-libtorrent-ng)
 
-set(LIBTORRENT_LIBS "torrent-rasterbar")
+set(LIBTORRENT_LIB "torrent-rasterbar")
 
 # Include BoostLib module
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/node_modules/boost-lib/cmake")
@@ -15,6 +15,11 @@ require_boost_libs(">= 1.57.0" thread;date_time;filesystem)
 # set up libtorrent
 set(LIBTORRENT_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/deps/libtorrent)
 set(LIBTORRENT_HEADERS ${LIBTORRENT_SOURCES}/include)
+
+# set up openssl headers for libtorrent
+#string(REGEX MATCH "(.*include/node)" NODE_HEADERS "${CMAKE_JS_INC}")
+#set(OPENSSL_INCLUDE_DIR "${NODE_HEADERS}/openssl")
+#set(OPENSSL_LIBRARIES "") # replace
 
 # fortunately it has its own cmake
 add_subdirectory(${LIBTORRENT_SOURCES})
@@ -34,5 +39,5 @@ target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_JS_INC})
 target_include_directories(${PROJECT_NAME} PRIVATE ${LIBTORRENT_HEADERS})
 
 # specify libs
-target_link_libraries(${PROJECT_NAME} ${LIBTORRENT_LIBS})
+target_link_libraries(${PROJECT_NAME} ${LIBTORRENT_LIB})
 target_link_libraries(${PROJECT_NAME} ${CMAKE_JS_LIB})
