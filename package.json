@@ -41,6 +41,7 @@
   },
   "scripts": {
     "install": "node-gyp rebuild",
+    "compile": "cmake-js compile",
     "test": "jasmine-node --coffee spec/"
   },
   "keywords": [
