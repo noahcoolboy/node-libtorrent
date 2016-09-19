@@ -16,7 +16,7 @@ require_boost_libs(">= 1.57.0" thread;date_time;filesystem)
 set(LIBTORRENT_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/deps/libtorrent)
 set(LIBTORRENT_HEADERS ${LIBTORRENT_SOURCES}/include)
 
-set(Boost_FOUND TRUE)
+#set(Boost_FOUND TRUE)
 # set up openssl headers for libtorrent
 #string(REGEX MATCH "(.*include/node)" NODE_HEADERS "${CMAKE_JS_INC}")
 #set(OPENSSL_INCLUDE_DIR "${NODE_HEADERS}/openssl")
