@@ -25,14 +25,17 @@
     "type": "git",
     "url": "https://github.com/lyssdod/node-libtorrent.git"
   },
+  "binary": {
+    "module_name": "libtorrent",
+    "module_path": "build/Release/",
+    "remote_path": "{version}",
+    "host": "https://github.com/lyssdod/node-libtorrent-ng/releases/download/"
+  },
   "bugs": {
     "url": "https://github.com/lyssdod/node-libtorrent/issues"
   },
   "main": "./lib/libtorrent.js",
-  "version": "0.0.9",
-  "engines": {
-    "node": ">= 0.8.0"
-  },
+  "version": "0.1.0",
   "dependencies": {
     "node-pre-gyp": "^0.6.30",
     "bindings": "^1.2.1",
@@ -41,8 +44,10 @@
     "nan": "^2.4.0"
   },
   "scripts": {
-    "rebuild": "node-gyp rebuild",
-    "install": "cmake-js compile",
+    "prepublish": "npm ls",
+    "preinstall": "npm install node-pre-gyp",
+    "invokecmake": "cmake-js compile",
+    "install": "node-pre-gyp install --fallback-to-build",
     "test": "jasmine-node --coffee spec/"
   },
   "keywords": [

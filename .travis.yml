@@ -11,24 +11,23 @@ os:
 - linux
 - osx
 
-compiler:
-- g++
-- clang
+env:
+  matrix:
+  - TRAVIS_NODE_VERSION="4"
+  - TRAVIS_NODE_VERSION="4" ARCH="x86"
+  - TRAVIS_NODE_VERSION="5"
+  - TRAVIS_NODE_VERSION="5" ARCH="x86"
+  - TRAVIS_NODE_VERSION="6"
+  - TRAVIS_NODE_VERSION="6" ARCH="x86"
 
 matrix:
   exclude:
   - os: osx
-    compiler: g++
-  - os: linux
-    compiler: clang
-
-
-env:
-  matrix:
-    # will need to specify arch here
-    - NODE_VERSION="4.5.0"
-    - NODE_VERSION="5.3.0"
-    - NODE_VERSION="6.5.0"
+    env: TRAVIS_NODE_VERSION="4" ARCH="x86"
+  - os: osx
+    env: TRAVIS_NODE_VERSION="5" ARCH="x86"
+  - os: osx
+    env: TRAVIS_NODE_VERSION="6" ARCH="x86"
 
 addons:
   apt:
@@ -36,72 +35,64 @@ addons:
      - george-edison55-precise-backports # cmake 3
      - ubuntu-toolchain-r-test # gcc
     packages:
+     - g++-4.8
+     - g++-4.8-multilib
+     - gcc-multilib
      - cmake
      - cmake-data
 
 before_install:
-# check if tag exists and matches package.json
-#- scripts/validate_tag.sh
-#- echo $NODE_VERSION
-# upgrade nvm
+# reinstall nvm
 - rm -rf ~/.nvm/ && git clone --depth 1 https://github.com/creationix/nvm.git ~/.nvm && source ~/.nvm/nvm.sh
 - nvm install $NODE_VERSION
 - nvm use $NODE_VERSION
-- if [[ $NODE_VERSION == "0.12" ]]; then npm install npm@2 && node_modules/.bin/npm install npm; else npm install npm; fi
+
+# setup files for download
+- BASE_URL=$(node -p "'https://nodejs.org/dist/' + process.version")
+- X86_FILE=$(node -p "'node-' + process.version + '-' + process.platform + '-x86'")
+# download node if testing x86 architecture
+- if [[ "$ARCH" == "x86" ]]; then wget $BASE_URL/$X86_FILE.tar.gz; tar -xf $X86_FILE.tar.gz; export PATH=$X86_FILE/bin:$PATH; fi
+
+# explore current stack
+- uname -a
+- file `which node`
+- node --version
+- node -p 'process.platform + "@" + process.arch'
 - npm --version
 
-#before_install:
-#- if [[ $(uname -s) == 'Linux' ]]; then
-#     export CXX="clang++-3.5";
-#     export CC="clang-3.5";
-#  fi;
-# get commit message
-#- COMMIT_MESSAGE=$(git show -s --format=%B $TRAVIS_COMMIT | tr -d '\n')
-# put local node-pre-gyp on PATH
-#- export PATH=./node_modules/.bin/:$PATH
-# put global node-gyp on PATH
-#- npm install node-gyp -g
-# figure out if we should publish
-#- PUBLISH_BINARY=false
-# if we are building a tag then publish
-#- if [[ $TRAVIS_BRANCH == `git describe --tags --always HEAD` ]]; then PUBLISH_BINARY=true; fi;
-# or if we put [publish binary] in the commit message
-#- if test "${COMMIT_MESSAGE#*'[publish binary]'}" != "$COMMIT_MESSAGE"; then PUBLISH_BINARY=true; fi;
+# use g++-4.8 on linux
+- if [[ $TRAVIS_OS_NAME == "linux" ]]; then export CXX=g++-4.8; fi
+- $CXX --version
 
-install:
-# linux setup
-# (empty)
-# osx setup
+# install recent cmake for osx
 - if [[ "$TRAVIS_OS_NAME" == "osx"   ]]; then wget --no-check-certificate http://cmake.org/files/v3.4/cmake-3.4.3-Darwin-x86_64.tar.gz  ;fi
 - if [[ "$TRAVIS_OS_NAME" == "osx"   ]]; then tar -xzf cmake-3.4.3-Darwin-x86_64.tar.gz                                                 ;fi
 - if [[ "$TRAVIS_OS_NAME" == "osx"   ]]; then export PATH=$PWD/cmake-3.4.3-Darwin-x86_64/CMake.app/Contents/bin:$PATH                   ;fi
 
-# upgrade npm
-- npm install npm
-# go
-- npm install
-#- npm compile
-# test our module
-#- node index.js
+# figure out if we should publish
+- PUBLISH_BINARY=false
+# if we are building a tag then publish
+- echo $TRAVIS_BRANCH
+- echo `git describe --tags --always HEAD`
+- if [[ $TRAVIS_BRANCH == `git describe --tags --always HEAD` ]]; then PUBLISH_BINARY=true; fi;
+- echo "Publishing native platform Binary Package? ->" $PUBLISH_BINARY
 
-before_script:
-# if publishing, do it
-#- if [[ $PUBLISH_BINARY == true ]]; then node-pre-gyp package publish; fi;
-# cleanup
-#- node-pre-gyp clean
-#- node-gyp clean
+# Cleanup the output of npm
+- npm config set progress false
+- npm config set spin false
+
+
+install:
+# ensure source install works
+- npm install --build-from-source
 
 script:
-  - echo "Script running"
-# if publishing, test installing from remote
-#- INSTALL_RESULT=0
-#- if [[ $PUBLISH_BINARY == true ]]; then INSTALL_RESULT=$(npm install --fallback-to-build=false > /dev/null)$? || true; fi;
-# if install returned non zero (errored) then we first unpublish and then call false so travis will bail at this line
-#- if [[ $INSTALL_RESULT != 0 ]]; then echo "returned $INSTALL_RESULT";node-pre-gyp unpublish;false; fi
-# If success then we arrive here so lets clean up
-#- node-pre-gyp clean
+# if publishing, do it
+- if [[ $PUBLISH_BINARY == true ]]; then node-pre-gyp package; fi;
+- if [[ $PUBLISH_BINARY == true ]]; then node-pre-gyp-github publish --release; fi;
 
-after_success:
-  - echo "Success"
-# if success then query and display all published binaries
-#- node-pre-gyp info
+# cleanup
+- node-pre-gyp clean
+
+# test binary exists
+- if [[ $PUBLISH_BINARY == true ]]; then npm install --fallback-to-build=false; fi;
