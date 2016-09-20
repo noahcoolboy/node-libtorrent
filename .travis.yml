@@ -42,6 +42,9 @@ addons:
      - cmake-data
 
 before_install:
+# purge possible previous boost installation
+- rm -rf ~/.cmake-js
+
 # reinstall nvm
 - rm -rf ~/.nvm/ && git clone --depth 1 https://github.com/creationix/nvm.git ~/.nvm && source ~/.nvm/nvm.sh
 - nvm install $TRAVIS_NODE_VERSION
@@ -83,6 +86,10 @@ before_install:
 
 
 install:
+# try to fix boost cmake issue
+- npm install boost-lib
+- patch -p0 < boostlib.patch
+
 # ensure source install works
 - npm install --build-from-source
 
