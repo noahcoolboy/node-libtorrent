@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.1)
 # Name of the project (will be the name of the plugin)
 project (node-libtorrent-ng)
 
-set(CMAKE_VERBOSE_MAKEFILE ON)
+#set(CMAKE_VERBOSE_MAKEFILE ON)
 set(LIBTORRENT_LIB "torrent-rasterbar")
 
 # Include BoostLib module
