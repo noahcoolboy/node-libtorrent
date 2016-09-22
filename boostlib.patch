@@ -1,6 +1,14 @@
---- node_modules/boost-lib/cmake/BoostLib.cmake	2016-09-19 21:47:52.000000000 +0300
-+++ node_modules/boost-lib/cmake/BoostLib.cmake	2016-09-22 21:37:05.329262741 +0300
-@@ -24,7 +24,7 @@
+--- node_modules/boost-lib/cmake/BoostLib.cmake	2016-09-22 21:43:19.257268562 +0300
++++ node_modules/boost-lib/cmake/BoostLib.cmake	2016-09-22 21:44:12.981269398 +0300
+@@ -17,6 +17,7 @@
+         message(STATUS "Boost package found.")
+     else(Boost_FOUND)
+         boost_lib_installer("${req_boost_version}" "${req_boost_libs}")
++        set(Boost_FOUND true)
+         message(STATUS "Boost installed.")
+     endif(Boost_FOUND)
+ 
+@@ -24,7 +25,7 @@
      message(STATUS "Boost Libraries: ${Boost_LIBRARIES}")
  
      # Results:
