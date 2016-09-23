@@ -92,13 +92,13 @@ install:
 
 # ensure source install works
 - npm install --build-from-source
-- echo "LOGS "
-- cat /home/travis/build/lyssdod/node-libtorrent/build/boost-1.61.0/boost_chrono_jam-build-*.log
 
 script:
 # if publishing, do it
 - if [[ $PUBLISH_BINARY == true ]]; then node-pre-gyp package; fi;
 - if [[ $PUBLISH_BINARY == true ]]; then node-pre-gyp-github publish --release; fi;
+- echo "LOGS "
+- cat /home/travis/build/lyssdod/node-libtorrent/build/boost-1.61.0/boost_chrono_jam-build-*.log
 
 # cleanup
 - node-pre-gyp clean
