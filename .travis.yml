@@ -105,7 +105,7 @@ script:
 # test binary exists
 - if [[ $PUBLISH_BINARY == true ]]; then npm install --fallback-to-build=false; fi;
 
-after_script:
+after_failure:
 - echo "LOGS "
 - cat /home/travis/build/lyssdod/node-libtorrent/build/boost-1.61.0/boost_chrono_jam-build-*.log
 
