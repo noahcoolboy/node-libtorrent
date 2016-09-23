@@ -37,11 +37,11 @@ addons:
   apt:
     sources:
      - george-edison55-precise-backports # cmake 3
-     - ubuntu-toolchain-r-test # gcc
+     #- ubuntu-toolchain-r-test # gcc
     packages:
-     - g++-4.8
-     - g++-4.8-multilib
-     - gcc-multilib
+     #- g++-4.8
+     #- g++-4.8-multilib
+     #- gcc-multilib
      - cmake
      - cmake-data
 
@@ -70,7 +70,7 @@ install:
 - npm --version
 
 # use g++-4.8 on linux
-- if [[ $TRAVIS_OS_NAME == "linux" ]]; then export CXX="g++-4.8"; CC="gcc-4.8"; fi
+#- if [[ $TRAVIS_OS_NAME == "linux" ]]; then export CXX="g++-4.8"; CC="gcc-4.8"; fi
 - $CXX --version
 
 # install recent cmake for osx
