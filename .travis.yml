@@ -14,11 +14,11 @@ os:
 env:
   matrix:
   - TRAVIS_NODE_VERSION="4"
-  - TRAVIS_NODE_VERSION="4" ARCH="x86"
-  - TRAVIS_NODE_VERSION="5"
-  - TRAVIS_NODE_VERSION="5" ARCH="x86"
-  - TRAVIS_NODE_VERSION="6"
-  - TRAVIS_NODE_VERSION="6" ARCH="x86"
+#  - TRAVIS_NODE_VERSION="4" ARCH="x86"
+#  - TRAVIS_NODE_VERSION="5"
+#  - TRAVIS_NODE_VERSION="5" ARCH="x86"
+#  - TRAVIS_NODE_VERSION="6"
+#  - TRAVIS_NODE_VERSION="6" ARCH="x86"
 
 matrix:
   exclude:
@@ -104,6 +104,10 @@ script:
 
 # test binary exists
 - if [[ $PUBLISH_BINARY == true ]]; then npm install --fallback-to-build=false; fi;
+
+after_script:
+- echo "AFTER SCRIPT"
+- cat /home/travis/build/lyssdod/node-libtorrent/build/boost-1.61.0/boost_chrono_jam*"
 
 after_failure:
 - echo "LOGS "
