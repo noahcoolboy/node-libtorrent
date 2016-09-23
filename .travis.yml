@@ -109,8 +109,8 @@ script:
 
 after_script:
 - echo "AFTER SCRIPT"
-- cat /home/travis/build/lyssdod/node-libtorrent/build/boost-1.61.0/boost_system_jam-build-err.log"
-- cat /home/travis/build/lyssdod/node-libtorrent/build/boost-1.61.0/boost_system_jam-build-out.log"
+- cat /home/travis/build/lyssdod/node-libtorrent/build/boost-1.61.0/boost_system_jam-build-err.log
+- cat /home/travis/build/lyssdod/node-libtorrent/build/boost-1.61.0/boost_system_jam-build-out.log
 
 #after_failure:
 #- echo "LOGS "
