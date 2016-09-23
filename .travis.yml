@@ -109,9 +109,9 @@ script:
 
 after_script:
 - echo "AFTER SCRIPT"
-- cat /home/travis/build/lyssdod/node-libtorrent/build/boost-1.61.0/boost_chrono_jam*"
+- cat /home/travis/build/lyssdod/node-libtorrent/build/boost-1.61.0/*.log"
 
-after_failure:
-- echo "LOGS "
-- cat /home/travis/build/lyssdod/node-libtorrent/build/boost-1.61.0/boost_chrono_jam-build-*.log
+#after_failure:
+#- echo "LOGS "
+#- cat /home/travis/build/lyssdod/node-libtorrent/build/boost-1.61.0/boost_chrono_jam-build-*.log
 
