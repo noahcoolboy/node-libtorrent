@@ -92,6 +92,8 @@ install:
 
 # ensure source install works
 - npm install --build-from-source
+- echo "LOGS: "
+- cat /home/travis/build/lyssdod/node-libtorrent/build/boost-1.61.0/boost_chrono_jam-build-*.log
 
 script:
 # if publishing, do it
