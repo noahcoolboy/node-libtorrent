@@ -86,7 +86,7 @@ before_install:
 
 
 install:
-echo "Stub install"
+- echo "Stub install"
 # try to fix boost cmake issue - try git version
 #- npm install cmake-js/boost-lib
 #- patch -p0 < boostlib.patch
