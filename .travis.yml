@@ -87,7 +87,7 @@ before_install:
 
 install:
 # try to fix boost cmake issue - try git version
-- npm install cmake-js/boost-lib
+#- npm install cmake-js/boost-lib
 #- patch -p0 < boostlib.patch
 
 # ensure source install works
