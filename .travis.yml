@@ -86,14 +86,16 @@ before_install:
 
 
 install:
+echo "Stub install"
 # try to fix boost cmake issue - try git version
 #- npm install cmake-js/boost-lib
 #- patch -p0 < boostlib.patch
 
+script:
 # ensure source install works
 - npm install --build-from-source
 
-script:
+#script:
 # if publishing, do it
 - if [[ $PUBLISH_BINARY == true ]]; then node-pre-gyp package; fi;
 - if [[ $PUBLISH_BINARY == true ]]; then node-pre-gyp-github publish --release; fi;
