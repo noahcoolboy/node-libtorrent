@@ -1,3 +1,4 @@
+dist: trusty
 sudo: false
 language: cpp
 
@@ -64,7 +65,7 @@ before_install:
 - npm --version
 
 # use g++-4.8 on linux
-- if [[ $TRAVIS_OS_NAME == "linux" ]]; then export CXX=g++-4.8.1; fi
+- if [[ $TRAVIS_OS_NAME == "linux" ]]; then export CXX="g++-4.8"; CC="gcc-4.8"; fi
 - $CXX --version
 
 # install recent cmake for osx
