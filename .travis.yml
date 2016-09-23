@@ -120,7 +120,7 @@ after_script:
 - cat /home/travis/build/lyssdod/node-libtorrent/build/boost-1.61.0/*.log
 - cat /home/travis/build/lyssdod/node-libtorrent/build/boost-1.61.0/boost_system_jam-build-out.log
 - echo "BOOST HEADERS"
-- ls -lha ~/.cmake-js/boost/1.61.0/boost/function
+- ls -lha ~/.cmake-js/boost/1.61.0/boost/function/
 - ls -lha ~/.cmake-js/boost/1.61.0/boost/
 
 #after_failure:
