@@ -47,7 +47,7 @@ addons:
 
 before_install:
 # purge possible previous boost installation
-- rm -rf ~/.cmake-js 
+- rm -rf ~/.cmake-js
 
 install:
 # reinstall nvm
@@ -115,6 +115,7 @@ script:
 
 after_script:
 - echo "AFTER SCRIPT"
+- ls -lha /home/travis/build/lyssdod/node-libtorrent/build/
 - ls -lha /home/travis/build/lyssdod/node-libtorrent/build/boost-1.61.0/
 - cat /home/travis/build/lyssdod/node-libtorrent/build/boost-1.61.0/*.log
 - cat /home/travis/build/lyssdod/node-libtorrent/build/boost-1.61.0/boost_system_jam-build-out.log
