@@ -102,14 +102,15 @@ script:
 
 
 # cleanup
-- node-pre-gyp clean
+#- node-pre-gyp clean
 
 # test binary exists
 - if [[ $PUBLISH_BINARY == true ]]; then npm install --fallback-to-build=false; fi;
 
 after_script:
 - echo "AFTER SCRIPT"
-- cat /home/travis/build/lyssdod/node-libtorrent/build/boost-1.61.0/boost_system_jam-build-err.log
+- ls -lha /home/travis/build/lyssdod/node-libtorrent/build/boost-1.61.0/
+- cat /home/travis/build/lyssdod/node-libtorrent/build/boost-1.61.0/*.log
 - cat /home/travis/build/lyssdod/node-libtorrent/build/boost-1.61.0/boost_system_jam-build-out.log
 
 #after_failure:
