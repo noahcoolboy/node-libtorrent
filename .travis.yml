@@ -1,5 +1,5 @@
 dist: trusty
-sudo: false
+sudo: required
 language: cpp
 
 # don't re-build for tags so that [publish binary] is not re-run
