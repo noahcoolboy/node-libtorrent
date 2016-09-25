@@ -10,15 +10,15 @@ project (node-libtorrent-ng)
 set(LIBTORRENT_LIB "torrent-rasterbar")
 
 if(UNIX)
-    # supress this warning on linux
-    add_definitions(-Wno-potentially-evaluated-expression)
-
     if(APPLE)
         # few tweaks for osx
         add_definitions(-mmacosx-version-min=10.7)
         add_definitions(-stdlib=libc++)
         add_definitions(-D__STDC_CONSTANT_MACROS)
         set(CMAKE_MACOSX_RPATH ON)
+    else(APPLE)
+        # supress this warning on linux
+        add_definitions(-Wno-potentially-evaluated-expression)
     endif(APPLE)
 endif(UNIX)
 
