@@ -40,9 +40,8 @@ addons:
     - ubuntu-toolchain-r-test
     - george-edison55-precise-backports
     packages:
-    - g++-4.8
+    - gcc-4.8-multilib
     - g++-4.8-multilib
-    - gcc-multilib
     - cmake
     - cmake-data
 
