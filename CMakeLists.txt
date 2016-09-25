@@ -9,14 +9,18 @@ project (node-libtorrent-ng)
 #set(CMAKE_VERBOSE_MAKEFILE ON)
 set(LIBTORRENT_LIB "torrent-rasterbar")
 
-# few tweaks for osx
-if(APPLE)
-    add_definitions(-mmacosx-version-min=10.7)
-    add_definitions(-stdlib=libc++)
-    add_definitions(-D__STDC_CONSTANT_MACROS)
+if(UNIX)
+    # supress this warning on linux
     add_definitions(-Wno-potentially-evaluated-expression)
-    set(CMAKE_MACOSX_RPATH ON)
-endif()
+
+    if(APPLE)
+        # few tweaks for osx
+        add_definitions(-mmacosx-version-min=10.7)
+        add_definitions(-stdlib=libc++)
+        add_definitions(-D__STDC_CONSTANT_MACROS)
+        set(CMAKE_MACOSX_RPATH ON)
+    endif(APPLE)
+endif(UNIX)
 
 # Include BoostLib module
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/node_modules/boost-lib/cmake")
