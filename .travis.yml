@@ -1,12 +1,11 @@
-dist: trusty
-sudo: required
+sudo: false
 language: cpp
 
 # don't re-build for tags so that [publish binary] is not re-run
 # https://github.com/travis-ci/travis-ci/issues/1532
 branches:
   except:
-    - /^v[0-9]/
+  - "/^v[0-9]/"
 
 compiler:
 - gcc
@@ -16,15 +15,17 @@ os:
 - osx
 
 env:
+  global:
+  - secure: Py/OGFUaTgPZwLt5zj6kZAhNGviS6UyDuhMVpwSjxM66yOSgwAdBbuozMpPlTZB1KNMlW3VmYtuN4HesR78ZVNeZ/pREi1Ezy95mTLlqb5YEInPAq9zFMRxzfFgRXsw220NCjJULaeW9fMsfXtFtddS3HB/fTSgkqM7lwxKkT7SCHHxZncnpdkxWlee0Msk1Z9IZSZTymcdYtoK3kEkdmmHWNHMI0KPCriy6M04UaiRMHEtNAbDuyomc6mvKR+1jxtqy90OzYMpsZhRb9wPDYPa2UJ9SJJs3Ytze8c5HE3muWFczuR13h/5onOjiYgK2Q/KQgqSz3SMeqG+jBUiUIDiEui36hgyl+mWM/gkFyTb10iAGf1REDpwmxq/8SRWSJtSCN8dpf+DuYztP4uEH7ceF67f/lBzJg4MP+pA3wQLBs3Y0To61MuptB2vnKJj/Hb2QF0B+k4UoY2Ut0/YEKju8EvR5Lzh8cE1lNo1nBYV51Sx/MG2qt6OaTpw6tT5Kj1cZEx96gevjL4oci47gI7r5BbtqLxsEnELkfY2BiUbnhBf92SYgorrSb99YaDXLbtQ6ca8uJacDHqx62R913P7myW0SwFESkYQ4MfEUzIMURrriTyUDuWUIdj3cVBUZ4I9B4AORaCFd9KHm6PfhpSRrkd+wiQH+llGwindvDe4=
+
   matrix:
   - TRAVIS_NODE_VERSION="4"
-#  - TRAVIS_NODE_VERSION="4" ARCH="x86"
-#  - TRAVIS_NODE_VERSION="5"
-#  - TRAVIS_NODE_VERSION="5" ARCH="x86"
-#  - TRAVIS_NODE_VERSION="6"
-#  - TRAVIS_NODE_VERSION="6" ARCH="x86"
+  - TRAVIS_NODE_VERSION="4" ARCH="x86"
+  - TRAVIS_NODE_VERSION="5"
+  - TRAVIS_NODE_VERSION="5" ARCH="x86"
+  - TRAVIS_NODE_VERSION="6"
+  - TRAVIS_NODE_VERSION="6" ARCH="x86"
 
-matrix:
   exclude:
   - os: osx
     env: TRAVIS_NODE_VERSION="4" ARCH="x86"
@@ -36,41 +37,38 @@ matrix:
 addons:
   apt:
     sources:
-     - george-edison55-precise-backports # cmake 3
-     #- ubuntu-toolchain-r-test # gcc
+    - ubuntu-toolchain-r-test
+    - george-edison55-precise-backports
     packages:
-     #- g++-4.8
-     #- g++-4.8-multilib
-     #- gcc-multilib
-     - cmake
-     - cmake-data
+    - g++-4.8
+    - g++-4.8-multilib
+    - gcc-multilib
+    - cmake
+    - cmake-data
 
 before_install:
-# purge possible previous boost installation
+# purge previous boost installation
 - rm -rf ~/.cmake-js
 
 install:
-# reinstall nvm
+# install node
 - rm -rf ~/.nvm/ && git clone --depth 1 https://github.com/creationix/nvm.git ~/.nvm && source ~/.nvm/nvm.sh
 - nvm install $TRAVIS_NODE_VERSION
 - nvm use $TRAVIS_NODE_VERSION
 
-# setup files for download
+# download node for x86
 - BASE_URL=$(node -p "'https://nodejs.org/dist/' + process.version")
 - X86_FILE=$(node -p "'node-' + process.version + '-' + process.platform + '-x86'")
-
-# download node if testing x86 architecture
 - if [[ "$ARCH" == "x86" ]]; then wget $BASE_URL/$X86_FILE.tar.gz; tar -xf $X86_FILE.tar.gz; export PATH=$X86_FILE/bin:$PATH; fi
 
-# explore current stack
+# use g++-4.8 on linux
+- if [[ $TRAVIS_OS_NAME == "linux" ]]; then export CXX="g++-4.8"; CC="gcc-4.8"; fi
+
+# print some info
 - uname -a
-- file `which node`
+- npm --version
 - node --version
 - node -p 'process.platform + "@" + process.arch'
-- npm --version
-
-# use g++-4.8 on linux
-#- if [[ $TRAVIS_OS_NAME == "linux" ]]; then export CXX="g++-4.8"; CC="gcc-4.8"; fi
 - $CXX --version
 
 # install recent cmake for osx
@@ -78,52 +76,22 @@ install:
 - if [[ "$TRAVIS_OS_NAME" == "osx"   ]]; then tar -xzf cmake-3.4.3-Darwin-x86_64.tar.gz                                                 ;fi
 - if [[ "$TRAVIS_OS_NAME" == "osx"   ]]; then export PATH=$PWD/cmake-3.4.3-Darwin-x86_64/CMake.app/Contents/bin:$PATH                   ;fi
 
-# figure out if we should publish
+# figure out if we should publish; publish if we're building a tag
 - PUBLISH_BINARY=false
-# if we are building a tag then publish
 - echo $TRAVIS_BRANCH
 - echo `git describe --tags --always HEAD`
 - if [[ $TRAVIS_BRANCH == `git describe --tags --always HEAD` ]]; then PUBLISH_BINARY=true; fi;
 - echo "Publishing native platform Binary Package? ->" $PUBLISH_BINARY
 
-# Cleanup the output of npm
+# cleanup npm progress
 - npm config set progress false
 - npm config set spin false
 
-
-#install:
-#- echo "Stub install"
-# try to fix boost cmake issue - try git version
-#- npm install cmake-js/boost-lib
-#- patch -p0 < boostlib.patch
-
 script:
-# ensure source install works
+# build
 - npm install --build-from-source
 
-#script:
-# if publishing, do it
+# if we're publishing, do it
 - if [[ $PUBLISH_BINARY == true ]]; then node-pre-gyp package; fi;
-- if [[ $PUBLISH_BINARY == true ]]; then node-pre-gyp-github publish --release; fi;
-
-
-# cleanup
-#- node-pre-gyp clean
-
-# test binary exists
+- if [[ $PUBLISH_BINARY == true ]]; then node-pre-gyp-github publish; fi; # draft for now
 - if [[ $PUBLISH_BINARY == true ]]; then npm install --fallback-to-build=false; fi;
-
-after_script:
-- echo "AFTER SCRIPT"
-- ls -lha /home/travis/build/lyssdod/node-libtorrent/build/
-- ls -lha /home/travis/build/lyssdod/node-libtorrent/build/boost-1.61.0/
-- cat /home/travis/build/lyssdod/node-libtorrent/build/boost-1.61.0/*.log
-- cat /home/travis/build/lyssdod/node-libtorrent/build/boost-1.61.0/boost_system_jam-build-out.log
-- echo "BOOST HEADERS"
-- ls -lha ~/.cmake-js/boost/1.61.0/boost/function/
-- ls -lha ~/.cmake-js/boost/1.61.0/boost/
-
-#after_failure:
-#- echo "LOGS "
-#- cat /home/travis/build/lyssdod/node-libtorrent/build/boost-1.61.0/boost_chrono_jam-build-*.log
-
