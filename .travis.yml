@@ -19,21 +19,21 @@ env:
   global:
   - secure: Py/OGFUaTgPZwLt5zj6kZAhNGviS6UyDuhMVpwSjxM66yOSgwAdBbuozMpPlTZB1KNMlW3VmYtuN4HesR78ZVNeZ/pREi1Ezy95mTLlqb5YEInPAq9zFMRxzfFgRXsw220NCjJULaeW9fMsfXtFtddS3HB/fTSgkqM7lwxKkT7SCHHxZncnpdkxWlee0Msk1Z9IZSZTymcdYtoK3kEkdmmHWNHMI0KPCriy6M04UaiRMHEtNAbDuyomc6mvKR+1jxtqy90OzYMpsZhRb9wPDYPa2UJ9SJJs3Ytze8c5HE3muWFczuR13h/5onOjiYgK2Q/KQgqSz3SMeqG+jBUiUIDiEui36hgyl+mWM/gkFyTb10iAGf1REDpwmxq/8SRWSJtSCN8dpf+DuYztP4uEH7ceF67f/lBzJg4MP+pA3wQLBs3Y0To61MuptB2vnKJj/Hb2QF0B+k4UoY2Ut0/YEKju8EvR5Lzh8cE1lNo1nBYV51Sx/MG2qt6OaTpw6tT5Kj1cZEx96gevjL4oci47gI7r5BbtqLxsEnELkfY2BiUbnhBf92SYgorrSb99YaDXLbtQ6ca8uJacDHqx62R913P7myW0SwFESkYQ4MfEUzIMURrriTyUDuWUIdj3cVBUZ4I9B4AORaCFd9KHm6PfhpSRrkd+wiQH+llGwindvDe4=
   matrix:
-  - TRAVIS_NODE_VERSION="4"
-  - TRAVIS_NODE_VERSION="4" ARCH="x86"
-  - TRAVIS_NODE_VERSION="5"
-  - TRAVIS_NODE_VERSION="5" ARCH="x86"
-  - TRAVIS_NODE_VERSION="6"
-  - TRAVIS_NODE_VERSION="6" ARCH="x86"
+  - TRAVIS_NODE_VERSION="4" ARCH="x64"
+  #- TRAVIS_NODE_VERSION="4" ARCH="ia32"
+  - TRAVIS_NODE_VERSION="5" ARCH="x64"
+  #- TRAVIS_NODE_VERSION="5" ARCH="ia32"
+  - TRAVIS_NODE_VERSION="6" ARCH="x64"
+  #- TRAVIS_NODE_VERSION="6" ARCH="ia32"
 
-matrix:
-  exclude:
-  - os: osx
-    env: TRAVIS_NODE_VERSION="4" ARCH="x86"
-  - os: osx
-    env: TRAVIS_NODE_VERSION="5" ARCH="x86"
-  - os: osx
-    env: TRAVIS_NODE_VERSION="6" ARCH="x86"
+#matrix:
+#  exclude:
+#  - os: osx
+#    env: TRAVIS_NODE_VERSION="4" ARCH="ia32"
+#  - os: osx
+#    env: TRAVIS_NODE_VERSION="5" ARCH="ia32"
+#  - os: osx
+#    env: TRAVIS_NODE_VERSION="6" ARCH="ia32"
 
 addons:
   apt:
@@ -41,8 +41,8 @@ addons:
     #- ubuntu-toolchain-r-test
     - george-edison55-precise-backports
     packages:
-    - gcc-4.8-multilib
-    - g++-4.8-multilib
+    #- gcc-4.8-multilib
+    #- g++-4.8-multilib
     - cmake
     - cmake-data
 
@@ -57,9 +57,9 @@ install:
 - nvm use $TRAVIS_NODE_VERSION
 
 # download node for x86
-- BASE_URL=$(node -p "'https://nodejs.org/dist/' + process.version")
-- X86_FILE=$(node -p "'node-' + process.version + '-' + process.platform + '-x86'")
-- if [[ "$ARCH" == "x86" ]]; then wget $BASE_URL/$X86_FILE.tar.gz; tar -xf $X86_FILE.tar.gz; export PATH=$X86_FILE/bin:$PATH; fi
+#- BASE_URL=$(node -p "'https://nodejs.org/dist/' + process.version")
+#- X86_FILE=$(node -p "'node-' + process.version + '-' + process.platform + '-x86'")
+#- if [[ "$ARCH" == "ia32" ]]; then wget $BASE_URL/$X86_FILE.tar.gz; tar -xf $X86_FILE.tar.gz; export PATH=$X86_FILE/bin:$PATH; fi
 
 # use g++-4.8 on linux
 #- if [[ $TRAVIS_OS_NAME == "linux" ]]; then export CXX="g++-4.8"; CC="gcc-4.8"; fi
