@@ -11,7 +11,9 @@ set(LIBTORRENT_LIB "torrent-rasterbar")
 
 # few tweaks for osx
 if(APPLE)
-	add_definitions(-mmacosx-version-min=10.7)
+    add_definitions(-mmacosx-version-min=10.7)
+    add_definitions(-stdlib=libc++)
+    add_definitions(-D__STDC_CONSTANT_MACROS)
 endif()
 
 # Include BoostLib module
