@@ -39,7 +39,7 @@
   "dependencies": {
     "node-pre-gyp": "^0.6.30",
     "bindings": "^1.2.1",
-    "boost-lib": "cmake-js/boost-lib",
+    "boost-lib": "lyssdod/boost-lib",
     "cmake-js": "3.3.1",
     "nan": "^2.4.0"
   },
