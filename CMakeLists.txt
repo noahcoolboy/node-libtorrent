@@ -1,5 +1,8 @@
 cmake_minimum_required(VERSION 3.1)
 
+# debug purposes
+set(CMAKE_VERBOSE_MAKEFILE ON)
+
 # Name of the project (will be the name of the plugin)
 project (node-libtorrent-ng)
 
@@ -33,6 +36,14 @@ file(GLOB MODULE_SOURCES "src/*.cpp")
 
 # we're building a shared library
 add_library(${PROJECT_NAME} SHARED ${MODULE_SOURCES} ${LIBTORRENT_SOURCES})
+
+# few tweaks for osx
+if(APPLE)
+	add_definitions(-mmacosx-version-min=10.7)
+	add_definitions(-D__STDC_CONSTANT_MACROS)
+	add_definitions(-D_FILE_OFFSET_BITS=64)
+	add_definitions(-D_LARGEFILE_SOURCE)
+endif()
 
 # 1. set .node extension without any "lib" prefix
 # 2. allow it to find libtorrent.so in the same dir
