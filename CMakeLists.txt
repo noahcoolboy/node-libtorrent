@@ -14,6 +14,7 @@ if(APPLE)
     add_definitions(-mmacosx-version-min=10.7)
     add_definitions(-stdlib=libc++)
     add_definitions(-D__STDC_CONSTANT_MACROS)
+    add_definitions(-Wno-potentially-evaluated-expression)
     set(CMAKE_MACOSX_RPATH ON)
 endif()
 
