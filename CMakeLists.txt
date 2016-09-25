@@ -9,6 +9,11 @@ project (node-libtorrent-ng)
 #set(CMAKE_VERBOSE_MAKEFILE ON)
 set(LIBTORRENT_LIB "torrent-rasterbar")
 
+# few tweaks for osx
+if(APPLE)
+	add_definitions(-mmacosx-version-min=10.7)
+endif()
+
 # Include BoostLib module
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/node_modules/boost-lib/cmake")
 include(BoostLib)
@@ -20,11 +25,7 @@ require_boost_libs(">= 1.57.0" thread;date_time;filesystem)
 set(LIBTORRENT_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/deps/libtorrent)
 set(LIBTORRENT_HEADERS ${LIBTORRENT_SOURCES}/include)
 
-#set(Boost_FOUND TRUE)
-# set up openssl headers for libtorrent
-#string(REGEX MATCH "(.*include/node)" NODE_HEADERS "${CMAKE_JS_INC}")
-#set(OPENSSL_INCLUDE_DIR "${NODE_HEADERS}/openssl")
-#set(OPENSSL_LIBRARIES "") # replace
+# set libtorrent build params
 set(geoip OFF CACHE BOOL "" FORCE)
 set(encryption OFF CACHE BOOL "" FORCE)
 
@@ -37,21 +38,13 @@ file(GLOB MODULE_SOURCES "src/*.cpp")
 # we're building a shared library
 add_library(${PROJECT_NAME} SHARED ${MODULE_SOURCES} ${LIBTORRENT_SOURCES})
 
-# few tweaks for osx
-if(APPLE)
-	add_definitions(-mmacosx-version-min=10.7)
-	add_definitions(-D__STDC_CONSTANT_MACROS)
-	add_definitions(-D_FILE_OFFSET_BITS=64)
-	add_definitions(-D_LARGEFILE_SOURCE)
-endif()
-
 # 1. set .node extension without any "lib" prefix
 # 2. allow it to find libtorrent.so in the same dir
-#SET()
 set_target_properties(${PROJECT_NAME} PROPERTIES PREFIX "" SUFFIX ".node" BUILD_WITH_INSTALL_RPATH TRUE INSTALL_RPATH ".")
 
 # specify includes
 target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_JS_INC})
+target_include_directories(${PROJECT_NAME} PRIVATE ${Boost_INCLUDE_DIR})
 target_include_directories(${PROJECT_NAME} PRIVATE ${LIBTORRENT_HEADERS})
 
 # specify libs
