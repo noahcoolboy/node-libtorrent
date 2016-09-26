@@ -56,6 +56,9 @@ install:
 - nvm install $TRAVIS_NODE_VERSION
 - nvm use $TRAVIS_NODE_VERSION
 
+# update path
+- PATH=$PATH:`pwd`/node_modules/.bin
+
 # download node for x86
 #- BASE_URL=$(node -p "'https://nodejs.org/dist/' + process.version")
 #- X86_FILE=$(node -p "'node-' + process.version + '-' + process.platform + '-x86'")
