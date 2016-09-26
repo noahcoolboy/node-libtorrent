@@ -29,7 +29,7 @@
     "module_name": "node-libtorrent-ng",
     "module_path": "build/Release/",
     "remote_path": "{version}",
-    "host": "https://github.com/lyssdod/node-libtorrent-ng/releases/download/"
+    "host": "https://github.com/lyssdod/node-libtorrent/releases/download/"
   },
   "bugs": {
     "url": "https://github.com/lyssdod/node-libtorrent/issues"
