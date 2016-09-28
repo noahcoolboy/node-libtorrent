@@ -43,7 +43,7 @@
   "scripts": {
     "prepublish": "npm ls",
     "preinstall": "npm install node-pre-gyp",
-    "invokecmake": "cmake-js compile",
+    "invokecmake": "git submodule init && git submodule update && cmake-js compile",
     "install": "node-pre-gyp install --fallback-to-build",
     "test": "jasmine-node --coffee spec/"
   },

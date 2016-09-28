@@ -19,7 +19,7 @@ $ npm install node-libtorrent-ng
 ```
 or copy repository and build bindings manually
 ```
-$ git clone git://github.com/lyssdod/node-libtorrent
+$ git clone --recursive git://github.com/lyssdod/node-libtorrent
 $ cd node-libtorrent
 $ npm install
 ```
