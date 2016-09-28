@@ -43,8 +43,7 @@
     "prepublish": "npm ls",
     "preinstall": "npm install node-pre-gyp",
     "compilation": "node compile.js",
-    "install": "node-pre-gyp install --fallback-to-build",
-    "test": "jasmine-node --coffee spec/"
+    "install": "node-pre-gyp install --fallback-to-build"
   },
   "keywords": [
     "libtorrent",
