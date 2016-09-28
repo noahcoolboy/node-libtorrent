@@ -41,7 +41,6 @@
   },
   "scripts": {
     "prepublish": "npm ls",
-    "preinstall": "npm install node-pre-gyp",
     "compilation": "node compile.js",
     "install": "node-pre-gyp install --fallback-to-build"
   },
