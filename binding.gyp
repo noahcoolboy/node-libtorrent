@@ -8,7 +8,7 @@
           'action_name': 'cmakejs',
           'inputs': ['./CMakeLists.txt'],
           'outputs': ['./build'],
-          'action': [ 'npm', 'run', 'invokecmake' ]
+          'action': [ 'npm', 'run', 'compilation' ]
         }
       ]
     }

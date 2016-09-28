@@ -43,7 +43,7 @@
   "scripts": {
     "prepublish": "npm ls",
     "preinstall": "npm install node-pre-gyp",
-    "invokecmake": "git submodule init && git submodule update && cmake-js compile",
+    "compilation": "node compile.js",
     "install": "node-pre-gyp install --fallback-to-build",
     "test": "jasmine-node --coffee spec/"
   },
@@ -60,8 +60,9 @@
   "license": "MIT",
   "devDependencies": {
     "node-pre-gyp-github": "^1.3.1",
-    "boost-lib": "lyssdod/boost-lib",
+    "boost-lib": "0.11.3",
     "cmake-js": "3.3.1",
+    "adm-zip": "0.4.7",
     "nan": "^2.4.0"
   }
 }

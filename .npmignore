@@ -1,0 +1,6 @@
+.npmignore
+.gitmodules
+npm-debug.log
+build
+deps
+
