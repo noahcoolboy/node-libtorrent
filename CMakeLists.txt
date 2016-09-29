@@ -34,6 +34,7 @@ set(LIBTORRENT_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/deps/libtorrent)
 set(LIBTORRENT_HEADERS ${LIBTORRENT_SOURCES}/include)
 
 # set libtorrent build params
+set(shared OFF CACHE BOOL "" FORCE)
 set(geoip OFF CACHE BOOL "" FORCE)
 set(encryption OFF CACHE BOOL "" FORCE)
 
