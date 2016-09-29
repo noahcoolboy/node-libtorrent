@@ -11,6 +11,8 @@ set(LIBTORRENT_LIB "torrent-rasterbar")
 
 if(UNIX)
     add_definitions(-fPIC)
+    add_definitions(-fvisibility=hidden)
+
     if(APPLE)
         # few tweaks for osx
         add_definitions(-mmacosx-version-min=10.7)
