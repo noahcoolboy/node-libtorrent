@@ -10,6 +10,7 @@ project (node-libtorrent-ng)
 set(LIBTORRENT_LIB "torrent-rasterbar")
 
 if(UNIX)
+    add_definitions(-fPIC)
     if(APPLE)
         # few tweaks for osx
         add_definitions(-mmacosx-version-min=10.7)
