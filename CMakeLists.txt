@@ -57,4 +57,5 @@ target_include_directories(${PROJECT_NAME} PRIVATE ${LIBTORRENT_HEADERS})
 
 # specify libs
 target_link_libraries(${PROJECT_NAME} ${LIBTORRENT_LIB})
+target_link_libraries(${PROJECT_NAME} ${Boost_LIBRARIES})
 target_link_libraries(${PROJECT_NAME} ${CMAKE_JS_LIB})
