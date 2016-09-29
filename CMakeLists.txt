@@ -48,7 +48,7 @@ add_library(${PROJECT_NAME} SHARED ${MODULE_SOURCES} ${LIBTORRENT_SOURCES})
 
 # 1. set .node extension without any "lib" prefix
 # 2. allow it to find libtorrent.so in the same dir
-set_target_properties(${PROJECT_NAME} PROPERTIES PREFIX "" SUFFIX ".node" BUILD_WITH_INSTALL_RPATH TRUE INSTALL_RPATH ".")
+set_target_properties(${PROJECT_NAME} PROPERTIES PREFIX "" SUFFIX ".node") # BUILD_WITH_INSTALL_RPATH TRUE INSTALL_RPATH ".")
 
 # specify includes
 target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_JS_INC})
