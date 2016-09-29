@@ -6,7 +6,7 @@ language: cpp
 # https://github.com/travis-ci/travis-ci/issues/1532
 branches:
   except:
-  - /^\d*\.?\d*\.?\d*\.?/
+  - /^\d*\.+\d*\.?\d*\.?/
 
 compiler:
 - gcc
