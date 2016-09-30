@@ -55,9 +55,9 @@ function build() {
     var defaultRuntimeArch = "ia32";
 
     var options = {
-        runtime: process.env.NDLT_RUNTIME || defaultRuntime,
-        runtimeVersion: process.env.NDLT_RUNTIME_VERSION || defaultRuntimeVersion,
-        arch: process.env.NDLT_ARCH || defaultRuntimeArch
+        runtime: process.env.RUNTIME || defaultRuntime,
+        runtimeVersion: process.env.RVERSION || defaultRuntimeVersion,
+        arch: process.env.ARCH || defaultRuntimeArch
     };
 
     var buildSystem = new cmakeJS.BuildSystem(options);

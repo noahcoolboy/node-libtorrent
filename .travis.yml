@@ -20,13 +20,13 @@ env:
   - secure: Py/OGFUaTgPZwLt5zj6kZAhNGviS6UyDuhMVpwSjxM66yOSgwAdBbuozMpPlTZB1KNMlW3VmYtuN4HesR78ZVNeZ/pREi1Ezy95mTLlqb5YEInPAq9zFMRxzfFgRXsw220NCjJULaeW9fMsfXtFtddS3HB/fTSgkqM7lwxKkT7SCHHxZncnpdkxWlee0Msk1Z9IZSZTymcdYtoK3kEkdmmHWNHMI0KPCriy6M04UaiRMHEtNAbDuyomc6mvKR+1jxtqy90OzYMpsZhRb9wPDYPa2UJ9SJJs3Ytze8c5HE3muWFczuR13h/5onOjiYgK2Q/KQgqSz3SMeqG+jBUiUIDiEui36hgyl+mWM/gkFyTb10iAGf1REDpwmxq/8SRWSJtSCN8dpf+DuYztP4uEH7ceF67f/lBzJg4MP+pA3wQLBs3Y0To61MuptB2vnKJj/Hb2QF0B+k4UoY2Ut0/YEKju8EvR5Lzh8cE1lNo1nBYV51Sx/MG2qt6OaTpw6tT5Kj1cZEx96gevjL4oci47gI7r5BbtqLxsEnELkfY2BiUbnhBf92SYgorrSb99YaDXLbtQ6ca8uJacDHqx62R913P7myW0SwFESkYQ4MfEUzIMURrriTyUDuWUIdj3cVBUZ4I9B4AORaCFd9KHm6PfhpSRrkd+wiQH+llGwindvDe4=
   matrix:
   # node x64
-  - NDLT_RUNTIME="node" NDLT_RUNTIME_VERSION="4.5.0" NDLT_ARCH="x64"
-  - NDLT_RUNTIME="node" NDLT_RUNTIME_VERSION="5.12.0" NDLT_ARCH="x64"
-  - NDLT_RUNTIME="node" NDLT_RUNTIME_VERSION="6.6.0" NDLT_ARCH="x64"
+  - RUNTIME="node" RVERSION="4.5.0" ARCH="x64"
+  - RUNTIME="node" RVERSION="5.12.0" ARCH="x64"
+  - RUNTIME="node" RVERSION="6.6.0" ARCH="x64"
 
   # electron x64
-  - NDLT_RUNTIME="electron" NDLT_RUNTIME_VERSION="0.37.8" NDLT_ARCH="x64"
-  - NDLT_RUNTIME="electron" NDLT_RUNTIME_VERSION="1.2.3" NDLT_ARCH="x64"
+  - RUNTIME="electron" RVERSION="0.37.8" ARCH="x64"
+  - RUNTIME="electron" RVERSION="1.2.3" ARCH="x64"
 
 #matrix:
 #  exclude:
@@ -53,11 +53,11 @@ before_install:
 #- rm -rf ~/.cmake-js
 
 install:
-# install node (use v6 is building for electron)
+# install node (use v6 if building for electron)
 - export DEFAULT_NODE_VERSION="6"
-- export NODE_VERSION=$NDLT_RUNTIME_VERSION
+- export NODE_VERSION=$RVERSION
 - rm -rf ~/.nvm/ && git clone --depth 1 https://github.com/creationix/nvm.git ~/.nvm && source ~/.nvm/nvm.sh
-- if [[ "$NDLT_RUNTIME" == "electron" ]]; then export NODE_VERSION=$DEFAULT_NODE_VERSION; fi
+- if [[ "$RUNTIME" == "electron" ]]; then export NODE_VERSION=$DEFAULT_NODE_VERSION; fi
 - nvm install $NODE_VERSION
 - nvm use $NODE_VERSION
 - npm install npm -g
@@ -100,6 +100,6 @@ script:
 - npm install --build-from-source
 
 # if we're publishing, do it
-- if [[ $PUBLISH_BINARY == true ]]; then node-pre-gyp --runtime=$NDLT_RUNTIME --target=$NDLT_RUNTIME_VERSION --target_arch=$ARCH package; fi;
+- if [[ $PUBLISH_BINARY == true ]]; then node-pre-gyp --runtime=$RUNTIME --target=$RVERSION --target_arch=$ARCH package; fi;
 - if [[ $PUBLISH_BINARY == true ]]; then node-pre-gyp-github publish --release; fi;
 - if [[ $PUBLISH_BINARY == true ]]; then npm install --fallback-to-build=false; fi;
