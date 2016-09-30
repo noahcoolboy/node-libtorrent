@@ -19,12 +19,14 @@ env:
   global:
   - secure: Py/OGFUaTgPZwLt5zj6kZAhNGviS6UyDuhMVpwSjxM66yOSgwAdBbuozMpPlTZB1KNMlW3VmYtuN4HesR78ZVNeZ/pREi1Ezy95mTLlqb5YEInPAq9zFMRxzfFgRXsw220NCjJULaeW9fMsfXtFtddS3HB/fTSgkqM7lwxKkT7SCHHxZncnpdkxWlee0Msk1Z9IZSZTymcdYtoK3kEkdmmHWNHMI0KPCriy6M04UaiRMHEtNAbDuyomc6mvKR+1jxtqy90OzYMpsZhRb9wPDYPa2UJ9SJJs3Ytze8c5HE3muWFczuR13h/5onOjiYgK2Q/KQgqSz3SMeqG+jBUiUIDiEui36hgyl+mWM/gkFyTb10iAGf1REDpwmxq/8SRWSJtSCN8dpf+DuYztP4uEH7ceF67f/lBzJg4MP+pA3wQLBs3Y0To61MuptB2vnKJj/Hb2QF0B+k4UoY2Ut0/YEKju8EvR5Lzh8cE1lNo1nBYV51Sx/MG2qt6OaTpw6tT5Kj1cZEx96gevjL4oci47gI7r5BbtqLxsEnELkfY2BiUbnhBf92SYgorrSb99YaDXLbtQ6ca8uJacDHqx62R913P7myW0SwFESkYQ4MfEUzIMURrriTyUDuWUIdj3cVBUZ4I9B4AORaCFd9KHm6PfhpSRrkd+wiQH+llGwindvDe4=
   matrix:
-  - TRAVIS_NODE_VERSION="4" ARCH="x64"
-  #- TRAVIS_NODE_VERSION="4" ARCH="ia32"
-  - TRAVIS_NODE_VERSION="5" ARCH="x64"
-  #- TRAVIS_NODE_VERSION="5" ARCH="ia32"
-  - TRAVIS_NODE_VERSION="6" ARCH="x64"
-  #- TRAVIS_NODE_VERSION="6" ARCH="ia32"
+  # node x64
+  - NDLT_RUNTIME="node" NDLT_RUNTIME_VERSION="4" NDLT_ARCH="x64"
+  - NDLT_RUNTIME="node" NDLT_RUNTIME_VERSION="5" NDLT_ARCH="x64"
+  - NDLT_RUNTIME="node" NDLT_RUNTIME_VERSION="6" NDLT_ARCH="x64"
+
+  # electron x64
+  - NDLT_RUNTIME="electron" NDLT_RUNTIME_VERSION="0.37.8" NDLT_ARCH="x64"
+  - NDLT_RUNTIME="electron" NDLT_RUNTIME_VERSION="1.2.3" NDLT_ARCH="x64"
 
 #matrix:
 #  exclude:
@@ -51,10 +53,13 @@ before_install:
 #- rm -rf ~/.cmake-js
 
 install:
-# install node
+# install node (use v6 is building for electron)
+- export DEFAULT_NODE_VERSION="6"
+- export NODE_VERSION=$NDLT_RUNTIME_VERSION
 - rm -rf ~/.nvm/ && git clone --depth 1 https://github.com/creationix/nvm.git ~/.nvm && source ~/.nvm/nvm.sh
-- nvm install $TRAVIS_NODE_VERSION
-- nvm use $TRAVIS_NODE_VERSION
+- if [[ "$NDLT_RUNTIME" == "electron "]]; then NODE_VERSION=$DEFAULT_NODE_VERSION; fi
+- nvm install $NODE_VERSION
+- nvm use $NODE_VERSION
 - npm install npm -g
 
 # update path
