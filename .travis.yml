@@ -100,6 +100,6 @@ script:
 - npm install --build-from-source
 
 # if we're publishing, do it
-- if [[ $PUBLISH_BINARY == true ]]; then node-pre-gyp package; fi;
+- if [[ $PUBLISH_BINARY == true ]]; then node-pre-gyp --runtime=$NDLT_RUNTIME --target=$NDLT_RUNTIME_VERSION --target_arch=$ARCH package; fi;
 - if [[ $PUBLISH_BINARY == true ]]; then node-pre-gyp-github publish --release; fi;
 - if [[ $PUBLISH_BINARY == true ]]; then npm install --fallback-to-build=false; fi;
