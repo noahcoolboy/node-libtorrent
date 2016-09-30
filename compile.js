@@ -49,8 +49,20 @@ function downloadAndUnzip (url, destdir, callback) {
 }
 
 function build() {
-    info('Running compilation');
-    var buildSystem = new cmakeJS.BuildSystem();
+    /* get needed runtime version from env */
+    var defaultRuntime = "node";
+    var defaultRuntimeVersion = "4.5.0";
+    var defaultRuntimeArch = "ia32";
+
+    var options = {
+        runtime: process.env.NDLT_RUNTIME || defaultRuntime,
+        runtimeVersion: process.env.NDLT_RUNTIME_VERSION || defaultRuntimeVersion,
+        arch: process.env.NDLT_ARCH || defaultRuntimeArch
+    };
+
+    var buildSystem = new cmakeJS.BuildSystem(options);
+
+    info('Running compilation for ' + options.runtime + '-' + options.runtimeVersion + '@' + options.arch);
     buildSystem.compile().catch( function() { process.exit(1); } );
 }
 
