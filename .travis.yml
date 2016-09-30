@@ -57,7 +57,7 @@ install:
 - export DEFAULT_NODE_VERSION="6"
 - export NODE_VERSION=$NDLT_RUNTIME_VERSION
 - rm -rf ~/.nvm/ && git clone --depth 1 https://github.com/creationix/nvm.git ~/.nvm && source ~/.nvm/nvm.sh
-- if [[ "$NDLT_RUNTIME" == "electron "]]; then NODE_VERSION=$DEFAULT_NODE_VERSION; fi
+- if [[ "$NDLT_RUNTIME" == "electron "]]; then export NODE_VERSION=$DEFAULT_NODE_VERSION; fi
 - nvm install $NODE_VERSION
 - nvm use $NODE_VERSION
 - npm install npm -g
