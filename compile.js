@@ -51,7 +51,7 @@ function downloadAndUnzip (url, destdir, callback) {
 function build() {
     /* get needed runtime version from env */
     var defaultRuntime = "node";
-    var defaultRuntimeVersion = "4.5.0";
+    var defaultRuntimeVersion = "4.6.0";
     var defaultRuntimeArch = "ia32";
 
     var options = {
