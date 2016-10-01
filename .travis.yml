@@ -22,7 +22,7 @@ env:
   # node x64
   - RUNTIME="node" RVERSION="4.5.0" ARCH="x64"
   - RUNTIME="node" RVERSION="5.12.0" ARCH="x64"
-  - RUNTIME="node" RVERSION="6.6.0" ARCH="x64"
+  - RUNTIME="node" RVERSION="6.5.0" ARCH="x64"
 
   # electron x64
   - RUNTIME="electron" RVERSION="0.37.8" ARCH="x64"
