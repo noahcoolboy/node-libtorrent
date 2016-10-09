@@ -49,10 +49,10 @@ function downloadAndUnzip (url, destdir, callback) {
 }
 
 function build() {
-    /* get needed runtime version from env */
+    /* get needed runtime version from env or from runtime */
     var defaultRuntime = "node";
-    var defaultRuntimeVersion = "4.5.0";
-    var defaultRuntimeArch = "ia32";
+    var defaultRuntimeVersion = process.versions.node;
+    var defaultRuntimeArch = process.arch;
 
     var options = {
         runtime: process.env.RUNTIME || defaultRuntime,
