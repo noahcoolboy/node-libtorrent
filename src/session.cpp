@@ -214,7 +214,7 @@ namespace nodelt {
 
         Nan::SetPrototypeMethod(tpl, "start_lsd", start_lsd);
         Nan::SetPrototypeMethod(tpl, "start_natpmp", start_natpmp);
-        Nan::SetPrototypeMethod(tpl, "stop_upnp", stop_upnp);
+        Nan::SetPrototypeMethod(tpl, "start_upnp", start_upnp);
 
         Nan::SetPrototypeMethod(tpl, "stop_lsd", stop_lsd);
         Nan::SetPrototypeMethod(tpl, "stop_natpmp", stop_natpmp);
