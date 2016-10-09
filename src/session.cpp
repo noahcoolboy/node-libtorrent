@@ -308,7 +308,12 @@ namespace nodelt {
 
         th = SessionWrap::Unwrap(info.This())->add_torrent(add_torrent_params_from_object(info[0]->ToObject()), ec);
 
-        info.GetReturnValue().Set(TorrentHandleWrap::New(th));
+        if (ec) {
+            Nan::ThrowError(ec.message().c_str());
+            info.GetReturnValue().SetUndefined();
+        } else {
+            info.GetReturnValue().Set(TorrentHandleWrap::New(th));
+        }
     };
 
     NAN_METHOD(SessionWrap::async_add_torrent) {
@@ -614,6 +619,10 @@ namespace nodelt {
             } else {
                 s->listen_on(port_range, ec, interface.c_str(), info[2]->Int32Value());
             }
+        }
+
+        if (ec) {
+            Nan::ThrowError(ec.message().c_str());
         }
 
         info.GetReturnValue().SetUndefined();

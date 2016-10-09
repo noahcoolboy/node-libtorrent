@@ -17,68 +17,79 @@ namespace nodelt {
         Nan::HandleScope scope;
         libtorrent::add_torrent_params p;
 
-        if (Nan::Has(obj, Nan::New("ti").ToLocalChecked()) == Nan::Just(true)) {
-            Nan::MaybeLocal<Value> ti = Nan::Get(obj, Nan::New("ti").ToLocalChecked());
-            p.ti = new libtorrent::torrent_info(*TorrentInfoWrap::Unwrap(ti.ToLocalChecked().As<Object>()));
-        }
-
-        if (Nan::Has(obj, Nan::New("trackers").ToLocalChecked()) == Nan::Just(true)) {
-            Local<Array> trackers = (Nan::Get(obj, Nan::New("trackers") .ToLocalChecked()).ToLocalChecked()).As<Array>();
-
-            for (uint32_t i = 0, e = trackers->Length(); i < e; ++i)
-                p.trackers.push_back(*String::Utf8Value(trackers->Get(i)));
-        }
-
-        if (Nan::Has(obj, Nan::New("dht_nodes").ToLocalChecked()) == Nan::Just(true)) {
-            Local<Array> dht_nodes = (Nan::Get(obj, Nan::New("dht_nodes").ToLocalChecked()).ToLocalChecked()).As<Array>();
-
-            for (uint32_t i = 0, e = dht_nodes->Length(); i < e; ++i) {
-                Local<Array> node = dht_nodes->Get(i).As<Array>();
-                p.dht_nodes.push_back(std::make_pair(
-                    *Nan::Utf8String(node->Get(0)),
-                    node->Get(1)->Int32Value() ));
+        try {
+            if (Nan::Has(obj, Nan::New("ti").ToLocalChecked()) == Nan::Just(true)) {
+                Nan::MaybeLocal<Value> ti = Nan::Get(obj, Nan::New("ti").ToLocalChecked());
+                p.ti = new libtorrent::torrent_info(*TorrentInfoWrap::Unwrap(ti.ToLocalChecked().As<Object>()));
             }
-        }
 
-        if (Nan::Has(obj, Nan::New("info_hash").ToLocalChecked()) == Nan::Just(true)) {
-            Nan::Utf8String info_hash (Nan::Get(obj, Nan::New("info_hash").ToLocalChecked()).ToLocalChecked());
-            libtorrent::from_hex(*info_hash, 40, (char*)&p.info_hash[0]);
-        }
+            if (Nan::Has(obj, Nan::New("trackers").ToLocalChecked()) == Nan::Just(true)) {
+                Local<Array> trackers = (Nan::Get(obj, Nan::New("trackers") .ToLocalChecked()).ToLocalChecked()).As<Array>();
 
-        if (Nan::Has(obj, Nan::New("name").ToLocalChecked()) == Nan::Just(true))
-            p.name = std::string(*Nan::Utf8String(Nan::Get(obj, Nan::New("name").ToLocalChecked()).ToLocalChecked()));
+                for (uint32_t i = 0, e = trackers->Length(); i < e; ++i)
+                    p.trackers.push_back(*String::Utf8Value(trackers->Get(i)));
+            }
 
-        p.save_path = std::string(*Nan::Utf8String(Nan::Get(obj, Nan::New("save_path").ToLocalChecked()).ToLocalChecked()));
+            if (Nan::Has(obj, Nan::New("dht_nodes").ToLocalChecked()) == Nan::Just(true)) {
+                Local<Array> dht_nodes = (Nan::Get(obj, Nan::New("dht_nodes").ToLocalChecked()).ToLocalChecked()).As<Array>();
 
-        if (Nan::Has(obj, Nan::New("resume_data").ToLocalChecked()) == Nan::Just(true)) {
-            Nan::Utf8String data(Nan::Get(obj, Nan::New("resume_data").ToLocalChecked()).ToLocalChecked());
-            std::vector<char> rd(data.length());
-            std::memcpy(&rd[0], *data, rd.size());
-            p.resume_data = rd;
-        }
+                for (uint32_t i = 0, e = dht_nodes->Length(); i < e; ++i) {
+                    Local<Array> node = dht_nodes->Get(i).As<Array>();
+                    p.dht_nodes.push_back(std::make_pair(
+                        *Nan::Utf8String(node->Get(0)),
+                        node->Get(1)->Int32Value() ));
+                }
+            }
 
-        if (Nan::Has(obj, Nan::New("storage_mode").ToLocalChecked()) == Nan::Just(true))
-            p.storage_mode = (libtorrent::storage_mode_t)
+            if (Nan::Has(obj, Nan::New("info_hash").ToLocalChecked()) == Nan::Just(true)) {
+                Nan::Utf8String info_hash (Nan::Get(obj, Nan::New("info_hash").ToLocalChecked()).ToLocalChecked());
+                libtorrent::from_hex(*info_hash, 40, (char*)&p.info_hash[0]);
+            }
+
+            if (Nan::Has(obj, Nan::New("name").ToLocalChecked()) == Nan::Just(true))
+                p.name = std::string(*Nan::Utf8String(Nan::Get(obj, Nan::New("name").ToLocalChecked()).ToLocalChecked()));
+
+            p.save_path = std::string(*Nan::Utf8String(Nan::Get(obj, Nan::New("save_path").ToLocalChecked()).ToLocalChecked()));
+
+            if (Nan::Has(obj, Nan::New("resume_data").ToLocalChecked()) == Nan::Just(true)) {
+                Nan::Utf8String data(Nan::Get(obj, Nan::New("resume_data").ToLocalChecked()).ToLocalChecked());
+                std::vector<char> rd(data.length());
+                std::memcpy(&rd[0], *data, rd.size());
+                p.resume_data = rd;
+            }
+
+            if (Nan::Has(obj, Nan::New("storage_mode").ToLocalChecked()) == Nan::Just(true))
+                p.storage_mode = (libtorrent::storage_mode_t)
                     (Nan::Get(obj, Nan::New("storage_mode").ToLocalChecked()).ToLocalChecked())->Int32Value();
 
-        if (Nan::Has(obj, Nan::New("file_priorities").ToLocalChecked()) == Nan::Just(true)) {
-            Local<Array> data = (Nan::Get(obj, Nan::New("file_priorities").ToLocalChecked()).ToLocalChecked()).As<Array>();
-            std::vector<boost::uint8_t> fp;
-            for (uint32_t i = 0, e = data->Length(); i < e; ++i)
-                fp.push_back(data->Get(i)->Int32Value());
-            p.file_priorities = fp;
-        }
+            if (Nan::Has(obj, Nan::New("file_priorities").ToLocalChecked()) == Nan::Just(true)) {
+                Local<Array> data = (Nan::Get(obj, Nan::New("file_priorities").ToLocalChecked()).ToLocalChecked()).As<Array>();
+                std::vector<boost::uint8_t> fp;
 
-        if (Nan::Has(obj, Nan::New("trackerid").ToLocalChecked()) == Nan::Just(true))
-            p.trackerid = std::string(*Nan::Utf8String(Nan::Get(obj, Nan::New("trackerid").ToLocalChecked()).ToLocalChecked()));
-        if (Nan::Has(obj, Nan::New("url").ToLocalChecked()) == Nan::Just(true))
-            p.url = std::string(*Nan::Utf8String(Nan::Get(obj, Nan::New("url").ToLocalChecked()).ToLocalChecked()));
-        if (Nan::Has(obj, Nan::New("uuid").ToLocalChecked()) == Nan::Just(true))
-            p.uuid = std::string(*Nan::Utf8String(Nan::Get(obj, Nan::New("uuid").ToLocalChecked()).ToLocalChecked()));
-        if (Nan::Has(obj, Nan::New("source_feed_url").ToLocalChecked()) == Nan::Just(true))
-            p.source_feed_url = std::string(*Nan::Utf8String(Nan::Get(obj, Nan::New("source_feed_url").ToLocalChecked()).ToLocalChecked()));
-        if (Nan::Has(obj, Nan::New("flags").ToLocalChecked()) == Nan::Just(true))
-            p.flags = (Nan::Get(obj, Nan::New("flags").ToLocalChecked()).ToLocalChecked())->IntegerValue();
+                for (uint32_t i = 0, e = data->Length(); i < e; ++i)
+                    fp.push_back(data->Get(i)->Int32Value());
+
+                p.file_priorities = fp;
+            }
+
+            if (Nan::Has(obj, Nan::New("trackerid").ToLocalChecked()) == Nan::Just(true))
+                p.trackerid = std::string(*Nan::Utf8String(Nan::Get(obj, Nan::New("trackerid").ToLocalChecked()).ToLocalChecked()));
+
+            if (Nan::Has(obj, Nan::New("url").ToLocalChecked()) == Nan::Just(true))
+                p.url = std::string(*Nan::Utf8String(Nan::Get(obj, Nan::New("url").ToLocalChecked()).ToLocalChecked()));
+
+            if (Nan::Has(obj, Nan::New("uuid").ToLocalChecked()) == Nan::Just(true))
+                p.uuid = std::string(*Nan::Utf8String(Nan::Get(obj, Nan::New("uuid").ToLocalChecked()).ToLocalChecked()));
+
+            if (Nan::Has(obj, Nan::New("source_feed_url").ToLocalChecked()) == Nan::Just(true))
+                p.source_feed_url = std::string(*Nan::Utf8String(Nan::Get(obj, Nan::New("source_feed_url").ToLocalChecked()).ToLocalChecked()));
+
+            if (Nan::Has(obj, Nan::New("flags").ToLocalChecked()) == Nan::Just(true))
+                p.flags = (Nan::Get(obj, Nan::New("flags").ToLocalChecked()).ToLocalChecked())->IntegerValue();
+
+        } catch(libtorrent::libtorrent_exception e) {
+            Nan::ThrowError(e.what());
+        }
 
         return p;
     }

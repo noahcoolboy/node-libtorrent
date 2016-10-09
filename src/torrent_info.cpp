@@ -181,15 +181,24 @@ namespace nodelt {
         }
 
         TorrentInfoWrap* ti;
-        if (info.Length() == 1 && info[0]->IsString()) {
-            std::string filename(*Nan::Utf8String(info[0]->ToString()));
-            ti = new TorrentInfoWrap(filename);
-        } else {
-            ti = new TorrentInfoWrap();
-        }
-        ti->Wrap(info.This());
 
-        info.GetReturnValue().Set(info.This());
+        try {
+
+            if (info.Length() == 1 && info[0]->IsString()) {
+                std::string filename(*Nan::Utf8String(info[0]->ToString()));
+
+                ti = new TorrentInfoWrap(filename);
+            } else {
+                ti = new TorrentInfoWrap();
+            }
+
+            ti->Wrap(info.This());
+            info.GetReturnValue().Set(info.This());
+
+        } catch(libtorrent::libtorrent_exception e) {
+            Nan::ThrowError(e.what());
+            info.GetReturnValue().SetUndefined();
+        }
     };
 
     NAN_METHOD(TorrentInfoWrap::remap_files) {
