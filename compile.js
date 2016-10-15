@@ -1,5 +1,5 @@
 /* need to be changed in case of picking another libtorrent revision */
-var sha = 'b342192052d82be666e1ef9f320a32a7c24fed10';
+var sha = 'e6797784ae22fa826dc1c50520d7e324f9a4ee43';
 
 var os = require('os');
 var fs = require('fs');
