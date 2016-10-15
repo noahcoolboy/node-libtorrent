@@ -3,6 +3,7 @@
 #include <node.h>
 
 #include <libtorrent/alert.hpp>
+#include <libtorrent/alert_types.hpp>
 
 #include "alert.hpp"
 
@@ -17,14 +18,17 @@ namespace nodelt {
 
         obj->Set(Nan::New("message").ToLocalChecked(), Nan::New(alert.message()).ToLocalChecked());
         obj->Set(Nan::New("what").ToLocalChecked(), Nan::New(alert.what()).ToLocalChecked());
+        obj->Set(Nan::New("type").ToLocalChecked(), Nan::New<Integer>(alert.type()));
         obj->Set(Nan::New("category").ToLocalChecked(), Nan::New<Integer>(alert.category()));
 
         return scope.Escape(obj);
     };
 
     void bind_alert(Local<Object> target) {
+        Local<Object> alert_t = Nan::New<Object>();
         Local<Object> category_t = Nan::New<Object>();
 
+        // add categories
         category_t->Set(Nan::New("error_notification").ToLocalChecked(),
             Nan::New<Integer>(libtorrent::alert::error_notification));
         category_t->Set(Nan::New("peer_notification").ToLocalChecked(),
@@ -55,5 +59,21 @@ namespace nodelt {
             Nan::New<Integer>(libtorrent::alert::all_categories));
 
         target->Set(Nan::New("category_t").ToLocalChecked(), category_t);
+
+        // add few alert types
+        alert_t->Set(Nan::New("add_torrent_alert").ToLocalChecked(),
+            Nan::New<Integer>(libtorrent::add_torrent_alert::alert_type));
+        alert_t->Set(Nan::New("torrent_removed_alert").ToLocalChecked(),
+            Nan::New<Integer>(libtorrent::torrent_removed_alert::alert_type));
+        alert_t->Set(Nan::New("save_resume_data_alert").ToLocalChecked(),
+            Nan::New<Integer>(libtorrent::save_resume_data_alert::alert_type));
+        alert_t->Set(Nan::New("save_resume_data_failed_alert").ToLocalChecked(),
+            Nan::New<Integer>(libtorrent::save_resume_data_failed_alert::alert_type));
+        alert_t->Set(Nan::New("metadata_received_alert").ToLocalChecked(),
+            Nan::New<Integer>(libtorrent::metadata_received_alert::alert_type));
+        alert_t->Set(Nan::New("torrent_finished_alert").ToLocalChecked(),
+            Nan::New<Integer>(libtorrent::torrent_finished_alert::alert_type));
+
+        target->Set(Nan::New("alert_t").ToLocalChecked(), alert_t);
   };
 }; // namespace nodelt
