@@ -18,8 +18,9 @@ namespace nodelt {
     void bind_torrent_handle(Handle<Object> target) {
         TorrentHandleWrap::Initialize(target);
 
-        // set libtorrent::torrent_handle::status_flags_t
+        // set various libtorrent::torrent_handle enums
         Local<Object> status_flags_t = Nan::New<Object>();
+        Local<Object> save_resume_flags_t = Nan::New<Object>();
 
         status_flags_t->Set(Nan::New("query_distributed_copies").ToLocalChecked(),
             Nan::New<Integer>(libtorrent::torrent_handle::query_distributed_copies));
@@ -33,6 +34,20 @@ namespace nodelt {
             Nan::New<Integer>(libtorrent::torrent_handle::query_verified_pieces));
 
         target->Set(Nan::New("status_flags_t").ToLocalChecked(), status_flags_t);
+
+        save_resume_flags_t->Set(Nan::New("flush_disk_cache").ToLocalChecked(),
+            Nan::New<Integer>(libtorrent::torrent_handle::flush_disk_cache));
+        save_resume_flags_t->Set(Nan::New("save_info_dict").ToLocalChecked(),
+            Nan::New<Integer>(libtorrent::torrent_handle::save_info_dict));
+
+#if LIBTORRENT_VERSION_MINOR > 0
+            save_resume_flags_t->Set(Nan::New("only_if_modified").ToLocalChecked(),
+                Nan::New<Integer>(libtorrent::torrent_handle::only_if_modified));
+#endif
+
+        target->Set(Nan::New("save_resume_flags_t").ToLocalChecked(), save_resume_flags_t);
+
+
     };
 
     TorrentHandleWrap::TorrentHandleWrap() {
