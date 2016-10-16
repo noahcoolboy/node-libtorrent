@@ -6,13 +6,14 @@
 #include <libtorrent/alert_types.hpp>
 
 #include "alert.hpp"
+#include "torrent_handle.hpp"
 
 using namespace v8;
 using namespace node;
 
 
 namespace nodelt {
-    v8::Local<v8::Object> alert_to_object(const libtorrent::alert& alert) {
+    Local<Object> alert_to_object(const libtorrent::alert& alert) {
         Nan::EscapableHandleScope scope;
         Local<Object> obj = Nan::New<Object>();
 
@@ -20,9 +21,25 @@ namespace nodelt {
         obj->Set(Nan::New("what").ToLocalChecked(), Nan::New(alert.what()).ToLocalChecked());
         obj->Set(Nan::New("type").ToLocalChecked(), Nan::New<Integer>(alert.type()));
         obj->Set(Nan::New("category").ToLocalChecked(), Nan::New<Integer>(alert.category()));
+        obj->Set(Nan::New("handle").ToLocalChecked(), alert_to_handle(alert));
 
         return scope.Escape(obj);
     };
+
+    Local<Object> alert_to_handle(const libtorrent::alert &alert) {
+        Nan::EscapableHandleScope scope;
+        Local<Object> obj = Nan::New<Object>();
+
+        auto casted = libtorrent::alert_cast<libtorrent::add_torrent_alert>(&alert);
+
+        if(casted == nullptr) {
+             obj->Set(Nan::New("handle").ToLocalChecked(), Nan::New<Integer>(33));//obj;//Nan::Undefined();
+        } else {
+            obj = TorrentHandleWrap::FromExisting(casted->handle);
+        }
+
+        return scope.Escape(obj);
+    }
 
     void bind_alert(Local<Object> target) {
         Local<Object> alert_t = Nan::New<Object>();
@@ -60,7 +77,9 @@ namespace nodelt {
 
         target->Set(Nan::New("category_t").ToLocalChecked(), category_t);
 
-        // add few alert types
+        // define & add few alert types
+        vector_alert_t.push_back(libtorrent::add_torrent_alert);
+
         alert_t->Set(Nan::New("add_torrent_alert").ToLocalChecked(),
             Nan::New<Integer>(libtorrent::add_torrent_alert::alert_type));
         alert_t->Set(Nan::New("torrent_removed_alert").ToLocalChecked(),

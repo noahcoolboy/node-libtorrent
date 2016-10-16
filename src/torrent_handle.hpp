@@ -14,6 +14,7 @@ namespace nodelt {
         public:
             static void Initialize(Local<Object> target);
             static Local<Object> New(const libtorrent::torrent_handle& th);
+            static Local<Object> FromExisting(const libtorrent::torrent_handle& th);
             static libtorrent::torrent_handle* Unwrap(const Local<Object>& obj) {
                 return Nan::ObjectWrap::Unwrap<TorrentHandleWrap>(obj)->obj_;
             };
