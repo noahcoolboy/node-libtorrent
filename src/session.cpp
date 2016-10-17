@@ -695,7 +695,7 @@ namespace nodelt {
     NAN_METHOD(SessionWrap::pop_alert) {
         Nan::HandleScope scope;
 
-        auto x = alert_to_object(*SessionWrap::Unwrap(info.This())->pop_alert());
+        auto x = AlertWrap::New((*SessionWrap::Unwrap(info.This())->pop_alert()));
 
         info.GetReturnValue().Set(x);
     };
@@ -709,8 +709,11 @@ namespace nodelt {
 
         SessionWrap::Unwrap(info.This())->pop_alerts(&alerts);
 
-        for (std::deque<libtorrent::alert*>::iterator i(alerts.begin()), e(alerts.end()); i != e; ++i)
-            ret->Set(ret->Length(), alert_to_object(**i));
+        for (std::deque<libtorrent::alert*>::iterator i(alerts.begin()), e(alerts.end()); i != e; ++i) {
+            std::cout<<"be4 push"<<std::endl;
+            ret->Set(ret->Length(), AlertWrap::New(*(*i)));
+            std::cout<<"after push"<<std::endl;
+        }
 
         info.GetReturnValue().Set(ret);
     };
@@ -726,11 +729,15 @@ namespace nodelt {
     NAN_METHOD(SessionWrap::wait_for_alert) {
         Nan::HandleScope scope;
 
-        const libtorrent::alert* alert;
+        const libtorrent::alert *alert;
 
         alert = SessionWrap::Unwrap(info.This())->wait_for_alert(libtorrent::milliseconds(info[0]->IntegerValue()));
 
-        info.GetReturnValue().Set(alert_to_object(*alert));
+        if(!alert){
+            info.GetReturnValue().SetUndefined();
+        }
+
+        info.GetReturnValue().Set(AlertWrap::New(*alert));
     };
 
     NAN_METHOD(SessionWrap::start_lsd) {

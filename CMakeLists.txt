@@ -10,6 +10,7 @@ project (node-libtorrent-ng)
 set(LIBTORRENT_LIB "torrent-rasterbar")
 
 if(UNIX)
+    add_definitions(-ggdb)
     add_definitions(-fPIC)
     add_definitions(-fvisibility=hidden)
 
