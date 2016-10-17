@@ -15,36 +15,37 @@ using namespace node;
 namespace nodelt {
     Local<Object> alert_to_object(const libtorrent::alert& alert) {
         Nan::EscapableHandleScope scope;
+
         Local<Object> obj = Nan::New<Object>();
 
         obj->Set(Nan::New("message").ToLocalChecked(), Nan::New(alert.message()).ToLocalChecked());
         obj->Set(Nan::New("what").ToLocalChecked(), Nan::New(alert.what()).ToLocalChecked());
         obj->Set(Nan::New("type").ToLocalChecked(), Nan::New<Integer>(alert.type()));
         obj->Set(Nan::New("category").ToLocalChecked(), Nan::New<Integer>(alert.category()));
-        obj->Set(Nan::New("handle").ToLocalChecked(), alert_to_handle(alert));
+
+        Local<Value> hdl = alert_to_handle(alert);
+
+        if(! hdl->IsUndefined())
+            obj->Set(Nan::New("handle").ToLocalChecked(), alert_to_handle(alert));
 
         return scope.Escape(obj);
     };
 
-    Local<Object> alert_to_handle(const libtorrent::alert &alert) {
-        Nan::EscapableHandleScope scope;
-        Local<Object> obj = Nan::New<Object>();
-
+    Local<Value> alert_to_handle(const libtorrent::alert &alert) {
         /* cast to some particular alert type */
-        auto castedHandle = getHandle <libtorrent::add_torrent_alert,
+        try {
+            auto castedHandle = getHandle <libtorrent::add_torrent_alert,
                                  libtorrent::torrent_removed_alert,
                                  libtorrent::save_resume_data_alert,
                                  libtorrent::save_resume_data_failed_alert,
                                  libtorrent::metadata_received_alert,
                                  libtorrent::torrent_finished_alert> (alert);
 
-        /*if(castedHandle == nullptr) {
-             obj->Set(Nan::New("handle").ToLocalChecked(), Nan::Undefined());
-        } else {*/
-            obj = TorrentHandleWrap::FromExisting(castedHandle);
-        //}
-
-        return scope.Escape(obj);
+            return TorrentHandleWrap::FromExisting(castedHandle);
+        } catch (std::exception e) {
+            /* casting failed */
+            return Nan::Undefined();
+        }
     }
 
     void bind_alert(Local<Object> target) {

@@ -4,16 +4,18 @@
 #include <v8.h>
 #include <node.h>
 
-#include <vector>
-#include <utility>
+#include <typeinfo>
+#include <exception>
+#include <iostream>
 #include <libtorrent/alert.hpp>
 #include <libtorrent/torrent_handle.hpp>
 
 using namespace v8;
 
 namespace nodelt {
+    /* TODO: convert to wrapped class */
     Local<Object> alert_to_object(const libtorrent::alert& alert);
-    Local<Object> alert_to_handle(const libtorrent::alert& alert);
+    Local<Value> alert_to_handle(const libtorrent::alert& alert);
     void bind_alert(Local<Object> target);
 
     /* some template trickery to workaround alert_cast stuff */
@@ -37,8 +39,10 @@ namespace nodelt {
     {
         libtorrent::torrent_handle handle;
 
-        if (!getHandleInternal<Ts...>(p, handle))
-            throw "Unknown type!";
+        if (!getHandleInternal<Ts...>(p, handle)){
+            std::cout<<"matching class for " << typeid(p).name() << " not found"<<std::endl;
+            throw std::exception(); // needed type is not found in the list
+        }
         return handle; // move may be called implictly here
     }
 };

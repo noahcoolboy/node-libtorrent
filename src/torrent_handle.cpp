@@ -164,7 +164,8 @@ namespace nodelt {
         Local<Function> c = Nan::New<Function>(constructor);
         Nan::MaybeLocal<Object> obj = c->NewInstance(Nan::GetCurrentContext());
 
-        Nan::ObjectWrap::Unwrap<TorrentHandleWrap>(obj.ToLocalChecked())->obj_ = const_cast<libtorrent::torrent_handle*>(&th);
+        // *const_cast<libtorrent::torrent_handle*>(&th)
+        Nan::ObjectWrap::Unwrap<TorrentHandleWrap>(obj.ToLocalChecked())->obj_ = new libtorrent::torrent_handle(th);
 
         return scope.Escape(obj.ToLocalChecked());
     };

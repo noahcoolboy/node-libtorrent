@@ -691,10 +691,13 @@ namespace nodelt {
     };
 #endif
 
+    // TODO: use new alert objects
     NAN_METHOD(SessionWrap::pop_alert) {
         Nan::HandleScope scope;
 
-        info.GetReturnValue().Set(alert_to_object(*SessionWrap::Unwrap(info.This())->pop_alert()));
+        auto x = alert_to_object(*SessionWrap::Unwrap(info.This())->pop_alert());
+
+        info.GetReturnValue().Set(x);
     };
 
     NAN_METHOD(SessionWrap::pop_alerts) {
