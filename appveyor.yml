@@ -65,7 +65,13 @@ install:
   #- if [[ ${COMMIT_MESSAGE} =~ "[publish binary]" ]]; then PUBLISH_BINARY=true; fi
   #- echo "Publishing native platform Binary Package? ->" $PUBLISH_BINARY
 
-# cleanup npm progress
+  # work around an issue with node-gyp v3.3.1 and node 4x
+  # package.json has no certificates in it so we're cool
+  # https://github.com/nodejs/node-gyp/issues/921
+  - ps: npm config set -g cafile=package.json | Write-Host;
+  - ps: npm config set -g strict-ssl=false | Write-Host;
+
+  # cleanup npm progress
   - ps: >
       npm config set progress false
       npm config set spin false
