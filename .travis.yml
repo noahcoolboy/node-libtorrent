@@ -79,7 +79,7 @@ install:
 # download node for x86
 - BASE_URL=$(node -p "'https://nodejs.org/dist/' + process.version")
 - X86_FILE=$(node -p "'node-' + process.version + '-' + process.platform + '-x86'")
-- if [[ "$ARCH" == "ia32" ]]; then wget $BASE_URL/$X86_FILE.tar.gz; tar -xf $X86_FILE.tar.gz; export PATH=$X86_FILE/bin:$PATH; fi
+- if [[ "$ARCH" == "ia32" ]]; then wget $BASE_URL/$X86_FILE.tar.gz; tar -xf $X86_FILE.tar.gz; export PATH=$X86_FILE/bin:$PATH; npm install npm -g; fi
 
 # use g++-4.8 on linux
 #- if [[ $TRAVIS_OS_NAME == "linux" ]]; then export CXX="g++-4.8"; CC="gcc-4.8"; fi
