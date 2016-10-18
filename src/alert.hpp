@@ -17,13 +17,13 @@ namespace nodelt {
     class AlertWrap: public Nan::ObjectWrap {
         public:
             static void Initialize(Local<Object> target);
-            static Local<Object> New(const libtorrent::alert& a);
-            static libtorrent::alert* Unwrap(const Local<Object>& obj) {
+            static Local<Object> New(const libtorrent::alert* a);
+            static const libtorrent::alert* Unwrap(const Local<Object>& obj) {
                 return Nan::ObjectWrap::Unwrap<AlertWrap>(obj)->obj_;
             };
 
         private:
-            libtorrent::alert* obj_;
+            const libtorrent::alert* obj_;
             AlertWrap();
             ~AlertWrap();
 

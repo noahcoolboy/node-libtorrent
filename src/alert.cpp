@@ -37,28 +37,42 @@ namespace nodelt {
         Nan::SetPrototypeMethod(tpl, "category", category);
 
         constructor.Reset(tpl->GetFunction());
-        target->Set(Nan::New("torrent_alert").ToLocalChecked(), tpl->GetFunction());
+        std::cout<<"initialized"<<std::endl;
+        //target->Set(Nan::New("torrent_alert").ToLocalChecked(), tpl->GetFunction());
     };
 
-    Local<Object> AlertWrap::New(const libtorrent::alert& a) {
+    Local<Object> AlertWrap::New(const libtorrent::alert* a) {
         Nan::EscapableHandleScope scope;
 
         std::cout<<"b4 const"<<std::endl;
         Local<Function> c = Nan::New<Function>(constructor);
         std::cout<<"b4 instance"<<std::endl;
-        Nan::MaybeLocal<Object> obj = c->NewInstance(Nan::GetCurrentContext());
+        Nan::MaybeLocal<Object> obj = c->NewInstance();//Nan::GetCurrentContext());
 
         std::cout<<"b4 cast"<<std::endl;
-        auto casted = getObject <libtorrent::add_torrent_alert,
-                             libtorrent::torrent_removed_alert,
-                             libtorrent::save_resume_data_alert,
-                             libtorrent::save_resume_data_failed_alert,
-                             libtorrent::metadata_received_alert,
-                             libtorrent::torrent_finished_alert> (a);
-        std::cout<<"after cast"<<std::endl;
-        Nan::ObjectWrap::Unwrap<AlertWrap>(obj.ToLocalChecked())->obj_ = casted;
 
-        return scope.Escape(obj.ToLocalChecked());
+        if(a) {
+            try {
+                auto casted = getObject <libtorrent::add_torrent_alert,
+                                 libtorrent::torrent_removed_alert,
+                                 libtorrent::save_resume_data_alert,
+                                 libtorrent::save_resume_data_failed_alert,
+                                 libtorrent::metadata_received_alert,
+                                 libtorrent::torrent_finished_alert> (*a);
+                std::cout<<"after cast"<<std::endl;
+                Nan::ObjectWrap::Unwrap<AlertWrap>(obj.ToLocalChecked())->obj_ = casted;
+
+                return scope.Escape(obj.ToLocalChecked());
+            } catch(std::exception e) {
+                /* casting failed */
+                Nan::ObjectWrap::Unwrap<AlertWrap>(obj.ToLocalChecked())->obj_ = a;
+
+                return scope.Escape(obj.ToLocalChecked());
+            }
+        } else {
+            std::cout<<"got null"<<std::endl;
+            return scope.Escape(Nan::New<Object>());
+        }
     };
 
     NAN_METHOD(AlertWrap::NewInstance) {
@@ -114,6 +128,7 @@ namespace nodelt {
 
             info.GetReturnValue().Set(TorrentHandleWrap::FromExisting(casted));
         } catch (std::exception e) {
+            std::cout<<e.what()<<std::endl;
             /* casting failed */
             info.GetReturnValue().SetUndefined();
         }
