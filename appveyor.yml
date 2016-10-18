@@ -43,7 +43,7 @@ environment:
 
 # get deps & setup arch
 install:
-  - ps: git submodule update --init
+  - ps: git submodule update --init 2>&1 | Write-Host
   - ps: Update-NodeJsInstallation (Get-NodeJsLatestBuild $env:NVERSION) $env:platform;
   - ps: $env:Path += ";$(pwd)\node_modules\.bin";
   - ps: npm install npm -g
