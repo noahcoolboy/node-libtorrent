@@ -60,7 +60,7 @@ install:
 # print some info
   - npm --version
   - node --version
-  - node -p 'process.platform + "@" + process.arch'
+  - ps: Write-Host $(node -p 'process.platform + "@" + process.arch')
   - $CXX --version
 
 # figure out if we should publish
