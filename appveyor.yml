@@ -43,7 +43,6 @@ environment:
 
 # get deps & setup arch
 install:
-  - ps: git submodule update --init 2>&1 | Write-Host
   - ps: Update-NodeJsInstallation (Get-NodeJsLatestBuild $env:NVERSION) $env:platform;
   - ps: $env:Path += ";$(pwd)\node_modules\.bin";
   - ps: npm install npm -g
@@ -79,7 +78,8 @@ install:
   - ps: npm config set spin false | Write-Host
 
 build_script:
-  - npm install --build-from-source --msvs_version=2013
+  - ps: git submodule update --init | Write-Host
+  - ps: npm install --build-from-source --msvs_version=2013
 
 # if we're publishing, do it
 #  if [[ $PUBLISH_BINARY == true ]]; then node-pre-gyp --runtime=$RUNTIME --target=$RVERSION --target_arch=$ARCH package; fi;
