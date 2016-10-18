@@ -43,8 +43,9 @@ environment:
 
 # get deps & setup arch
 install:
-  - ps: Install-Product node $env:NVERSION
-  - npm install npm -g
+  - ps: Update-NodeJsInstallation (Get-NodeJsLatestBuild $env:NVERSION) $env:platform;
+  - ps: $env:Path += ";$(pwd)\node_modules\.bin";
+  - ps: npm install npm -g
 
   # update path
   #- PATH=$PATH:`pwd`/node_modules/.bin
