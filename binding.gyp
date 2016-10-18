@@ -5,7 +5,7 @@
       'target_type': 'none',
       'actions': [
         {
-          'action_name': 'cmakejs',
+          'action_name': 'run',
           'inputs': ['./CMakeLists.txt'],
           'outputs': ['./build'],
           'action': [ 'npm', 'run', 'compilation' ]
