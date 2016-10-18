@@ -1,0 +1,88 @@
+os: unstable
+
+platform:
+  - x86
+  - x64
+
+configuration: Release
+
+# don't re-build for tags so that [publish binary] is not re-run
+skip_tags: true
+
+# fix possible line-endings issues
+init:
+  - git config --global core.autocrlf input
+
+environment:
+  matrix:
+  # node
+  - RUNTIME="node"
+    RVERSION="4.5.0"
+  - RUNTIME="node"
+    RVERSION="5.12.0"
+  - RUNTIME="node"
+    RVERSION="6.5.0"
+
+  # electron
+  - RUNTIME="electron"
+    RVERSION="0.37.8"
+  - RUNTIME="electron"
+    RVERSION="1.2.3"
+
+
+# get deps & setup arch
+install:
+  - git submodule update --init --recursive
+  - if "%platform%"=="x64" (set ARCH=ia32)
+  - if "%platform%"=="x86" (set ARCH=x64)
+
+before_install:
+# purge previous boost installation
+#- rm -rf ~/.cmake-js
+
+install:
+# install node (use v6 if building for electron)
+- export DEFAULT_NODE_VERSION="6"
+- export NODE_VERSION=$RVERSION
+- rm -rf ~/.nvm/ && git clone --depth 1 https://github.com/creationix/nvm.git ~/.nvm && source ~/.nvm/nvm.sh
+- if [[ "$RUNTIME" == "electron" ]]; then export NODE_VERSION=$DEFAULT_NODE_VERSION; fi
+- nvm install $NODE_VERSION
+- nvm use $NODE_VERSION
+- npm install npm -g
+
+# update path
+- PATH=$PATH:`pwd`/node_modules/.bin
+
+# download node for x86
+#- BASE_URL=$(node -p "'https://nodejs.org/dist/' + process.version")
+#- X86_FILE=$(node -p "'node-' + process.version + '-' + process.platform + '-x86'")
+#- if [[ "$ARCH" == "ia32" ]]; then wget $BASE_URL/$X86_FILE.tar.gz; tar -xf $X86_FILE.tar.gz; export PATH=$X86_FILE/bin:$PATH; fi
+
+# use g++-4.8 on linux
+#- if [[ $TRAVIS_OS_NAME == "linux" ]]; then export CXX="g++-4.8"; CC="gcc-4.8"; fi
+
+# print some info
+- npm --version
+- node --version
+- node -p 'process.platform + "@" + process.arch'
+- $CXX --version
+
+# figure out if we should publish
+- PUBLISH_BINARY=false
+- COMMIT_MESSAGE=$(git show -s --format=%B $TRAVIS_COMMIT | tr -d '\n')
+- if [[ ${COMMIT_MESSAGE} =~ "[publish binary]" ]]; then PUBLISH_BINARY=true; fi
+- echo "Publishing native platform Binary Package? ->" $PUBLISH_BINARY
+
+# cleanup npm progress
+- npm config set progress false
+- npm config set spin false
+
+script:
+# build
+- npm install --build-from-source
+
+# if we're publishing, do it
+- if [[ $PUBLISH_BINARY == true ]]; then node-pre-gyp --runtime=$RUNTIME --target=$RVERSION --target_arch=$ARCH package; fi;
+- if [[ $PUBLISH_BINARY == true ]]; then node-pre-gyp-github publish --release; fi;
+- if [[ $PUBLISH_BINARY == true ]]; then npm install --fallback-to-build=false; fi;
+
