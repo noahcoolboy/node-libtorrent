@@ -65,8 +65,9 @@ install:
   #- echo "Publishing native platform Binary Package? ->" $PUBLISH_BINARY
 
 # cleanup npm progress
-  - ps: npm config set -g cafile=package.json | Write-Host;
-  - ps: npm config set -g strict-ssl=false | Write-Host;
+  - ps: >
+      npm config set progress false
+      npm config set spin false
 
 build_script:
   - npm install --build-from-source
@@ -76,3 +77,5 @@ build_script:
 #  if [[ $PUBLISH_BINARY == true ]]; then node-pre-gyp-github publish --release; fi;
 #  if [[ $PUBLISH_BINARY == true ]]; then npm install --fallback-to-build=false; fi;
 
+matrix:
+  fast_finish: true
