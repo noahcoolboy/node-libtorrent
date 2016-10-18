@@ -7,7 +7,6 @@ language: cpp
 branches:
   except:
   - /^\d*\.+\d*\.?\d*\.?/
-  - /[Aa]ppveyor/
 
 compiler:
 - gcc
