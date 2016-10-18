@@ -5,7 +5,7 @@
       'target_type': 'none',
       'actions': [
         {
-          'action_name': 'run',
+          'action_name': 'install',
           'inputs': ['./CMakeLists.txt'],
           'outputs': ['./build'],
           'action': [ 'npm', 'run', 'compilation' ]
