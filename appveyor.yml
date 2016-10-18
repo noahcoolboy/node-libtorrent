@@ -46,6 +46,8 @@ install:
   - ps: Update-NodeJsInstallation (Get-NodeJsLatestBuild $env:NVERSION) $env:platform;
   - ps: $env:Path += ";$(pwd)\node_modules\.bin";
   - ps: npm install npm -g
+  - ps: node --version
+  - ps: npm --version
 
   # update path
   #- PATH=$PATH:`pwd`/node_modules/.bin
@@ -72,9 +74,8 @@ install:
   - ps: npm config set -g strict-ssl=false | Write-Host;
 
   # cleanup npm progress
-  - ps: >
-      npm config set progress false
-      npm config set spin false
+  - ps: npm config set progress false | Write-Host
+  - ps: npm config set spin false | Write-Host
 
 build_script:
   - npm install --build-from-source --msvs_version=2013
