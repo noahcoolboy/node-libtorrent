@@ -6,8 +6,8 @@
       'actions': [
         {
           'action_name': 'cmakejsaction',
-          'inputs': ['./CMakeLists.txt'],
-          'outputs': ['./build'],
+          'inputs': ['CMakeLists.txt'],
+          'outputs': ['build'],
           'action': [ 'npm', 'run', 'compilation' ]
         }
       ]
