@@ -37,19 +37,13 @@ namespace nodelt {
         Nan::SetPrototypeMethod(tpl, "category", category);
 
         constructor.Reset(tpl->GetFunction());
-        std::cout<<"initialized"<<std::endl;
-        //target->Set(Nan::New("torrent_alert").ToLocalChecked(), tpl->GetFunction());
     };
 
     Local<Object> AlertWrap::New(const libtorrent::alert* a) {
         Nan::EscapableHandleScope scope;
 
-        std::cout<<"b4 const"<<std::endl;
         Local<Function> c = Nan::New<Function>(constructor);
-        std::cout<<"b4 instance"<<std::endl;
         Nan::MaybeLocal<Object> obj = c->NewInstance();//Nan::GetCurrentContext());
-
-        std::cout<<"b4 cast"<<std::endl;
 
         if(a) {
             try {
@@ -59,35 +53,31 @@ namespace nodelt {
                                  libtorrent::save_resume_data_failed_alert,
                                  libtorrent::metadata_received_alert,
                                  libtorrent::torrent_finished_alert> (*a);
-                std::cout<<"after cast"<<std::endl;
-                Nan::ObjectWrap::Unwrap<AlertWrap>(obj.ToLocalChecked())->obj_ = casted;
 
+                Nan::ObjectWrap::Unwrap<AlertWrap>(obj.ToLocalChecked())->obj_ = casted;
                 return scope.Escape(obj.ToLocalChecked());
             } catch(std::exception e) {
                 /* casting failed */
                 Nan::ObjectWrap::Unwrap<AlertWrap>(obj.ToLocalChecked())->obj_ = a;
-
                 return scope.Escape(obj.ToLocalChecked());
             }
         } else {
-            std::cout<<"got null"<<std::endl;
             return scope.Escape(Nan::New<Object>());
         }
     };
 
     NAN_METHOD(AlertWrap::NewInstance) {
         Nan::HandleScope scope;
-        std::cout<<"aw nw.."<<std::endl;
+
         if (!info.IsConstructCall()) {
             Nan::ThrowTypeError("Use the new operator to create instances of this object.");
             return;
         }
 
-        std::cout<<"b4 aw const"<<std::endl;
         AlertWrap* a = new AlertWrap();
-        std::cout<<"b4 aw wrap"<<std::endl;
+
         a->Wrap(info.This());
-        std::cout<<"b4 aw return"<<std::endl;
+
         info.GetReturnValue().Set(info.This());
     };
 
@@ -128,7 +118,6 @@ namespace nodelt {
 
             info.GetReturnValue().Set(TorrentHandleWrap::FromExisting(casted));
         } catch (std::exception e) {
-            std::cout<<e.what()<<std::endl;
             /* casting failed */
             info.GetReturnValue().SetUndefined();
         }

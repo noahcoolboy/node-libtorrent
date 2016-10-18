@@ -710,10 +710,7 @@ namespace nodelt {
         SessionWrap::Unwrap(info.This())->pop_alerts(&alerts);
 
         for (std::deque<libtorrent::alert*>::iterator i(alerts.begin()), e(alerts.end()); i != e; ++i) {
-            std::cout<<"be4 push"<<std::endl;
-            std::cout<<(*i == nullptr ? "alert is null" : "alert is ok")<<std::endl;
             ret->Set(ret->Length(), AlertWrap::New(*i));
-            std::cout<<"after push"<<std::endl;
         }
 
         info.GetReturnValue().Set(ret);
