@@ -1,7 +1,7 @@
 os: unstable
 
 platform:
-  - x86
+  #- x86
   - x64
 
 configuration: Release
@@ -19,9 +19,9 @@ build:
 environment:
   matrix:
   # node
-  - NVERSION: "4.5.0"
-    RUNTIME: "node"
-    RVERSION: "4.5.0"
+  #- NVERSION: "4.6.0"
+  #  RUNTIME: "node"
+  #  RVERSION: "4.6.0"
 
   - NVERSION: "5.12.0"
     RUNTIME: "node"
