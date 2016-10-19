@@ -9,7 +9,7 @@
           'inputs': ['CMakeLists.txt'],
           'outputs': ['build'],
           'conditions': [
-              ['OS=="win"', {'action': ['echo %cd%']}],
+              ['OS=="win"', {'action': ['echo "%cd%"']}],
               ['OS!="win"', {'action': ['node', 'compile.js']}]
           ]
         }
