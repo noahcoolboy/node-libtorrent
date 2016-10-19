@@ -17,55 +17,51 @@ build:
   parallel: true
 
 environment:
+  NODE_PRE_GYP_GITHUB_TOKEN:
+    secure: 3ufDq0gLKZ3ZthVup3MU4HdoHQ2KEShoQlZ8cDvjsjBQG1lvDSJCeqh1MGFdztFH
+
   matrix:
   # node
   #- NVERSION: "4.6.0"
   #  RUNTIME: "node"
   #  RVERSION: "4.6.0"
 
-  - NVERSION: "5.12.0"
-    RUNTIME: "node"
-    RVERSION: "5.12.0"
+  #- NVERSION: "5.12.0"
+  #  RUNTIME: "node"
+  #  RVERSION: "5.12.0"
 
-  - NVERSION: "6.5.0"
-    RUNTIME: "node"
-    RVERSION: "6.5.0"
+  #- NVERSION: "6.5.0"
+  #  RUNTIME: "node"
+  #  RVERSION: "6.5.0"
 
   # electron
   - NVERSION: "6"
     RUNTIME: "electron"
     RVERSION: "0.37.8"
 
-  - NVERSION: "6"
-    RUNTIME: "electron"
-    RVERSION: "1.2.3"
+  #- NVERSION: "6"
+  #  RUNTIME: "electron"
+  #  RVERSION: "1.2.3"
 
 
 # get deps & setup arch
 install:
   - ps: Update-NodeJsInstallation (Get-NodeJsLatestBuild $env:NVERSION) $env:platform;
+  - ps: $env:ARCH = $env:platform
   - ps: $env:Path += ";$(pwd)\node_modules\.bin";
   - ps: npm install npm -g
   - ps: node --version
   - ps: npm --version
 
-  # update path
-  #- PATH=$PATH:`pwd`/node_modules/.bin
+before_build:
+  # determine should we publish or not
+  - set COMMIT_MSG="%APPVEYOR_REPO_COMMIT_MESSAGE%"
+  - set PUBLISH_BINARY=false
+  - if not x%COMMIT_MSG:[publish binary]=%==x%COMMIT_MSG% set PUBLISH_BINARY=true
 
-# download node for x86
-#- BASE_URL=$(node -p "'https://nodejs.org/dist/' + process.version")
-#- X86_FILE=$(node -p "'node-' + process.version + '-' + process.platform + '-x86'")
-#- if [[ "$ARCH" == "ia32" ]]; then wget $BASE_URL/$X86_FILE.tar.gz; tar -xf $X86_FILE.tar.gz; export PATH=$X86_FILE/bin:$PATH; fi
-
-# use g++-4.8 on linux
-#- if [[ $TRAVIS_OS_NAME == "linux" ]]; then export CXX="g++-4.8"; CC="gcc-4.8"; fi
-
-
-# figure out if we should publish
-  #- PUBLISH_BINARY=false
-  #- COMMIT_MESSAGE=$(git show -s --format=%B $TRAVIS_COMMIT | tr -d '\n')
-  #- if [[ ${COMMIT_MESSAGE} =~ "[publish binary]" ]]; then PUBLISH_BINARY=true; fi
-  #- echo "Publishing native platform Binary Package? ->" $PUBLISH_BINARY
+  # windows cmd magic
+  - set APP_PATH=%cd%
+  - cd %APP_PATH%
 
   # work around an issue with node-gyp v3.3.1 and node 4x
   # package.json has no certificates in it so we're cool
@@ -81,10 +77,15 @@ build_script:
   - cmd: git submodule update --init
   - cmd: npm install --build-from-source --msvs_version=2015
 
-# if we're publishing, do it
-#  if [[ $PUBLISH_BINARY == true ]]; then node-pre-gyp --runtime=$RUNTIME --target=$RVERSION --target_arch=$ARCH package; fi;
-#  if [[ $PUBLISH_BINARY == true ]]; then node-pre-gyp-github publish --release; fi;
-#  if [[ $PUBLISH_BINARY == true ]]; then npm install --fallback-to-build=false; fi;
+after_build:
+  # if we're publishing, do it
+  - IF %PUBLISH_BINARY% == 1 (then node-pre-gyp --runtime=%RUNTIME% --target=%RVERSION% --target_arch=%ARCH% package 2>&1)
+  - IF %PUBLISH_BINARY% == 1 (node-pre-gyp-github publish --release 2>&1)
+  - IF %PUBLISH_BINARY% == 1 (node-pre-gyp clean)
+  - IF %PUBLISH_BINARY% == 1 (npm install --fallback-to-build=false)
+
+test: off
+deploy: off
 
 matrix:
   fast_finish: true

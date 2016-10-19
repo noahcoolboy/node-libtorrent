@@ -2,12 +2,12 @@
 
 #### node-libtorrent New Generation
 
-[![Build Status](https://travis-ci.org/lyssdod/node-libtorrent.svg?branch=master)](https://travis-ci.org/lyssdod/node-libtorrent) [![Build Status](https://ci.appveyor.com/api/projects/status/32r7s2skrgm9ubva?svg=true)](https://ci.appveyor.com/api/projects/status/32r7s2skrgm9ubva?svg=true)
+[![Build Status](https://travis-ci.org/lyssdod/node-libtorrent.svg?branch=master)](https://travis-ci.org/lyssdod/node-libtorrent) [![Build Status](https://ci.appveyor.com/api/projects/status/github/lyssdod/node-libtorrent?branch=master&svg=true)](https://ci.appveyor.com/project/lyssdod/node-libtorrent)
 
-node-libtorrent provides native bindings to [libtorrent rastebar](http://www.rasterbar.com/products/libtorrent/) as a [Node.js addon](http://nodejs.org/docs/latest/api/addons.html).
+This package provides native bindings to [libtorrent rastebar](http://www.rasterbar.com/products/libtorrent/) as a [Node.js addon](http://nodejs.org/docs/latest/api/addons.html).
 
-This is a fork of https://github.com/fanatid/node-libtorrent which incorporates few fixes from various
-contributors and which was ported to NAN² to allow its usage across all versions of node.js
+It's a fork of https://github.com/fanatid/node-libtorrent which incorporates few fixes and enhancements from various
+contributors and which was ported to [NAN²](https://github.com/nodejs/nan) to allow usage across all versions of node.js
 (NAN claims to support all major versions).
 
 Please report any issues you find while running this code. Feel free to open a PR as well.
