@@ -133,6 +133,7 @@ namespace nodelt {
         Nan::SetPrototypeMethod(tpl, "set_sequential_download", set_sequential_download);
         Nan::SetPrototypeMethod(tpl, "connect_peer", connect_peer);
         Nan::SetPrototypeMethod(tpl, "save_path", save_path);
+        Nan::SetPrototypeMethod(tpl, "make_magnet_link", make_magnet_link);
         Nan::SetPrototypeMethod(tpl, "set_max_uploads", set_max_uploads);
         Nan::SetPrototypeMethod(tpl, "max_uploads", max_uploads);
         Nan::SetPrototypeMethod(tpl, "set_max_connections", set_max_connections);
@@ -787,6 +788,45 @@ namespace nodelt {
 
         info.GetReturnValue().SetUndefined();
     };
+
+    NAN_METHOD(TorrentHandleWrap::make_magnet_link) {
+        Nan::HandleScope scope;
+
+        libtorrent::torrent_handle *handle = TorrentHandleWrap::Unwrap(info.This());
+        std::string ret;
+
+        if (!handle->is_valid()) {
+            ret = "";
+        } else {
+            libtorrent::sha1_hash const& ih = handle->info_hash();
+            ret += "magnet:?xt=urn:btih:";
+            ret += libtorrent::to_hex(ih.to_string());
+
+            libtorrent::torrent_status st = handle->status(libtorrent::torrent_handle::query_name);
+            if (!st.name.empty())
+            {
+                    ret += "&dn=";
+                    ret += libtorrent::escape_string(st.name.c_str(), st.name.length());
+            }
+
+            std::vector<libtorrent::announce_entry> const& tr = handle->trackers();
+            for (std::vector<libtorrent::announce_entry>::const_iterator i = tr.begin(), end(tr.end()); i != end; ++i)
+            {
+                    ret += "&tr=";
+                    ret +=libtorrent::escape_string(i->url.c_str(), i->url.length());
+            }
+
+            std::set<std::string> seeds = handle->url_seeds();
+            for (std::set<std::string>::iterator i = seeds.begin()
+                    , end(seeds.end()); i != end; ++i)
+            {
+                    ret += "&ws=";
+                    ret += libtorrent::escape_string(i->c_str(), i->length());
+            }
+        }
+
+        info.GetReturnValue().Set(Nan::New<String>(ret).ToLocalChecked());
+    }
 
     NAN_METHOD(TorrentHandleWrap::connect_peer) {
         Nan::HandleScope scope;

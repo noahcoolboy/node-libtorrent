@@ -96,6 +96,7 @@ namespace nodelt {
             static NAN_METHOD(set_sequential_download);
             static NAN_METHOD(connect_peer);
             static NAN_METHOD(save_path);
+            static NAN_METHOD(make_magnet_link);
             static NAN_METHOD(set_max_uploads);
             static NAN_METHOD(max_uploads);
             static NAN_METHOD(set_max_connections);
