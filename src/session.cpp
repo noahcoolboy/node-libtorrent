@@ -113,14 +113,14 @@ namespace nodelt {
                     return;
                 }
 
-                std::string interface(*Nan::Utf8String(args->Get(2)->ToString()));
+                std::string netinterface(*Nan::Utf8String(args->Get(2)->ToString()));
 
                 if (args_len == 3)
-                    obj_ = new libtorrent::session(*print_, port_range, interface.c_str());
+                    obj_ = new libtorrent::session(*print_, port_range, netinterface.c_str());
                 else if (args_len == 4)
-                    obj_ = new libtorrent::session(*print_, port_range, interface.c_str(), args->Get(3)->Int32Value());
+                    obj_ = new libtorrent::session(*print_, port_range, netinterface.c_str(), args->Get(3)->Int32Value());
                 else
-                    obj_ = new libtorrent::session(*print_, port_range, interface.c_str(), args->Get(3)->Int32Value(), args->Get(4)->Int32Value());
+                    obj_ = new libtorrent::session(*print_, port_range, netinterface.c_str(), args->Get(3)->Int32Value(), args->Get(4)->Int32Value());
             } else {
                 if (args_len == 2)
                     obj_ = new libtorrent::session(*print_, args->Get(1)->Int32Value());
@@ -612,12 +612,12 @@ namespace nodelt {
         if (info.Length() == 1) {
             s->listen_on(port_range, ec);
         } else {
-            std::string interface(*Nan::Utf8String(info[1]->ToString()));
+            std::string netinterface(*Nan::Utf8String(info[1]->ToString()));
 
             if (info.Length() == 2) {
-                s->listen_on(port_range, ec, interface.c_str());
+                s->listen_on(port_range, ec, netinterface.c_str());
             } else {
-                s->listen_on(port_range, ec, interface.c_str(), info[2]->Int32Value());
+                s->listen_on(port_range, ec, netinterface.c_str(), info[2]->Int32Value());
             }
         }
 
