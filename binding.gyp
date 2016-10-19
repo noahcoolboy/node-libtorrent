@@ -9,7 +9,7 @@
           'inputs': ['CMakeLists.txt'],
           'outputs': ['build'],
           'conditions': [
-              ['OS=="win"', {'action': ['invokecmake.bat']}],
+              ['OS=="win"', {'action': ['../invokecmake.bat']}],
               ['OS!="win"', {'action': ['node', 'compile.js']}]
           ]
         }

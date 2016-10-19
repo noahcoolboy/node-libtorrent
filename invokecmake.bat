@@ -1,1 +1,1 @@
-node compile.js
+call node compile.js
