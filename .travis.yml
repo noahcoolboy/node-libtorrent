@@ -22,7 +22,7 @@ env:
   # node
   #- RUNTIME="node" RVERSION="4.5.0" ARCH="x64"
   #- RUNTIME="node" RVERSION="4.5.0" ARCH="ia32"
-  - RUNTIME="node" RVERSION="5.12.0" ARCH="x64"
+  # - RUNTIME="node" RVERSION="5.12.0" ARCH="x64"
   #- RUNTIME="node" RVERSION="5.12.0" ARCH="ia32"
   #- RUNTIME="node" RVERSION="6.5.0" ARCH="x64"
   #- RUNTIME="node" RVERSION="6.5.0" ARCH="ia32"
