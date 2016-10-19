@@ -5,14 +5,13 @@
       'target_type': 'none',
       'actions': [
         {
-          'variables': {
-            'run_var': 'run',
-            'cpl_var': 'compilation'
-          },
           'action_name': 'cmakejsaction',
           'inputs': ['CMakeLists.txt'],
           'outputs': ['build'],
-          'action': [ 'npm', '<(run_var)', '<(cpl_var)' ]
+          'conditions': [
+              ['OS=="win"', {'action': ['invokecmake.bat']}],
+              ['OS!="win"', {'action': ['node', 'compile.js']}]
+          ]
         }
       ]
     }
