@@ -27,6 +27,7 @@ else(UNIX)
     # assuming we're on windows here
     add_definitions(-DBOOST_ASIO_DYN_LINK -DBOOST_CHRONO_DYN_LINK -DBOOST_THREAD_DYN_LINK -DBOOST_SYSTEM_DYN_LINK)
     if (MSVC)
+        add_definitions(-DBOOST_ALL_NO_LIB=1)
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MP") # multicore compilation
         add_definitions(/EHsc)
     endif()
