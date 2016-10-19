@@ -79,7 +79,7 @@ install:
 
 build_script:
   - cmd: git submodule update --init
-  - cmd: npm install --build-from-source --msvs_version=2013
+  - cmd: npm install --build-from-source --msvs_version=2015
 
 # if we're publishing, do it
 #  if [[ $PUBLISH_BINARY == true ]]; then node-pre-gyp --runtime=$RUNTIME --target=$RVERSION --target_arch=$ARCH package; fi;
