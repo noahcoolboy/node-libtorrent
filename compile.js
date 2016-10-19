@@ -57,7 +57,8 @@ function build() {
     var options = {
         runtime: process.env.RUNTIME || defaultRuntime,
         runtimeVersion: process.env.RVERSION || defaultRuntimeVersion,
-        arch: process.env.ARCH || defaultRuntimeArch
+        arch: process.env.ARCH || defaultRuntimeArch,
+        directory: __dirname
     };
 
     var buildSystem = new cmakeJS.BuildSystem(options);
@@ -68,8 +69,8 @@ function build() {
 
 function main() {
     var found = false;
-    var libdir = path.join(process.cwd(), 'deps', 'libtorrent');
-    var depsdir = path.join(process.cwd(), 'deps');
+    var libdir = path.join(__dirname, 'deps', 'libtorrent');
+    var depsdir = path.join(__dirname, 'deps');
 
     info('Setting up compilation environment');
 
