@@ -24,7 +24,7 @@ if(UNIX)
         add_definitions(-Wno-potentially-evaluated-expression)
     endif(APPLE)
 else(UNIX)
-    add_definitions(-DBOOST_ASIO_DYN_LINK -DBOOST_DATE_TIME_DYN_LINK -DBOOST_THREAD_DYN_LINK -DBOOST_SYSTEM_DYN_LINK -DBOOST_CHRONO_DYN_LINK)
+    add_definitions(-DBOOST_ASIO_DYN_LINK -DBOOST_DATE_TIME_DYN_LINK -DBOOST_THREAD_DYN_LINK -DBOOST_FILESYSTEM_DYN_LINK)
 endif(UNIX)
 
 # Include BoostLib module
