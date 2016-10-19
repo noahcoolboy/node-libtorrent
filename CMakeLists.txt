@@ -23,6 +23,8 @@ if(UNIX)
         # supress this warning on linux
         add_definitions(-Wno-potentially-evaluated-expression)
     endif(APPLE)
+else(UNIX)
+    add_definitions(-DBOOST_ASIO_SEPARATE_COMPILATION)
 endif(UNIX)
 
 # Include BoostLib module
