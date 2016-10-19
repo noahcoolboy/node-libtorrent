@@ -57,7 +57,7 @@
   "license": "MIT",
   "devDependencies": {
     "node-pre-gyp-github": "^1.3.1",
-    "boost-lib": "0.11.3",
+    "boost-lib": "lyssdod/boost-lib",
     "cmake-js": "3.3.1",
     "adm-zip": "0.4.7",
     "nan": "^2.4.0"
