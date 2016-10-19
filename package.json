@@ -42,7 +42,7 @@
   "scripts": {
     "prepublish": "npm ls",
     "compilation": "node compile.js",
-    "install": "node-pre-gyp install --fallback-to-build"
+    "postinstall": "node-pre-gyp install --fallback-to-build"
   },
   "keywords": [
     "libtorrent",
