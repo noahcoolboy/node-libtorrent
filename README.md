@@ -2,7 +2,7 @@
 
 #### node-libtorrent New Generation
 
-[![Build Status](https://travis-ci.org/lyssdod/node-libtorrent.svg?branch=master)](https://travis-ci.org/lyssdod/node-libtorrent)
+[![Build Status](https://travis-ci.org/lyssdod/node-libtorrent.svg?branch=master)](https://travis-ci.org/lyssdod/node-libtorrent) [![Build Status](https://ci.appveyor.com/api/projects/status/32r7s2skrgm9ubva?svg=true)](https://ci.appveyor.com/api/projects/status/32r7s2skrgm9ubva?svg=true)
 
 node-libtorrent provides native bindings to [libtorrent rastebar](http://www.rasterbar.com/products/libtorrent/) as a [Node.js addon](http://nodejs.org/docs/latest/api/addons.html).
 
@@ -23,4 +23,3 @@ $ git clone --recursive git://github.com/lyssdod/node-libtorrent
 $ cd node-libtorrent
 $ npm install
 ```
-
