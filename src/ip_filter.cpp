@@ -82,7 +82,7 @@ namespace nodelt {
         libtorrent::address first, last;
         first = libtorrent::address::from_string(std::string(*Nan::Utf8String(info[0])));
         last = libtorrent::address::from_string(std::string(*Nan::Utf8String(info[1])));
-        IpFilterWrap::Unwrap(info.This())->add_rule(first, last, info[2]->IntegerValue());
+        IpFilterWrap::Unwrap(info.This())->add_rule(first, last, (int)info[2]->IntegerValue());
 
         info.GetReturnValue().SetUndefined();
     };
