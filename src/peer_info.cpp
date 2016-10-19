@@ -89,7 +89,7 @@ namespace nodelt {
         obj->Set(Nan::New("down_speed").ToLocalChecked(), Nan::New<Integer>(pi.down_speed));
         obj->Set(Nan::New("payload_up_speed").ToLocalChecked(), Nan::New<Integer>(pi.payload_up_speed));
         obj->Set(Nan::New("payload_down_speed").ToLocalChecked(), Nan::New<Integer>(pi.payload_down_speed));
-        obj->Set(Nan::New("total_download").ToLocalChecked(), Nan::New<Number>(pi.total_download));
+        obj->Set(Nan::New("total_download").ToLocalChecked(), Nan::New<Number>((int32_t)pi.total_download));
         obj->Set(Nan::New("total_upload").ToLocalChecked(), Nan::New<Number>(pi.total_upload));
         obj->Set(Nan::New("pid").ToLocalChecked(), Nan::New<String>(libtorrent::to_hex(pi.pid.to_string())).ToLocalChecked());
         obj->Set(Nan::New("pieces").ToLocalChecked(), get_pieces(pi));
