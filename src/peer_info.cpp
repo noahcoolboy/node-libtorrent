@@ -95,9 +95,9 @@ namespace nodelt {
         obj->Set(Nan::New("pieces").ToLocalChecked(), get_pieces(pi));
         obj->Set(Nan::New("upload_limit").ToLocalChecked(), Nan::New<Integer>(pi.upload_limit));
         obj->Set(Nan::New("download_limit").ToLocalChecked(), Nan::New<Integer>(pi.download_limit));
-        obj->Set(Nan::New("last_request").ToLocalChecked(), Nan::New<Integer>(libtorrent::total_seconds(pi.last_request)));
-        obj->Set(Nan::New("last_active").ToLocalChecked(), Nan::New<Integer>(libtorrent::total_seconds(pi.last_active)));
-        obj->Set(Nan::New("download_queue_time").ToLocalChecked(), Nan::New<Integer>(libtorrent::total_seconds(pi.download_queue_time)));
+        obj->Set(Nan::New("last_request").ToLocalChecked(), Nan::New<Integer>((int32_t)libtorrent::total_seconds(pi.last_request)));
+        obj->Set(Nan::New("last_active").ToLocalChecked(), Nan::New<Integer>((int32_t)libtorrent::total_seconds(pi.last_active)));
+        obj->Set(Nan::New("download_queue_time").ToLocalChecked(), Nan::New<Integer>((int32_t)libtorrent::total_seconds(pi.download_queue_time)));
         obj->Set(Nan::New("queue_bytes").ToLocalChecked(), Nan::New<Integer>(pi.queue_bytes));
         obj->Set(Nan::New("request_timeout").ToLocalChecked(), Nan::New<Integer>(pi.request_timeout));
         obj->Set(Nan::New("send_buffer_size").ToLocalChecked(), Nan::New<Integer>(pi.send_buffer_size));
