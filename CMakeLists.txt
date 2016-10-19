@@ -25,6 +25,7 @@ if(UNIX)
     endif(APPLE)
 else(UNIX)
     # assuming we're on windows here
+    #add_definitions(-D_WIN32_WINNT=0x0600)
     add_definitions(-DBOOST_ASIO_DYN_LINK -DBOOST_CHRONO_DYN_LINK -DBOOST_THREAD_DYN_LINK -DBOOST_SYSTEM_DYN_LINK)
     if (MSVC)
         add_definitions(-DBOOST_ALL_NO_LIB=1)
@@ -38,6 +39,7 @@ list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/node_modules/boost-li
 include(BoostLib)
 
 # locate/download boost
+SET(Boost_USE_STATIC_LIBS ON)
 require_boost_libs(">= 1.57.0" thread;date_time;filesystem)
 
 # set up libtorrent
@@ -71,3 +73,7 @@ target_include_directories(${PROJECT_NAME} PRIVATE ${LIBTORRENT_HEADERS})
 target_link_libraries(${PROJECT_NAME} ${LIBTORRENT_LIB})
 target_link_libraries(${PROJECT_NAME} ${Boost_LIBRARIES})
 target_link_libraries(${PROJECT_NAME} ${CMAKE_JS_LIB})
+
+if(WIN32)
+    target_link_libraries(${PROJECT_NAME} ws2_32 iphlpapi)
+endif()
