@@ -56,8 +56,8 @@ install:
 before_build:
   # determine should we publish or not
   - set COMMIT_MSG="%APPVEYOR_REPO_COMMIT_MESSAGE%"
-  - set PUBLISH_BINARY=false
-  - if not x%COMMIT_MSG:[publish binary]=%==x%COMMIT_MSG% set PUBLISH_BINARY=true
+  - set PUBLISH_BINARY=0
+  - if not x%COMMIT_MSG:[publish binary]=%==x%COMMIT_MSG% set PUBLISH_BINARY=1
 
   # windows cmd magic
   - set APP_PATH=%cd%
@@ -85,6 +85,8 @@ test_script:
         node-pre-gyp-github publish --release | Write-Host;
         node-pre-gyp clean | Write-Host;
         npm install --fallback-to-build=false | Write-Host;
+      } else {
+        "Not publishing :(" | Write-Host
       }
 
 deploy: off
