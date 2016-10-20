@@ -51,7 +51,7 @@ install:
   - ps: $env:Path += ";$(pwd)\node_modules\.bin";
   - ps: npm install npm -g
   - ps: node --version
-  - ps: npm --version
+  - ps: npm --version 
 
 before_build:
   # work around an issue with node-gyp v3.3.1 and node 4x
