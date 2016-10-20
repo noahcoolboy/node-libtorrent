@@ -34,7 +34,6 @@ else(UNIX)
 
         # screw thousands of warnings
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4267 /wd4244")
-        set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /IGNORE:4217,4049")
     endif()
 endif(UNIX)
 
@@ -67,6 +66,11 @@ add_library(${PROJECT_NAME} SHARED ${MODULE_SOURCES} ${LIBTORRENT_SOURCES})
 # 1. set .node extension without any "lib" prefix
 # 2. allow it to find libtorrent.so in the same dir
 set_target_properties(${PROJECT_NAME} PROPERTIES PREFIX "" SUFFIX ".node") # BUILD_WITH_INSTALL_RPATH TRUE INSTALL_RPATH ".")
+
+if(MSVC)
+    # screw another thousand of warnings
+    set_property(TARGET ${PROJECT_NAME} APPEND PROPERTY LINK_FLAGS "/IGNORE:4217,4049")
+endif()
 
 # specify includes
 target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_JS_INC})
