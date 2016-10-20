@@ -31,6 +31,10 @@ else(UNIX)
         add_definitions(-DBOOST_ALL_NO_LIB=1)
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MP") # multicore compilation
         add_definitions(/EHsc)
+
+        # screw thousands of warnings
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4267 /wd4244")
+        set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /IGNORE:4217,4049")
     endif()
 endif(UNIX)
 
