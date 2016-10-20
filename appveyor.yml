@@ -35,11 +35,11 @@ environment:
   #  RVERSION: "6.5.0"
 
   # electron
-  - NVERSION: "6"
+  - NVERSION: "4.6.0"
     RUNTIME: "electron"
     RVERSION: "0.37.8"
 
-  #- NVERSION: "6"
+  #- NVERSION: "4.6.0"
   #  RUNTIME: "electron"
   #  RVERSION: "1.2.3"
 
@@ -79,7 +79,7 @@ build_script:
 
 after_build:
   # if we're publishing, do it
-  - IF %PUBLISH_BINARY% == 1 (then node-pre-gyp --runtime=%RUNTIME% --target=%RVERSION% --target_arch=%ARCH% package 2>&1)
+  - IF %PUBLISH_BINARY% == 1 (node-pre-gyp --runtime=%RUNTIME% --target=%RVERSION% --target_arch=%ARCH% package 2>&1)
   - IF %PUBLISH_BINARY% == 1 (node-pre-gyp-github publish --release 2>&1)
   - IF %PUBLISH_BINARY% == 1 (node-pre-gyp clean)
   - IF %PUBLISH_BINARY% == 1 (npm install --fallback-to-build=false)
