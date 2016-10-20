@@ -35,7 +35,7 @@
     "url": "https://github.com/lyssdod/node-libtorrent/issues"
   },
   "main": "./index.js",
-  "version": "0.3.6",
+  "version": "0.3.7",
   "dependencies": {
     "node-pre-gyp": "^0.6.30"
   },
