@@ -526,7 +526,6 @@ namespace nodelt {
             s->add_extension(libtorrent::create_lt_trackers_plugin);
         else if (name == "metadata_transfer")
             s->add_extension(libtorrent::create_metadata_plugin);
-
         info.GetReturnValue().SetUndefined();
     };
 #endif
