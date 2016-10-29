@@ -55,6 +55,10 @@ set(geoip OFF CACHE BOOL "" FORCE)
 set(encryption OFF CACHE BOOL "" FORCE)
 set(resolve-countries OFF CACHE BOOL "" FORCE)
 
+# disable geoip explicitly
+add_definitions(-DTORRENT_DISABLE_GEO_IP)
+add_definitions(-DTORRENT_DISABLE_RESOLVE_COUNTRIES)
+
 # fortunately it has its own cmake
 add_subdirectory(${LIBTORRENT_SOURCES})
 
