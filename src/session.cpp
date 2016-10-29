@@ -179,7 +179,7 @@ namespace nodelt {
         Nan::SetPrototypeMethod(tpl, "add_extension", add_extension);
 #endif
 
-#ifndef TORRENT_DISABLE_DHT
+#ifndef TORRENT_DISABLE_GEO_IP
         Nan::SetPrototypeMethod(tpl, "load_asnum_db", load_asnum_db);
         Nan::SetPrototypeMethod(tpl, "load_country_db", load_country_db);
 #endif
