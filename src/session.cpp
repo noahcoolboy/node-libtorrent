@@ -85,7 +85,7 @@ namespace nodelt {
         // set libtorrent::session::session_flags_t
         Local<Object> session_flags_t = Nan::New<Object>();
 
-        session_flags_t->Set(Nan::New("start_default_features").ToLocalChecked(),
+        session_flags_t->Set(Nan::New("add_default_plugins").ToLocalChecked(),
             Nan::New<Integer>(libtorrent::session::add_default_plugins));
         session_flags_t->Set(Nan::New("start_default_features").ToLocalChecked(),
             Nan::New<Integer>(libtorrent::session::start_default_features));
