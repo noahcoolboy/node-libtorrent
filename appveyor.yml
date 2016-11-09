@@ -22,26 +22,26 @@ environment:
 
   matrix:
   # node
-  #- NVERSION: "4.6.0"
-  #  RUNTIME: "node"
-  #  RVERSION: "4.6.0"
+  - NVERSION: "4.6.0"
+    RUNTIME: "node"
+    RVERSION: "4.6.0"
 
-  #- NVERSION: "5.12.0"
-  #  RUNTIME: "node"
-  #  RVERSION: "5.12.0"
+  - NVERSION: "5.12.0"
+    RUNTIME: "node"
+    RVERSION: "5.12.0"
 
-  #- NVERSION: "6.5.0"
-  #  RUNTIME: "node"
-  #  RVERSION: "6.5.0"
+  - NVERSION: "6.5.0"
+    RUNTIME: "node"
+    RVERSION: "6.5.0"
 
   # electron
   - NVERSION: "4.6.0"
     RUNTIME: "electron"
     RVERSION: "0.37.8"
 
-  #- NVERSION: "4.6.0"
-  #  RUNTIME: "electron"
-  #  RVERSION: "1.2.3"
+  - NVERSION: "4.6.0"
+    RUNTIME: "electron"
+    RVERSION: "1.2.3"
 
 
 # get deps & setup arch
