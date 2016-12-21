@@ -43,7 +43,7 @@ include(BoostLib)
 
 # locate/download boost
 SET(Boost_USE_STATIC_LIBS ON)
-require_boost_libs(">= 1.57.0" thread;date_time;filesystem)
+require_boost_libs(">= 1.57.0" "thread;date_time;filesystem")
 
 # set up libtorrent
 set(LIBTORRENT_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/deps/libtorrent)
