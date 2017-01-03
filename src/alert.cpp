@@ -101,7 +101,6 @@ namespace nodelt {
         info.GetReturnValue().Set(Nan::New<String>(AlertWrap::Unwrap(info.This())->message()).ToLocalChecked());
     };
 
-
     NAN_METHOD(AlertWrap::category) {
         Nan::HandleScope scope;
 

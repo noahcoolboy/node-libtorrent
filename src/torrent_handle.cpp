@@ -938,5 +938,4 @@ namespace nodelt {
 
         info.GetReturnValue().SetUndefined();
     };
-
 }; // namespace nodelt
