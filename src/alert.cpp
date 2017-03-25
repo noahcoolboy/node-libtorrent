@@ -6,6 +6,7 @@
 #include <libtorrent/alert_types.hpp>
 
 #include "alert.hpp"
+#include "entry.hpp"
 #include "torrent_handle.hpp"
 
 using namespace v8;
@@ -35,6 +36,7 @@ namespace nodelt {
         Nan::SetPrototypeMethod(tpl, "handle", handle);
         Nan::SetPrototypeMethod(tpl, "message", message);
         Nan::SetPrototypeMethod(tpl, "category", category);
+        Nan::SetPrototypeMethod(tpl, "resume_data", category);
 
         constructor.Reset(tpl->GetFunction());
     };
@@ -103,6 +105,17 @@ namespace nodelt {
         Nan::HandleScope scope;
 
         info.GetReturnValue().Set(Nan::New<Integer>(AlertWrap::Unwrap(info.This())->category()));
+    };
+
+    NAN_METHOD(AlertWrap::resume_data) {
+        Nan::HandleScope scope;
+
+        auto incoming = *AlertWrap::Unwrap(info.This());
+
+        if(incoming->type() == libtorrent::save_resume_data_alert)
+            info.GetReturnValue().Set(Nan::New<Object>(entry_to_object(incoming->resume_data)).ToLocalChecked());
+        else
+            info.GetReturnValue().SetUndefined();
     };
 
     NAN_METHOD(AlertWrap::handle) {

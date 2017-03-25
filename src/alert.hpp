@@ -36,6 +36,7 @@ namespace nodelt {
             static NAN_METHOD(handle);
             static NAN_METHOD(message);
             static NAN_METHOD(category);
+            static NAN_METHOD(resume_data);
 
 
             /* some template trickery to workaround alert_cast stuff */
