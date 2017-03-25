@@ -33,11 +33,22 @@ namespace nodelt {
 
             static NAN_METHOD(what);
             static NAN_METHOD(type);
+            static NAN_METHOD(size);
+            static NAN_METHOD(buffer);
             static NAN_METHOD(handle);
             static NAN_METHOD(message);
             static NAN_METHOD(category);
             static NAN_METHOD(resume_data);
 
+            template <class T> static char* getBuffer(const libtorrent::alert& p){
+                auto obj = dynamic_cast<const T*>(&p);
+                return obj->buffer.get();
+            }
+
+            template <class T> static uint64_t getSize(const libtorrent::alert& p){
+                auto obj = dynamic_cast<const T*>(&p);
+                return obj->size;
+            }
 
             /* some template trickery to workaround alert_cast stuff */
             /* getting the handle */

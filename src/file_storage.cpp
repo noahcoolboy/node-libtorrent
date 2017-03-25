@@ -32,8 +32,8 @@ namespace nodelt {
         Local<Object> obj = Nan::New<Object>();
 
         obj->Set(Nan::New("path").ToLocalChecked(), Nan::New<String>(e.path).ToLocalChecked());
-        obj->Set(Nan::New("offset").ToLocalChecked(), Nan::New<Integer>((uint32_t)e.offset));
-        obj->Set(Nan::New("size").ToLocalChecked(), Nan::New<Integer>((uint32_t)e.size));
+        obj->Set(Nan::New("offset").ToLocalChecked(), Nan::New<Number>(e.offset));
+        obj->Set(Nan::New("size").ToLocalChecked(), Nan::New<Number>(e.size));
         obj->Set(Nan::New("file_base").ToLocalChecked(), Nan::New<Integer>((uint32_t)e.file_base));
         obj->Set(Nan::New("mtime").ToLocalChecked(), Nan::New<Integer>((uint32_t)e.mtime));
         obj->Set(Nan::New("filehash").ToLocalChecked(), Nan::New<String>(libtorrent::to_hex(e.filehash.to_string())).ToLocalChecked());

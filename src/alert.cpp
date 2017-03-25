@@ -36,7 +36,12 @@ namespace nodelt {
         Nan::SetPrototypeMethod(tpl, "handle", handle);
         Nan::SetPrototypeMethod(tpl, "message", message);
         Nan::SetPrototypeMethod(tpl, "category", category);
+<<<<<<< HEAD
         Nan::SetPrototypeMethod(tpl, "resume_data", category);
+=======
+        Nan::SetPrototypeMethod(tpl, "buffer", buffer);
+        Nan::SetPrototypeMethod(tpl, "size", size);
+>>>>>>> 853367664dbe2c146a05f7bebb9a4dbd4d2cebdc
 
         constructor.Reset(tpl->GetFunction());
     };
@@ -107,6 +112,7 @@ namespace nodelt {
         info.GetReturnValue().Set(Nan::New<Integer>(AlertWrap::Unwrap(info.This())->category()));
     };
 
+
     NAN_METHOD(AlertWrap::resume_data) {
         Nan::HandleScope scope;
 
@@ -118,6 +124,25 @@ namespace nodelt {
             info.GetReturnValue().SetUndefined();
     };
 
+    NAN_METHOD(AlertWrap::buffer) {
+        Nan::HandleScope scope;
+        info.GetReturnValue().Set(
+            Nan::Encode(
+                getBuffer  <libtorrent::read_piece_alert> (*AlertWrap::Unwrap(info.This())),
+                getSize    <libtorrent::read_piece_alert> (*AlertWrap::Unwrap(info.This()))
+            )
+        );
+    };
+
+    NAN_METHOD(AlertWrap::size) {
+        Nan::HandleScope scope;
+        info.GetReturnValue().Set(
+            Nan::New<Number>(
+                getSize    <libtorrent::read_piece_alert> (*AlertWrap::Unwrap(info.This()))
+            )
+        );
+    };
+
     NAN_METHOD(AlertWrap::handle) {
         Nan::HandleScope scope;
 
@@ -127,7 +152,8 @@ namespace nodelt {
                                  libtorrent::save_resume_data_alert,
                                  libtorrent::save_resume_data_failed_alert,
                                  libtorrent::metadata_received_alert,
-                                 libtorrent::torrent_finished_alert> (*AlertWrap::Unwrap(info.This()));
+                                 libtorrent::torrent_finished_alert,
+                                 libtorrent::read_piece_alert> (*AlertWrap::Unwrap(info.This()));
 
             info.GetReturnValue().Set(TorrentHandleWrap::FromExisting(casted));
         } catch (std::exception e) {
