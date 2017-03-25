@@ -33,15 +33,12 @@ namespace nodelt {
 
         Nan::SetPrototypeMethod(tpl, "what", what);
         Nan::SetPrototypeMethod(tpl, "type", type);
+        Nan::SetPrototypeMethod(tpl, "size", size);
+        Nan::SetPrototypeMethod(tpl, "buffer", buffer);
         Nan::SetPrototypeMethod(tpl, "handle", handle);
         Nan::SetPrototypeMethod(tpl, "message", message);
         Nan::SetPrototypeMethod(tpl, "category", category);
-<<<<<<< HEAD
         Nan::SetPrototypeMethod(tpl, "resume_data", category);
-=======
-        Nan::SetPrototypeMethod(tpl, "buffer", buffer);
-        Nan::SetPrototypeMethod(tpl, "size", size);
->>>>>>> 853367664dbe2c146a05f7bebb9a4dbd4d2cebdc
 
         constructor.Reset(tpl->GetFunction());
     };
@@ -116,10 +113,10 @@ namespace nodelt {
     NAN_METHOD(AlertWrap::resume_data) {
         Nan::HandleScope scope;
 
-        auto incoming = *AlertWrap::Unwrap(info.This());
+        libtorrent::save_resume_data_alert const* rd = libtorrent::alert_cast<libtorrent::save_resume_data_alert>(AlertWrap::Unwrap(info.This()));
 
-        if(incoming->type() == libtorrent::save_resume_data_alert)
-            info.GetReturnValue().Set(Nan::New<Object>(entry_to_object(incoming->resume_data)).ToLocalChecked());
+        if(rd)
+            info.GetReturnValue().Set(entry_to_object(*rd->resume_data));
         else
             info.GetReturnValue().SetUndefined();
     };
