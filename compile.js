@@ -37,13 +37,13 @@ function downloadAndUnzip (url, destdir, callback) {
 
             info('Unpacking...');
             zip.extractAllTo(destdir, /* overwrite? */ true);
-            fs.unlink(tempfile);
+            fs.unlink(tempfile, () => {});
 
             callback();
         });
 
         response.on('error', function() {
-            fs.unlink(tempfile);
+            fs.unlink(tempfile, () => {});
         });
     });
 }
