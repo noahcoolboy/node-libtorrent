@@ -60,7 +60,8 @@
     "boost-lib": "0.11.3",
     "cmake-js": "3.3.1",
     "adm-zip": "0.4.7",
-    "nan": "^2.4.0"
+    "nan": "^2.4.0",
+    "npmlog": "^7.0.1"
   },
   "overrides": {
     "graceful-fs": "latest",
